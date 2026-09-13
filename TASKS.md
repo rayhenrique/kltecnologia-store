@@ -203,3 +203,20 @@
   - [x] Criar suíte de testes `FavoriteTest` com 100% de aprovação (5 testes, 23 asserções) cobrindo renderização, recomendados, listagem por IDs, tratamento de IDs vazios e links de navegação.
   - [x] Validar conformidade total do Laravel Pint e execução dos 123 testes da aplicação.
 
+- [x] **Fase 24: Banner de Cookies LGPD & Central de Privacidade e Termos**
+  - [x] Desenvolver componente Blade de consentimento de cookies (`resources/views/components/cookie-consent.blade.php`) em estrita conformidade com a Lei Geral de Proteção de Dados (LGPD - Lei nº 13.709/2018):
+    - Banner flutuante moderno dark SaaS com animações suaves (`x-transition`).
+    - Opções claras de ação: "Aceitar Todos", "Apenas Essenciais" e "Personalizar Preferências".
+    - Modal interativo de preferências dividindo cookies em 4 categorias (Essenciais/Obrigatórios, Preferências/Favoritos, Desempenho/Analíticos e Comunicação/Marketing).
+    - Persistência das escolhas no `localStorage` (`kl_cookie_consent`) e disparo de eventos reativos (`cookie-consent-updated`).
+    - Possibilidade de reabertura das configurações a qualquer momento via evento global `open-cookie-settings`.
+  - [x] Desenvolver `LegalController` com rotas públicas dedicadas:
+    - `GET /politica-de-privacidade` (`privacy.index`): Documento completo com identificação do controlador, dados coletados, bases legais (Art. 7º), tabela técnica de cookies, medidas de segurança (SSL 256-bit, hashes, signed URLs), direitos do titular (Art. 18) e canal direto do DPO/Encarregado.
+    - `GET /termos-de-uso` (`terms.index`): Regras de licenciamento comercial definitivo, entrega digital imediata, suporte técnico e garantias.
+  - [x] Atualizar rodapé do layout da loja (`resources/views/layouts/storefront.blade.php`):
+    - Links diretos para Termos de Uso e Política de Privacidade.
+    - Botão interativo para abrir o gerenciador de cookies da LGPD em qualquer página.
+  - [x] Suportar dinamicamente tanto `<x-storefront-layout>` quanto `@extends('layouts.storefront')` com fallback seguro `$slot ?? ''` e `@yield('content')`.
+  - [x] Criar suíte de testes `LegalAndCookieConsentTest` com 100% de aprovação (4 testes, 25 asserções), elevando a suíte total para 127 testes aprovados (525 asserções).
+
+
