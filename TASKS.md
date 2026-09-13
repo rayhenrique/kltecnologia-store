@@ -131,5 +131,18 @@
   - [x] Criar suíte de testes Feature `AdminOrderCrudTest` com 8 testes cobrindo todas as operações e validações.
   - [x] Validar 100% de aprovação na suíte geral do PHPUnit (100 testes, 386 asserções) e conformidade no Pint.
 
+- [x] **Fase 19: Módulo de Categorias do Blog no Painel Administrativo ("Conteúdo & Blog")**
+  - [x] Criar migration para tabela `blog_categories` (name, slug, description, icon, is_active) e chave estrangeira `blog_category_id` na tabela `posts`.
+  - [x] Popular categorias padrão e vincular os 18 artigos existentes automaticamente sem perda de dados.
+  - [x] Criar Model `BlogCategory` com scopes `active`, `search`, trait `HasUniqueSlug` e relacionamento `posts()`.
+  - [x] Atualizar Model `Post` com relacionamento `blogCategory()` e `$fillable` atualizado.
+  - [x] Criar `BlogCategoryPolicy`, `StoreBlogCategoryRequest` e `UpdateBlogCategoryRequest` protegendo rotas com perfil admin.
+  - [x] Criar `Admin\BlogCategoryController` (CRUD completo com contagem de artigos vinculados `withCount('posts')`).
+  - [x] Inserir item "Categorias" no menu lateral (Sidebar) sob "Conteúdo & Blog" com contador dinâmico e suporte a modo colapsado.
+  - [x] Desenvolver views administrativas de Categorias do Blog (`index`, `create`, `edit`, `_form`) no padrão dark SaaS.
+  - [x] Integrar formulário de artigos (`admin/posts/_form.blade.php`) com select de categorias cadastradas e link rápido de gestão.
+  - [x] Criar suíte de testes `AdminBlogCategoryTest` com 7 testes aprovados (107 testes no total, 420 asserções) e Pint 100% validado.
+
+
 
 

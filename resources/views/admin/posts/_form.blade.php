@@ -72,26 +72,37 @@
 
         <div class="grid gap-6 sm:grid-cols-2">
             <div>
-                <x-input-label for="category" value="Categoria" class="text-xs font-bold uppercase text-slate-700 mb-1" />
-                <input 
-                    id="category" 
-                    name="category" 
-                    list="categories-list"
-                    type="text" 
-                    class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm text-slate-900 placeholder-slate-500 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 shadow-2xs font-medium" 
-                    placeholder="Ex: Tutoriais & Dicas"
-                    value="{{ old('category', $post->category ?? 'Geral') }}" 
-                />
-                <datalist id="categories-list">
-                    <option value="Tutoriais & Dicas">
-                    <option value="Sistemas & Scripts">
-                    <option value="SaaS & Negócios">
-                    <option value="PHP & Laravel">
-                    <option value="Marketing Digital">
-                    <option value="Automação & Bots">
-                    <option value="Novidades da Plataforma">
-                </datalist>
-                <x-input-error :messages="$errors->get('category')" class="mt-1.5 text-xs text-red-500" />
+                <div class="flex items-center justify-between mb-1">
+                    <x-input-label for="blog_category_id" value="Categoria do Blog" class="text-xs font-bold uppercase text-slate-700" />
+                    <a 
+                        href="{{ route('admin.blog-categories.index') }}" 
+                        target="_blank"
+                        class="text-[11px] font-semibold text-teal-600 hover:text-teal-700 hover:underline flex items-center gap-1"
+                    >
+                        <span>Gerenciar Categorias</span>
+                        <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        </svg>
+                    </a>
+                </div>
+                <select 
+                    id="blog_category_id" 
+                    name="blog_category_id" 
+                    class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm text-slate-900 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 shadow-2xs font-medium bg-white"
+                >
+                    <option value="">Selecione uma categoria do blog...</option>
+                    @if(isset($blogCategories))
+                        @foreach($blogCategories as $blogCat)
+                            <option 
+                                value="{{ $blogCat->id }}" 
+                                {{ (old('blog_category_id', $post->blog_category_id ?? '') == $blogCat->id) || (old('category', $post->category ?? '') == $blogCat->name) ? 'selected' : '' }}
+                            >
+                                {{ $blogCat->name }}
+                            </option>
+                        @endforeach
+                    @endif
+                </select>
+                <x-input-error :messages="$errors->get('blog_category_id')" class="mt-1.5 text-xs text-red-500" />
             </div>
 
             <div>

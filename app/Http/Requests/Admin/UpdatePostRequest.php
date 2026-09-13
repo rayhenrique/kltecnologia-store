@@ -20,6 +20,7 @@ class UpdatePostRequest extends FormRequest
         return [
             'title' => ['required', 'string', 'max:255'],
             'category' => ['nullable', 'string', 'max:100'],
+            'blog_category_id' => ['nullable', 'integer', 'exists:blog_categories,id'],
             'excerpt' => ['nullable', 'string', 'max:1000'],
             'content' => ['required', 'string'],
             'is_published' => ['nullable', 'boolean'],

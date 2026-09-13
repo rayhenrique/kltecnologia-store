@@ -6,6 +6,7 @@ use App\Models\Concerns\HasUniqueSlug;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Post extends Model
 {
@@ -18,6 +19,7 @@ class Post extends Model
         'title',
         'slug',
         'category',
+        'blog_category_id',
         'excerpt',
         'content',
         'cover_path',
@@ -25,6 +27,14 @@ class Post extends Model
         'views_count',
         'published_at',
     ];
+
+    /**
+     * @return BelongsTo<BlogCategory, $this>
+     */
+    public function blogCategory(): BelongsTo
+    {
+        return $this->belongsTo(BlogCategory::class, 'blog_category_id');
+    }
 
     /**
      * @var array<string, mixed>

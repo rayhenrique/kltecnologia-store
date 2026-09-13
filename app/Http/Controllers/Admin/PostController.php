@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StorePostRequest;
 use App\Http\Requests\Admin\UpdatePostRequest;
+use App\Models\BlogCategory;
 use App\Models\Post;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -23,7 +24,7 @@ class PostController extends Controller
         $search = trim((string) $request->query('q', ''));
         $category = trim((string) $request->query('categoria', ''));
 
-        $query = Post::query();
+        $query = Post::query()->with('blogCategory');
 
         if ($search !== '') {
             $query->where(function ($q) use ($search): void {
@@ -34,7 +35,12 @@ class PostController extends Controller
         }
 
         if ($category !== '') {
-            $query->where('category', $category);
+            $query->where(function ($q) use ($category): void {
+                $q->where('category', $category)
+                    ->orWhereHas('blogCategory', function ($bq) use ($category): void {
+                        $bq->where('name', $category)->orWhere('slug', $category);
+                    });
+            });
         }
 
         $posts = $query->latest()->paginate(12)->withQueryString();
@@ -52,7 +58,11 @@ class PostController extends Controller
     {
         Gate::authorize('create', Post::class);
 
-        return view('admin.posts.create');
+        $blogCategories = BlogCategory::query()->where('is_active', true)->orderBy('name')->get();
+
+        return view('admin.posts.create', [
+            'blogCategories' => $blogCategories,
+        ]);
     }
 
     public function store(StorePostRequest $request): RedirectResponse
@@ -62,9 +72,16 @@ class PostController extends Controller
         $validated = $request->validated();
         $coverPath = $request->hasFile('cover') ? $this->storeCover($request->file('cover'), $validated['title']) : null;
 
+        $blogCategory = ! empty($validated['blog_category_id'])
+            ? BlogCategory::find($validated['blog_category_id'])
+            : null;
+
+        $categoryName = $blogCategory?->name ?? ($validated['category'] ?? 'Geral');
+
         Post::create([
             'title' => $validated['title'],
-            'category' => $validated['category'] ?? 'Geral',
+            'category' => $categoryName,
+            'blog_category_id' => $blogCategory?->id,
             'excerpt' => $validated['excerpt'] ?? Str::limit(strip_tags($validated['content']), 180),
             'content' => $validated['content'],
             'cover_path' => $coverPath,
@@ -79,7 +96,12 @@ class PostController extends Controller
     {
         Gate::authorize('update', $post);
 
-        return view('admin.posts.edit', compact('post'));
+        $blogCategories = BlogCategory::query()->where('is_active', true)->orderBy('name')->get();
+
+        return view('admin.posts.edit', [
+            'post' => $post,
+            'blogCategories' => $blogCategories,
+        ]);
     }
 
     public function update(UpdatePostRequest $request, Post $post): RedirectResponse
@@ -93,8 +115,15 @@ class PostController extends Controller
             $post->cover_path = $this->storeCover($request->file('cover'), $validated['title']);
         }
 
+        $blogCategory = ! empty($validated['blog_category_id'])
+            ? BlogCategory::find($validated['blog_category_id'])
+            : null;
+
+        $categoryName = $blogCategory?->name ?? ($validated['category'] ?? $post->category ?? 'Geral');
+
         $post->title = $validated['title'];
-        $post->category = $validated['category'] ?? 'Geral';
+        $post->category = $categoryName;
+        $post->blog_category_id = $blogCategory?->id ?? $post->blog_category_id;
         $post->excerpt = $validated['excerpt'] ?? Str::limit(strip_tags($validated['content']), 180);
         $post->content = $validated['content'];
         $post->is_published = $validated['is_published'] ?? true;
