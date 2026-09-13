@@ -112,3 +112,13 @@
   - [x] Atualizar links de carrinho na navbar (topbar) e drawer mobile para a nova rota oficial.
   - [x] Criar testes automatizados Feature (`CartTest`) com 100% de aprovação na suíte PHPUnit (92 testes, 323 asserções) e Pint.
 
+- [x] **Fase 17: Sidebar Colapsável do Painel Admin (Scroll Ativo & Modo Somente Ícones)**
+  - [x] Habilitar barra de rolagem vertical personalizada (`overflow-y-auto admin-sidebar-scroll`) para navegação fluida sem cortes em telas com menor altura.
+  - [x] Implementar botão de alternância (toggle) no header da sidebar e na topbar do painel com transição suave e ícone de seta animado.
+  - [x] Salvar estado de colapso no navegador via `localStorage` (`admin_sidebar_collapsed`) garantindo persistência entre páginas e recarregamentos.
+  - [x] Configurar modo recolhido (apenas ícones): largura contrai para 5rem (`w-20`), textos/títulos/contadores são ocultados, ícones permanecem centralizados com tooltips nativos (`title`) e badges discretos.
+  - [x] Configurar modo expandido: largura total de 16rem (`w-64`), textos da marca KL Tecnologia, versão, seções, contadores numéricos e perfil completo visíveis.
+  - [x] Ajustar padding dinâmico da área principal de conteúdo (`admin-main-collapsed` e `admin-main-expanded`) garantindo transição sem sobreposições.
+  - [x] Preservar drawer off-canvas mobile em telas menores (< 1024px) para não afetar usabilidade em smartphones e tablets.
+
+

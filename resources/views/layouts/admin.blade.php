@@ -16,7 +16,24 @@
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="h-full font-sans antialiased text-slate-900 selection:bg-teal-500 selection:text-white" x-data="{ sidebarOpen: false }">
+<body 
+    class="h-full font-sans antialiased text-slate-900 selection:bg-teal-500 selection:text-white" 
+    x-data="{ 
+        sidebarOpen: false, 
+        sidebarCollapsed: false,
+        init() {
+            try {
+                this.sidebarCollapsed = JSON.parse(localStorage.getItem('admin_sidebar_collapsed') || 'false');
+            } catch(e) {
+                this.sidebarCollapsed = false;
+            }
+        },
+        toggleSidebar() {
+            this.sidebarCollapsed = !this.sidebarCollapsed;
+            localStorage.setItem('admin_sidebar_collapsed', JSON.stringify(this.sidebarCollapsed));
+        }
+    }"
+>
     <div>
         {{-- Off-canvas Mobile Sidebar Overlay --}}
         <div 
@@ -51,34 +68,53 @@
                     class="relative mr-16 flex w-full max-w-xs flex-1"
                 >
                     {{-- Mobile Sidebar Content --}}
-                    <div class="flex flex-col flex-1 bg-slate-950 border-r border-slate-800 text-slate-300">
-                        @include('layouts.partials.admin-sidebar')
+                    <div class="flex flex-col flex-1 h-full max-h-screen bg-slate-950 border-r border-slate-800 text-slate-300 overflow-hidden">
+                        @include('layouts.partials.admin-sidebar', ['isMobile' => true])
                     </div>
                 </div>
             </div>
         </div>
 
         {{-- Desktop Static Sidebar --}}
-        <div class="hidden lg:fixed lg:inset-y-0 lg:z-40 lg:flex lg:w-64 lg:flex-col">
-            <div class="flex flex-col flex-1 bg-slate-950 border-r border-slate-800 text-slate-300 shadow-2xl">
-                @include('layouts.partials.admin-sidebar')
+        <aside 
+            class="hidden lg:fixed lg:inset-y-0 lg:z-40 lg:flex lg:flex-col transition-all duration-300 ease-in-out"
+            :class="sidebarCollapsed ? 'lg:w-20 admin-sidebar-collapsed' : 'lg:w-64 admin-sidebar-expanded'"
+        >
+            <div class="flex flex-col flex-1 h-full max-h-screen bg-slate-950 border-r border-slate-800 text-slate-300 shadow-2xl overflow-hidden">
+                @include('layouts.partials.admin-sidebar', ['isMobile' => false])
             </div>
-        </div>
+        </aside>
 
         {{-- Main Content Area --}}
-        <div class="lg:pl-64 flex flex-col min-h-screen">
+        <div 
+            class="flex flex-col min-h-screen transition-all duration-300 ease-in-out"
+            :class="sidebarCollapsed ? 'lg:pl-20 admin-main-collapsed' : 'lg:pl-64 admin-main-expanded'"
+        >
             {{-- Topbar on Main Area --}}
             <header class="sticky top-0 z-30 flex h-16 shrink-0 items-center justify-between border-b border-slate-200 bg-white/95 px-4 sm:px-6 lg:px-8 backdrop-blur-md">
                 <div class="flex items-center gap-3">
                     {{-- Mobile Hamburger --}}
                     <button 
                         type="button" 
-                        class="lg:hidden -m-2.5 p-2.5 text-slate-600 hover:text-slate-900 rounded-lg hover:bg-slate-100 transition"
+                        class="lg:hidden -m-2.5 p-2.5 text-slate-600 hover:text-slate-900 rounded-lg hover:bg-slate-100 transition cursor-pointer"
                         @click="sidebarOpen = true"
                     >
                         <span class="sr-only">Abrir menu lateral</span>
                         <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
+
+                    {{-- Desktop Sidebar Toggle Button --}}
+                    <button 
+                        type="button" 
+                        @click="toggleSidebar()"
+                        class="hidden lg:inline-flex items-center justify-center p-2 rounded-xl text-slate-500 hover:text-teal-600 hover:bg-slate-100 transition-all duration-200 cursor-pointer"
+                        :title="sidebarCollapsed ? 'Expandir barra lateral' : 'Recolher barra lateral'"
+                        aria-label="Alternar barra lateral"
+                    >
+                        <svg class="h-5 w-5 transition-transform duration-300" :class="sidebarCollapsed ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
                         </svg>
                     </button>
 
