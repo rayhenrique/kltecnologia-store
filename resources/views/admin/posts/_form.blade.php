@@ -36,7 +36,7 @@
                 <h3 class="font-display text-base font-bold text-slate-900">
                     1. Informações Básicas do Artigo
                 </h3>
-                <p class="text-xs text-slate-500 mt-0.5">
+                <p class="text-xs text-slate-600 mt-0.5 font-medium">
                     Defina o título principal, categoria de conteúdo e visibilidade no blog.
                 </p>
             </div>
@@ -61,7 +61,7 @@
                 name="title" 
                 type="text" 
                 x-model="title"
-                class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 shadow-2xs" 
+                class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm text-slate-900 placeholder-slate-500 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 shadow-2xs font-medium" 
                 placeholder="Ex: Como Configurar o Gateway Mercado Pago no Laravel 12" 
                 required 
                 aria-describedby="title-error" 
@@ -78,7 +78,7 @@
                     name="category" 
                     list="categories-list"
                     type="text" 
-                    class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 shadow-2xs" 
+                    class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm text-slate-900 placeholder-slate-500 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 shadow-2xs font-medium" 
                     placeholder="Ex: Tutoriais & Dicas"
                     value="{{ old('category', $post->category ?? 'Geral') }}" 
                 />
@@ -100,7 +100,7 @@
                     id="excerpt" 
                     name="excerpt" 
                     type="text" 
-                    class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 shadow-2xs" 
+                    class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm text-slate-900 placeholder-slate-500 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 shadow-2xs font-medium" 
                     placeholder="Texto curto exibido nos cards da listagem (se vazio, gerado auto)"
                     value="{{ old('excerpt', $post->excerpt ?? '') }}" 
                 />
@@ -115,7 +115,7 @@
             <h3 class="font-display text-base font-bold text-slate-900">
                 2. Imagem de Capa
             </h3>
-            <p class="text-xs text-slate-500 mt-0.5">
+            <p class="text-xs text-slate-600 mt-0.5 font-medium">
                 Utilize imagens em alta resolução (1200x630 recomendado para compartilhamento social).
             </p>
         </div>
@@ -130,7 +130,7 @@
                         <svg class="mx-auto h-10 w-10 text-slate-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
                             <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                         </svg>
-                        <div class="flex text-xs text-slate-600 justify-center">
+                        <div class="flex text-xs text-slate-700 justify-center font-medium">
                             <label for="cover" class="relative cursor-pointer rounded-md font-semibold text-teal-600 hover:text-teal-500 focus-within:outline-hidden">
                                 <span>Selecionar imagem</span>
                                 <input 
@@ -149,7 +149,7 @@
                                 >
                             </label>
                         </div>
-                        <p class="text-[11px] text-slate-500" x-text="coverName || 'PNG, JPG ou WEBP até 4MB'"></p>
+                        <p class="text-[11px] text-slate-600 font-medium" x-text="coverName || 'PNG, JPG ou WEBP até 4MB'"></p>
                     </div>
                 </div>
                 <x-input-error :messages="$errors->get('cover')" class="mt-1.5 text-xs text-red-500" />
@@ -163,10 +163,10 @@
                     </template>
                     <template x-if="!previewUrl">
                         <div class="text-center p-4">
-                            <svg class="h-8 w-8 text-slate-600 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <svg class="h-8 w-8 text-slate-500 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                             </svg>
-                            <span class="text-xs text-slate-500">Nenhuma imagem carregada</span>
+                            <span class="text-xs text-slate-400">Nenhuma imagem carregada</span>
                         </div>
                     </template>
                 </div>
@@ -181,24 +181,24 @@
                 <h3 class="font-display text-base font-bold text-slate-900">
                     3. Conteúdo Completo
                 </h3>
-                <p class="text-xs text-slate-500 mt-0.5">
+                <p class="text-xs text-slate-600 mt-0.5 font-medium">
                     Estruture o texto usando HTML padrão (`<h2>`, `<p>`, `<ul>`, `<code>`, `<blockquote>`).
                 </p>
             </div>
-            <div class="flex items-center gap-3 text-xs font-mono text-slate-500">
-                <span class="rounded bg-slate-100 px-2 py-1"><span x-text="wordCount">0</span> palavras</span>
-                <span class="rounded bg-slate-100 px-2 py-1">~<span x-text="readTime">1</span> min leitura</span>
+            <div class="flex items-center gap-3 text-xs font-mono text-slate-600 font-semibold">
+                <span class="rounded bg-slate-100 px-2.5 py-1 border border-slate-200/80"><span x-text="wordCount">0</span> palavras</span>
+                <span class="rounded bg-slate-100 px-2.5 py-1 border border-slate-200/80">~<span x-text="readTime">1</span> min leitura</span>
             </div>
         </div>
 
         <div>
             <div class="mb-2 flex flex-wrap gap-2 text-xs">
-                <span class="font-semibold text-slate-600">Tags Rápidas:</span>
-                <button type="button" @click="content += '\n<h2>Subtítulo aqui</h2>\n'" class="rounded bg-slate-100 hover:bg-slate-200 px-2 py-0.5 text-slate-700 font-mono text-[11px]">&lt;h2&gt;</button>
-                <button type="button" @click="content += '\n<p>Parágrafo explicativo...</p>\n'" class="rounded bg-slate-100 hover:bg-slate-200 px-2 py-0.5 text-slate-700 font-mono text-[11px]">&lt;p&gt;</button>
-                <button type="button" @click="content += '\n<ul class=\'list-disc pl-5 space-y-1\'>\n  <li>Item 1</li>\n  <li>Item 2</li>\n</ul>\n'" class="rounded bg-slate-100 hover:bg-slate-200 px-2 py-0.5 text-slate-700 font-mono text-[11px]">&lt;ul&gt;</button>
-                <button type="button" @click="content += '\n<div class=\'bg-slate-900 text-teal-300 p-4 rounded-xl font-mono text-xs overflow-x-auto\'>\n// seu código aqui\n</div>\n'" class="rounded bg-slate-100 hover:bg-slate-200 px-2 py-0.5 text-slate-700 font-mono text-[11px]">&lt;code box&gt;</button>
-                <button type="button" @click="content += '\n<blockquote class=\'border-l-4 border-teal-500 pl-4 italic text-slate-600 my-4\'>\nCitação importante...\n</blockquote>\n'" class="rounded bg-slate-100 hover:bg-slate-200 px-2 py-0.5 text-slate-700 font-mono text-[11px]">&lt;quote&gt;</button>
+                <span class="font-semibold text-slate-700">Tags Rápidas:</span>
+                <button type="button" @click="content += '\n<h2>Subtítulo aqui</h2>\n'" class="rounded bg-slate-100 hover:bg-slate-200 border border-slate-200 px-2 py-0.5 text-slate-700 font-mono text-[11px] font-semibold">&lt;h2&gt;</button>
+                <button type="button" @click="content += '\n<p>Parágrafo explicativo...</p>\n'" class="rounded bg-slate-100 hover:bg-slate-200 border border-slate-200 px-2 py-0.5 text-slate-700 font-mono text-[11px] font-semibold">&lt;p&gt;</button>
+                <button type="button" @click="content += '\n<ul class=\'list-disc pl-5 space-y-1\'>\n  <li>Item 1</li>\n  <li>Item 2</li>\n</ul>\n'" class="rounded bg-slate-100 hover:bg-slate-200 border border-slate-200 px-2 py-0.5 text-slate-700 font-mono text-[11px] font-semibold">&lt;ul&gt;</button>
+                <button type="button" @click="content += '\n<div class=\'bg-slate-900 text-teal-300 p-4 rounded-xl font-mono text-xs overflow-x-auto\'>\n// seu código aqui\n</div>\n'" class="rounded bg-slate-100 hover:bg-slate-200 border border-slate-200 px-2 py-0.5 text-slate-700 font-mono text-[11px] font-semibold">&lt;code box&gt;</button>
+                <button type="button" @click="content += '\n<blockquote class=\'border-l-4 border-teal-500 pl-4 italic text-slate-700 my-4\'>\nCitação importante...\n</blockquote>\n'" class="rounded bg-slate-100 hover:bg-slate-200 border border-slate-200 px-2 py-0.5 text-slate-700 font-mono text-[11px] font-semibold">&lt;quote&gt;</button>
             </div>
 
             <textarea 
@@ -206,7 +206,7 @@
                 name="content" 
                 rows="16" 
                 x-model="content"
-                class="w-full font-mono text-xs sm:text-sm leading-relaxed rounded-xl border border-slate-300 p-4 text-slate-900 placeholder-slate-400 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 shadow-2xs" 
+                class="w-full font-mono text-xs sm:text-sm leading-relaxed rounded-xl border border-slate-300 p-4 text-slate-900 placeholder-slate-500 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 shadow-2xs" 
                 placeholder="Insira aqui o corpo do artigo com formatação HTML..."
                 required
             ></textarea>

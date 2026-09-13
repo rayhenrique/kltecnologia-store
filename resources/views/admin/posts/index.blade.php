@@ -4,17 +4,17 @@
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
                 <div class="flex items-center gap-2 mb-1">
-                    <span class="rounded bg-teal-50 border border-teal-200/80 px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wider text-teal-700">
+                    <span class="rounded bg-teal-50 border border-teal-200/80 px-2.5 py-0.5 font-mono text-[11px] font-bold uppercase tracking-wider text-teal-800">
                         Conteúdo & Blog
                     </span>
-                    <span class="font-mono text-xs text-slate-500 font-semibold">
+                    <span class="font-mono text-xs text-slate-600 font-bold">
                         {{ $posts->total() }} {{ $posts->total() === 1 ? 'artigo cadastrado' : 'artigos cadastrados' }}
                     </span>
                 </div>
                 <h1 class="font-display text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">
                     Artigos do Blog
                 </h1>
-                <p class="text-xs sm:text-sm text-slate-500 mt-1">
+                <p class="text-xs sm:text-sm text-slate-600 mt-1">
                     Crie, edite e monitore o alcance dos artigos e tutoriais da KL Tecnologia.
                 </p>
             </div>
@@ -23,9 +23,9 @@
                 <a 
                     href="{{ route('blog.index') }}" 
                     target="_blank"
-                    class="btn-secondary text-xs !min-h-10 !px-3.5 flex items-center gap-1.5 shadow-2xs"
+                    class="btn-secondary text-xs !min-h-10 !px-3.5 flex items-center gap-1.5 shadow-2xs text-slate-700 font-semibold"
                 >
-                    <svg class="h-4 w-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg class="h-4 w-4 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                     </svg>
                     <span>Ver Blog Público</span>
@@ -52,9 +52,9 @@
                         name="q" 
                         value="{{ $search }}"
                         placeholder="Buscar por título, conteúdo ou categoria..." 
-                        class="w-full rounded-xl border border-slate-300 bg-slate-50/60 pl-9 pr-4 py-2.5 text-xs sm:text-sm text-slate-900 placeholder-slate-400 focus:border-teal-500 focus:bg-white focus:ring-2 focus:ring-teal-500/20 shadow-2xs"
+                        class="w-full rounded-xl border border-slate-300 bg-slate-50/60 pl-9 pr-4 py-2.5 text-xs sm:text-sm text-slate-900 placeholder-slate-500 focus:border-teal-500 focus:bg-white focus:ring-2 focus:ring-teal-500/20 shadow-2xs font-medium"
                     />
-                    <svg class="pointer-events-none absolute left-3 top-3 h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg class="pointer-events-none absolute left-3 top-3 h-4 w-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
                 </div>
@@ -63,7 +63,7 @@
                     <select 
                         name="categoria" 
                         onchange="this.form.submit()"
-                        class="rounded-xl border border-slate-300 bg-slate-50/60 px-3.5 py-2.5 text-xs text-slate-800 focus:border-teal-500 focus:bg-white focus:ring-2 focus:ring-teal-500/20 shadow-2xs"
+                        class="rounded-xl border border-slate-300 bg-slate-50/60 px-3.5 py-2.5 text-xs font-semibold text-slate-800 focus:border-teal-500 focus:bg-white focus:ring-2 focus:ring-teal-500/20 shadow-2xs"
                     >
                         <option value="">Todas as Categorias</option>
                         @foreach($categories as $cat)
@@ -97,7 +97,7 @@
         <div class="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-xs">
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-xs">
-                    <thead class="border-b border-slate-200 bg-slate-50/80 font-mono uppercase tracking-wider text-[11px] font-bold text-slate-600">
+                    <thead class="border-b border-slate-200 bg-slate-50/90 uppercase tracking-wider text-[11px] font-bold text-slate-700">
                         <tr>
                             <th class="px-6 py-3.5">Artigo</th>
                             <th class="px-6 py-3.5">Categoria</th>
@@ -129,7 +129,7 @@
                                             >
                                                 {{ $post->title }}
                                             </a>
-                                            <p class="text-xs text-slate-500 line-clamp-1 mt-0.5 font-normal">
+                                            <p class="text-xs text-slate-600 line-clamp-1 mt-0.5 font-normal">
                                                 {{ $post->excerpt ?: Str::limit(strip_tags($post->content), 80) }}
                                             </p>
                                         </div>
@@ -138,15 +138,15 @@
 
                                 {{-- Categoria --}}
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="inline-flex items-center rounded-md bg-teal-50 border border-teal-200/80 px-2 py-0.5 font-mono text-[10px] font-bold text-teal-800">
+                                    <span class="inline-flex items-center rounded-md bg-teal-50 border border-teal-200/80 px-2.5 py-1 text-xs font-bold text-teal-800">
                                         {{ $post->category ?? 'Geral' }}
                                     </span>
                                 </td>
 
                                 {{-- Views --}}
                                 <td class="px-6 py-4 whitespace-nowrap text-center">
-                                    <span class="inline-flex items-center gap-1 font-mono text-xs text-slate-600 font-semibold">
-                                        <svg class="h-3.5 w-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <span class="inline-flex items-center gap-1 font-mono text-xs text-slate-700 font-bold">
+                                        <svg class="h-3.5 w-3.5 text-teal-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                         </svg>
@@ -157,12 +157,12 @@
                                 {{-- Status --}}
                                 <td class="px-6 py-4 whitespace-nowrap text-center">
                                     @if($post->is_published)
-                                        <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 text-[10px] font-bold text-emerald-700">
+                                        <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 text-xs font-bold text-emerald-800">
                                             <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
                                             Publicado
                                         </span>
                                     @else
-                                        <span class="inline-flex items-center gap-1.5 rounded-full bg-amber-50 border border-amber-200 px-2.5 py-0.5 text-[10px] font-bold text-amber-700">
+                                        <span class="inline-flex items-center gap-1.5 rounded-full bg-amber-50 border border-amber-200 px-2.5 py-0.5 text-xs font-bold text-amber-800">
                                             <span class="h-1.5 w-1.5 rounded-full bg-amber-500"></span>
                                             Rascunho
                                         </span>
@@ -170,7 +170,7 @@
                                 </td>
 
                                 {{-- Data --}}
-                                <td class="px-6 py-4 whitespace-nowrap font-mono text-xs text-slate-600">
+                                <td class="px-6 py-4 whitespace-nowrap font-mono text-xs text-slate-700 font-semibold">
                                     {{ $post->published_at ? $post->published_at->format('d/m/Y H:i') : $post->created_at->format('d/m/Y') }}
                                 </td>
 
@@ -180,7 +180,7 @@
                                         <a 
                                             href="{{ route('blog.show', $post) }}" 
                                             target="_blank"
-                                            class="rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-teal-600 transition"
+                                            class="rounded-lg p-2 text-slate-600 hover:bg-slate-100 hover:text-teal-600 transition"
                                             title="Ver post público"
                                         >
                                             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -191,7 +191,7 @@
 
                                         <a 
                                             href="{{ route('admin.posts.edit', $post) }}" 
-                                            class="rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-teal-600 transition"
+                                            class="rounded-lg p-2 text-slate-600 hover:bg-slate-100 hover:text-teal-600 transition"
                                             title="Editar artigo"
                                         >
                                             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
