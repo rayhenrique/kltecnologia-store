@@ -178,6 +178,16 @@ SESSION_DOMAIN=null
 CACHE_STORE=database
 QUEUE_CONNECTION=database
 
+# Configuração de E-mail (Gmail SMTP)
+MAIL_MAILER=smtp
+MAIL_HOST=smtp.gmail.com
+MAIL_PORT=587
+MAIL_USERNAME=admin@example.com
+MAIL_PASSWORD=SUA_SENHA_DE_APP_AQUI # (Senha de App de 16 caracteres gerada no Google)
+MAIL_ENCRYPTION=tls
+MAIL_FROM_ADDRESS="admin@example.com"
+MAIL_FROM_NAME="KL Tecnologia"
+
 # Mercado Pago (Produção)
 MERCADO_PAGO_ACCESS_TOKEN=APP_USR-seu-token-de-producao
 MERCADO_PAGO_WEBHOOK_SECRET=seu-secret-de-webhook
