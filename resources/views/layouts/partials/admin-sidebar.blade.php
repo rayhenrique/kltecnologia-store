@@ -58,6 +58,21 @@
             </a>
 
             <a 
+                href="{{ route('admin.categories.index') }}" 
+                class="flex items-center justify-between rounded-xl px-3 py-2 text-xs font-semibold transition group {{ request()->routeIs('admin.categories.*') ? 'bg-teal-600 text-white shadow-sm shadow-teal-600/30 font-bold' : 'text-slate-300 hover:bg-slate-900 hover:text-white' }}"
+            >
+                <div class="flex items-center gap-3">
+                    <svg class="h-4 w-4 shrink-0 {{ request()->routeIs('admin.categories.*') ? 'text-white' : 'text-slate-400 group-hover:text-teal-400' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                    </svg>
+                    <span>Categorias</span>
+                </div>
+                <span class="rounded-md bg-slate-900 px-1.5 py-0.5 text-[10px] font-mono text-slate-400 border border-slate-800">
+                    {{ \App\Models\Category::count() }}
+                </span>
+            </a>
+
+            <a 
                 href="{{ route('admin.products.create') }}" 
                 class="flex items-center gap-3 rounded-xl px-3 py-2 text-xs font-semibold transition group {{ request()->routeIs('admin.products.create') ? 'bg-teal-600 text-white shadow-sm shadow-teal-600/30 font-bold' : 'text-slate-300 hover:bg-slate-900 hover:text-white' }}"
             >

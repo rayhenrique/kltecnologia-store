@@ -77,4 +77,15 @@
   - [x] Adicionar link "Blog" no navbar superior da vitrine e no rodapé.
   - [x] Escrever testes automatizados Feature para Blog público (`BlogTest`) e Admin (`AdminPostCrudTest`) com 100% de aprovação na suíte PHPUnit e conformidade Pint.
 
+- [x] **Fase 12: Módulo de Categorias no Painel Admin**
+  - [x] Criar migration para tabela `categories` (name, slug, description, icon, is_active) e chave estrangeira `category_id` na tabela `products`.
+  - [x] Popular categorias padrão e vincular produtos existentes automaticamente.
+  - [x] Criar Model `Category` com scopes, slug automático (`HasUniqueSlug`) e relacionamento `products()`.
+  - [x] Criar `CategoryPolicy`, `StoreCategoryRequest` e `UpdateCategoryRequest` protegendo acesso e validação.
+  - [x] Criar `CategoryController` (CRUD completo: index com contagem de produtos, create, edit, update, destroy).
+  - [x] Inserir item "Categorias" no menu lateral do Admin (Sidebar) em "E-commerce & Catálogo" com contador dinâmico.
+  - [x] Criar views administrativas de Categorias (`index`, `create`, `edit`, `_form`) no padrão dark SaaS.
+  - [x] Integrar formulário de produtos (`admin.products._form`) com select de categorias cadastradas e link rápido para gestão.
+  - [x] Criar suíte de testes `AdminCategoryTest` cobrindo permissões, CRUD e vínculo de produtos com 100% de aprovação (89 testes no total).
+
 

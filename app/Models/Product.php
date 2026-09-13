@@ -6,6 +6,7 @@ use App\Models\Concerns\HasUniqueSlug;
 use Database\Factories\ProductFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -20,6 +21,7 @@ class Product extends Model
     protected $fillable = [
         'title',
         'slug',
+        'category_id',
         'category',
         'version',
         'description',
@@ -35,6 +37,26 @@ class Product extends Model
     protected $attributes = [
         'is_active' => true,
     ];
+
+    protected static function booted(): void
+    {
+        static::saving(function (self $product): void {
+            if ($product->isDirty('category_id') && $product->category_id) {
+                $cat = Category::find($product->category_id);
+                if ($cat) {
+                    $product->category = $cat->name;
+                }
+            }
+        });
+    }
+
+    /**
+     * @return BelongsTo<Category, $this>
+     */
+    public function categoryGroup(): BelongsTo
+    {
+        return $this->belongsTo(Category::class, 'category_id');
+    }
 
     /**
      * @return HasMany<Order, $this>

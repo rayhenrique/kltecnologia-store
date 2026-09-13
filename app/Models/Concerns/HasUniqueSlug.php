@@ -12,17 +12,20 @@ trait HasUniqueSlug
     public static function bootHasUniqueSlug(): void
     {
         static::saving(function (Model $model): void {
-            if (! $model->isDirty('title') && filled($model->getAttribute('slug'))) {
+            $sourceField = filled($model->getAttribute('title')) || $model->isDirty('title') ? 'title' : 'name';
+
+            if (! $model->isDirty($sourceField) && filled($model->getAttribute('slug'))) {
                 return;
             }
 
-            $model->setAttribute('slug', $model->generateUniqueSlug((string) $model->getAttribute('title')));
+            $sourceValue = (string) ($model->getAttribute($sourceField) ?: 'item');
+            $model->setAttribute('slug', $model->generateUniqueSlug($sourceValue));
         });
     }
 
-    private function generateUniqueSlug(string $title): string
+    private function generateUniqueSlug(string $source): string
     {
-        $baseSlug = Str::slug($title) ?: 'produto';
+        $baseSlug = Str::slug($source) ?: 'item';
         $slug = $baseSlug;
         $suffix = 2;
 

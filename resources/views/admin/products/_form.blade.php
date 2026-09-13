@@ -45,25 +45,46 @@
 
         <div class="grid gap-5 sm:grid-cols-2">
             <div>
-                <x-input-label for="category" value="Categoria" class="text-xs font-bold uppercase text-slate-700 mb-1" />
-                <input 
-                    id="category" 
-                    name="category" 
-                    list="categories-list"
-                    type="text" 
-                    class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 shadow-2xs" 
-                    placeholder="Ex: Scripts PHP"
-                    value="{{ old('category', $product->category ?? 'Scripts & SaaS') }}" 
-                />
-                <datalist id="categories-list">
-                    <option value="Scripts PHP">
-                    <option value="Sistemas SaaS">
-                    <option value="Automação WhatsApp">
-                    <option value="Sistemas CRM">
-                    <option value="Sistemas para Cobranças">
-                    <option value="Templates & Landing Pages">
-                    <option value="Softwares & Utilitários">
-                </datalist>
+                <div class="flex items-center justify-between mb-1">
+                    <x-input-label for="category_id" value="Categoria do Produto" class="text-xs font-bold uppercase text-slate-700" />
+                    <a href="{{ route('admin.categories.index') }}" target="_blank" class="text-[11px] font-semibold text-teal-600 hover:text-teal-700 hover:underline">
+                        Gerenciar Categorias &rarr;
+                    </a>
+                </div>
+
+                @php($registeredCategories = \App\Models\Category::active()->orderBy('name')->get())
+                <div class="space-y-1">
+                    <select 
+                        id="category_id" 
+                        name="category_id" 
+                        class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm text-slate-900 bg-white focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 shadow-2xs"
+                        x-on:change="
+                            const sel = $event.target.options[$event.target.selectedIndex];
+                            if (sel && sel.value) {
+                                $refs.catInput.value = sel.text.trim();
+                            }
+                        "
+                    >
+                        <option value="">-- Selecione uma Categoria Cadastrada --</option>
+                        @foreach($registeredCategories as $cat)
+                            <option 
+                                value="{{ $cat->id }}" 
+                                {{ (string) old('category_id', $product->category_id ?? '') === (string) $cat->id || (!old('category_id') && ($product->category ?? '') === $cat->name) ? 'selected' : '' }}
+                            >
+                                {{ $cat->name }}
+                            </option>
+                        @endforeach
+                    </select>
+
+                    <input 
+                        type="hidden" 
+                        id="category" 
+                        name="category" 
+                        x-ref="catInput" 
+                        value="{{ old('category', $product->category ?? 'Scripts & SaaS') }}" 
+                    />
+                </div>
+                <x-input-error id="category_id-error" :messages="$errors->get('category_id')" class="mt-1.5 text-xs text-red-500" />
                 <x-input-error id="category-error" :messages="$errors->get('category')" class="mt-1.5 text-xs text-red-500" />
             </div>
 
