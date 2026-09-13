@@ -171,6 +171,33 @@
                         <span class="absolute top-3 left-3 badge-hot shadow">
                             HOT
                         </span>
+
+                        {{-- Botão de Favorito --}}
+                        <button 
+                            type="button" 
+                            aria-label="Favoritar {{ $item->title }}"
+                            onclick="
+                                let favs = JSON.parse(localStorage.getItem('kl_favorites') || '[]');
+                                const id = {{ $item->id }};
+                                const idx = favs.indexOf(id);
+                                if (idx > -1) {
+                                    favs.splice(idx, 1);
+                                    this.classList.remove('text-pink-500');
+                                    this.classList.add('text-slate-400');
+                                } else {
+                                    favs.push(id);
+                                    this.classList.add('text-pink-500');
+                                    this.classList.remove('text-slate-400');
+                                }
+                                localStorage.setItem('kl_favorites', JSON.stringify(favs));
+                                window.dispatchEvent(new CustomEvent('favorites-updated', { detail: { count: favs.length } }));
+                            "
+                            class="absolute top-3 right-3 grid h-8 w-8 place-items-center rounded-full bg-slate-900/80 hover:bg-slate-900 text-slate-400 hover:text-pink-500 shadow-sm transition backdrop-blur-sm z-10"
+                        >
+                            <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                            </svg>
+                        </button>
                     </a>
 
                     {{-- Content --}}
@@ -241,6 +268,33 @@
                         <span class="absolute top-3 left-3 badge-pro shadow">
                             PRO
                         </span>
+
+                        {{-- Botão de Favorito --}}
+                        <button 
+                            type="button" 
+                            aria-label="Favoritar {{ $product->title }}"
+                            onclick="
+                                let favs = JSON.parse(localStorage.getItem('kl_favorites') || '[]');
+                                const id = {{ $product->id }};
+                                const idx = favs.indexOf(id);
+                                if (idx > -1) {
+                                    favs.splice(idx, 1);
+                                    this.classList.remove('text-pink-500');
+                                    this.classList.add('text-slate-400');
+                                } else {
+                                    favs.push(id);
+                                    this.classList.add('text-pink-500');
+                                    this.classList.remove('text-slate-400');
+                                }
+                                localStorage.setItem('kl_favorites', JSON.stringify(favs));
+                                window.dispatchEvent(new CustomEvent('favorites-updated', { detail: { count: favs.length } }));
+                            "
+                            class="absolute top-3 right-3 grid h-8 w-8 place-items-center rounded-full bg-slate-900/80 hover:bg-slate-900 text-slate-400 hover:text-pink-500 shadow-sm transition backdrop-blur-sm z-10"
+                        >
+                            <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                            </svg>
+                        </button>
                     </a>
 
                     <div class="flex flex-1 flex-col p-6">

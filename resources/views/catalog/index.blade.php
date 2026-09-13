@@ -161,11 +161,26 @@
                                     <button 
                                         type="button" 
                                         aria-label="Favoritar {{ $product->title }}"
-                                        onclick="this.classList.toggle('text-red-500');"
-                                        class="absolute top-2 right-2 grid h-7 w-7 place-items-center rounded-full bg-white/90 text-slate-400 hover:text-red-500 shadow-sm transition backdrop-blur-sm"
+                                        onclick="
+                                            let favs = JSON.parse(localStorage.getItem('kl_favorites') || '[]');
+                                            const id = {{ $product->id }};
+                                            const idx = favs.indexOf(id);
+                                            if (idx > -1) {
+                                                favs.splice(idx, 1);
+                                                this.classList.remove('text-pink-500');
+                                                this.classList.add('text-slate-400');
+                                            } else {
+                                                favs.push(id);
+                                                this.classList.add('text-pink-500');
+                                                this.classList.remove('text-slate-400');
+                                            }
+                                            localStorage.setItem('kl_favorites', JSON.stringify(favs));
+                                            window.dispatchEvent(new CustomEvent('favorites-updated', { detail: { count: favs.length } }));
+                                        "
+                                        class="absolute top-2 right-2 grid h-7 w-7 place-items-center rounded-full bg-white/95 text-slate-400 hover:text-pink-500 shadow-sm transition backdrop-blur-sm z-10"
                                     >
-                                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                                        <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
                                         </svg>
                                     </button>
                                 </div>

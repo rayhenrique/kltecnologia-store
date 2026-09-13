@@ -77,7 +77,64 @@
                     </a>
                 </div>
 
-                <div class="flex items-center gap-2 sm:gap-3">
+                <div class="flex items-center gap-2 sm:gap-3" x-data="{
+                    favoritesCount: 0,
+                    cartCount: 0,
+                    init() {
+                        try {
+                            const favs = JSON.parse(localStorage.getItem('kl_favorites') || '[]');
+                            this.favoritesCount = Array.isArray(favs) ? favs.length : 0;
+                            const cart = JSON.parse(localStorage.getItem('kl_cart') || '[]');
+                            this.cartCount = Array.isArray(cart) ? cart.length : 0;
+                        } catch(e) {}
+                        window.addEventListener('favorites-updated', (e) => {
+                            this.favoritesCount = e.detail?.count ?? 0;
+                        });
+                        window.addEventListener('cart-updated', (e) => {
+                            this.cartCount = e.detail?.count ?? 0;
+                        });
+                    }
+                }">
+                    {{-- Ícone Favoritos --}}
+                    <a 
+                        href="{{ route('catalog.index') }}" 
+                        id="topbar-favorites-link"
+                        class="relative inline-flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-xl border border-slate-800 bg-slate-900/80 text-slate-300 hover:border-pink-500/50 hover:bg-pink-500/10 hover:text-pink-400 transition-all duration-200 group shadow-xs"
+                        title="Favoritos"
+                        aria-label="Ver produtos favoritos"
+                    >
+                        <svg class="h-4 w-4 sm:h-5 sm:w-5 group-hover:scale-110 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                        </svg>
+                        <span 
+                            x-text="favoritesCount" 
+                            class="absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-pink-500 px-1 text-[10px] font-bold text-white shadow-xs"
+                        >
+                            0
+                        </span>
+                    </a>
+
+                    {{-- Ícone Carrinho --}}
+                    <a 
+                        href="{{ route('catalog.index') }}" 
+                        id="topbar-cart-link"
+                        class="relative inline-flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-xl border border-slate-800 bg-slate-900/80 text-slate-300 hover:border-teal-500/50 hover:bg-teal-500/10 hover:text-teal-400 transition-all duration-200 group shadow-xs"
+                        title="Meu Carrinho"
+                        aria-label="Ver carrinho de compras"
+                    >
+                        <svg class="h-4 w-4 sm:h-5 sm:w-5 group-hover:scale-110 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                        </svg>
+                        <span 
+                            x-text="cartCount" 
+                            class="absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-teal-500 px-1 text-[10px] font-bold text-white shadow-xs"
+                        >
+                            0
+                        </span>
+                    </a>
+
+                    <div class="h-6 w-px bg-slate-800 hidden sm:block mx-0.5"></div>
+
                     @auth
                         @if(auth()->user()->isAdmin())
                             <a href="{{ route('admin.dashboard') }}" class="inline-flex items-center gap-1.5 rounded-xl bg-slate-800 border border-slate-700 px-3.5 py-2 text-xs sm:text-sm font-semibold text-slate-200 hover:bg-slate-700 transition">
@@ -85,27 +142,27 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                 </svg>
-                                Painel Admin
+                                <span class="hidden md:inline">Painel Admin</span>
                             </a>
                         @endif
                         <a href="{{ route('customer.downloads') }}" class="inline-flex items-center gap-1.5 rounded-xl bg-teal-600 hover:bg-teal-500 px-4 py-2 text-xs sm:text-sm font-bold text-white shadow-sm shadow-teal-500/20 transition">
                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                             </svg>
-                            Meus Downloads
+                            <span>Downloads</span>
                         </a>
                     @else
                         <a href="{{ route('login') }}" class="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-slate-300 hover:text-white px-2 py-1 transition">
                             <svg class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
                             </svg>
-                            Entrar
+                            <span>Entrar</span>
                         </a>
                         <a href="{{ route('register') }}" class="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-400 hover:to-blue-500 px-4 py-2 text-xs sm:text-sm font-bold text-white shadow-md shadow-teal-500/25 transition">
                             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
                             </svg>
-                            Cadastre-se
+                            <span>Cadastre-se</span>
                         </a>
                     @endauth
                 </div>
