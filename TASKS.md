@@ -93,4 +93,11 @@
   - [x] Substituir caixa de busca fixa por botão de ícone de lupa interativo na topbar.
   - [x] Implementar Modal de Busca global (Spotlight) com backdrop escuro com blur, atalhos de teclado (`Ctrl+K` / `Cmd+K` / `ESC`), foco automático no input e tags de termos em alta.
 
+- [x] **Fase 14: Identidade Visual & Favicon Oficial**
+  - [x] Integrar arquivo de logotipo oficial (`logo-kltecnologia.png`) nos diretórios públicos (`public/images/`, `public/favicon.ico`, `public/favicon.png`).
+  - [x] Substituir badge de texto/svg "KL" pelo ícone oficial na navbar da vitrine, mantendo o texto "KL Tecnologia" na frente.
+  - [x] Atualizar rodapé da loja, sidebar do painel administrativo, tela de login/cadastro (guest) e navegação do cliente com o ícone oficial.
+  - [x] Configurar tags `<link rel="icon">` e `<link rel="apple-touch-icon">` em todos os layouts da aplicação.
+
+
 
