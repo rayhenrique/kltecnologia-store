@@ -152,6 +152,33 @@
   - [x] Reformular seção de Zona de Risco e Modal de Exclusão de Conta com avisos claros em português e proteção por senha.
   - [x] Garantir 100% de responsividade mobile-first e aprovação total nos testes automatizados (`ProfileTest`, `PasswordUpdateTest` e suíte geral de 107 testes).
 
+- [x] **Fase 21: Fluxo de Compra E-Commerce & Checkout com Cadastro Integrado**
+  - [x] Criar rota pública e página de checkout dedicada `GET /checkout` (`checkout.index`) com suporte a compra direta (`?product=slug`) e carrinho do navegador.
+  - [x] Desenvolver formulário de checkout dark SaaS com identificação e criação de conta automática para visitantes (Nome, E-mail, CPF, WhatsApp, Senha com confirmação e alternância de visibilidade).
+  - [x] Suportar atualização e confirmação de dados para clientes já autenticados sem fricção.
+  - [x] Criar `ProcessCheckoutRequest` com validações robustas de conta, produtos ativos e cupons de desconto (`VIP10`, `KL2026`).
+  - [x] Aprimorar `CheckoutService::process` para cadastrar visitante, efetuar login automático com evento `Registered`, instanciar pedidos e gerar preferência no Mercado Pago.
+  - [x] Expandir `MercadoPagoService` e `WebhookService` para suportar pedidos individuais e múltiplos com conciliação idempotente de pagamentos.
+  - [x] Atualizar botão "Comprar" na página do produto (`storefront.show`) e na barra fixa mobile para direcionar diretamente ao checkout sem barreiras de login prévio.
+  - [x] Atualizar botão de finalização no carrinho de compras (`cart.index`) para link unificado de checkout.
+  - [x] Reformular página "Meus Downloads & Pedidos" (`customer.downloads`) para exibir status em tempo real de pedidos pagos (com link assinado) e pedidos pendentes (com aviso de confirmação).
+  - [x] Expandir suíte de testes Feature (`CheckoutTest` e `CartTest`) alcançando 100% de aprovação (114 testes, 452 asserções) e conformidade estrita no Pint.
 
-
-
+- [x] **Fase 22: Produtos Gratuitos (Lead Magnet) & Liberação Direta sem Mercado Pago**
+  - [x] Ajustar validação de criação e edição de produtos no painel Admin (`StoreProductRequest` e `UpdateProductRequest`) permitindo preço zero (`min:0`).
+  - [x] Ajustar validação do formulário de checkout (`ProcessCheckoutRequest`) com detecção de pedido gratuito (`isFreeOrder()`), tornando CPF e telefone opcionais e preservando cadastro simples de leads (Nome, E-mail, Senha).
+  - [x] Atualizar `CheckoutService::start` e `CheckoutService::process` para pedidos com valor zero (`$totalAmount <= 0`) ou cupons de 100% (`FREE100` / `GRATIS100`):
+    - Cria pedidos com status imediato `OrderStatus::Paid`.
+    - Registra método de pagamento como `free` (`payment_method = 'free'`).
+    - Ignora completamente a chamada ao Mercado Pago (evita erro de valor mínimo do gateway).
+    - Retorna URL direta para biblioteca do cliente (`customer.downloads`).
+  - [x] Atualizar `CheckoutController` para redirecionar internamente pedidos gratuitos com mensagem de boas-vindas e sucesso.
+  - [x] Atualizar interface da página de checkout (`checkout/index.blade.php`):
+    - Ocultar métodos de pagamento do Mercado Pago quando o total for R$ 0,00.
+    - Exibir banner explicativo "Pedido 100% Gratuito — Nenhuma cobrança será realizada".
+    - Alterar texto do botão de ação principal para "Liberar Download Grátis".
+  - [x] Atualizar vitrine e catálogo (`storefront/show.blade.php`, `storefront/index.blade.php`, `catalog/index.blade.php` e `cart/index.blade.php`):
+    - Exibir badges e etiquetas "100% Grátis" / "GRÁTIS".
+    - Trocar botão de "Comprar Agora" para "Baixar Grátis" nos produtos com preço zero.
+    - Adaptar barra de compra sticky no mobile para itens gratuitos.
+  - [x] Criar testes automatizados para visitantes, clientes autenticados e cupons de 100% sem acionar o Mercado Pago (`CheckoutTest` e `AdminProductTest`), alcançando 118 testes aprovados (477 asserções) e 100% de conformidade no Laravel Pint.

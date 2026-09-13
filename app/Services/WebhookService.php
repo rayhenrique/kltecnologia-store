@@ -14,24 +14,24 @@ class WebhookService
     public function handlePayment(string $paymentId): void
     {
         $payment = $this->mercadoPago->getPayment($paymentId);
-        $orderId = $this->orderIdFromReference((string) ($payment['external_reference'] ?? ''));
+        $orderIds = $this->orderIdsFromReference((string) ($payment['external_reference'] ?? ''));
 
-        if (! $orderId) {
+        if (empty($orderIds)) {
             Log::warning('Webhook Mercado Pago sem referência de pedido válida.', ['payment_id' => $paymentId]);
 
             return;
         }
 
-        DB::transaction(function () use ($orderId, $payment, $paymentId): void {
-            $order = Order::query()->lockForUpdate()->find($orderId);
-            if (! $order || $order->status === OrderStatus::Paid) {
+        DB::transaction(function () use ($orderIds, $payment, $paymentId): void {
+            $orders = Order::query()->lockForUpdate()->whereIn('id', $orderIds)->get();
+            if ($orders->isEmpty() || $orders->every(fn ($o) => $o->status === OrderStatus::Paid)) {
                 return;
             }
 
             $received = number_format((float) ($payment['transaction_amount'] ?? -1), 2, '.', '');
-            $expected = number_format((float) $order->amount, 2, '.', '');
+            $expected = number_format((float) $orders->sum('amount'), 2, '.', '');
             if ($received !== $expected) {
-                Log::warning('Valor divergente em webhook Mercado Pago.', ['order_id' => $orderId]);
+                Log::warning('Valor divergente em webhook Mercado Pago.', ['order_ids' => $orderIds]);
 
                 return;
             }
@@ -44,22 +44,29 @@ class WebhookService
             };
 
             $paymentMethod = $payment['payment_type_id'] ?? null;
-            if ($order->status === $status
-                && $order->gateway_reference === $paymentId
-                && $order->payment_method === $paymentMethod) {
-                return;
-            }
 
-            $order->update([
-                'status' => $status,
-                'gateway_reference' => $paymentId,
-                'payment_method' => $paymentMethod,
-            ]);
+            foreach ($orders as $order) {
+                if ($order->status === $status
+                    && $order->gateway_reference === $paymentId
+                    && $order->payment_method === $paymentMethod) {
+                    continue;
+                }
+
+                $order->update([
+                    'status' => $status,
+                    'gateway_reference' => $paymentId,
+                    'payment_method' => $paymentMethod,
+                ]);
+            }
         });
     }
 
-    private function orderIdFromReference(string $reference): ?int
+    private function orderIdsFromReference(string $reference): array
     {
-        return preg_match('/^order:(\d+)$/', $reference, $matches) ? (int) $matches[1] : null;
+        if (preg_match('/^orders?:([0-9,]+)$/', $reference, $matches)) {
+            return array_map('intval', explode(',', $matches[1]));
+        }
+
+        return [];
     }
 }

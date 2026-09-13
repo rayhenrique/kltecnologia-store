@@ -233,9 +233,15 @@
                                         </div>
                                         <div class="text-right">
                                             <span class="text-[10px] font-bold text-emerald-600 uppercase tracking-tight block">Entrega Segura</span>
-                                            <p class="font-display font-black text-sm text-slate-900">
-                                                R$ {{ number_format((float) $product->price, 2, ',', '.') }}
-                                            </p>
+                                            @if((float) $product->price <= 0)
+                                                <span class="inline-flex items-center rounded-md bg-emerald-100 text-emerald-800 px-2 py-0.5 text-xs font-black">
+                                                    GRÁTIS
+                                                </span>
+                                            @else
+                                                <p class="font-display font-black text-sm text-slate-900">
+                                                    R$ {{ number_format((float) $product->price, 2, ',', '.') }}
+                                                </p>
+                                            @endif
                                         </div>
                                     </div>
 

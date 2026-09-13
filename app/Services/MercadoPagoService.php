@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Order;
+use App\Models\User;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Support\Facades\Http;
 use RuntimeException;
@@ -11,17 +12,33 @@ class MercadoPagoService
 {
     public function createPreference(Order $order): array
     {
-        $nameParts = explode(' ', trim((string) $order->user->name), 2);
-        $firstName = $nameParts[0] ?? (string) $order->user->name;
+        return $this->createPreferenceForOrders([$order]);
+    }
+
+    /**
+     * @param  iterable<Order>  $orders
+     */
+    public function createPreferenceForOrders(iterable $orders, ?User $user = null): array
+    {
+        $ordersList = is_array($orders) ? $orders : iterator_to_array($orders);
+        if (empty($ordersList)) {
+            throw new RuntimeException('Nenhum pedido fornecido para gerar preferência de pagamento.');
+        }
+
+        $firstOrder = $ordersList[0];
+        $payerUser = $user ?? $firstOrder->user;
+
+        $nameParts = explode(' ', trim((string) $payerUser->name), 2);
+        $firstName = $nameParts[0] ?? (string) $payerUser->name;
         $lastName = $nameParts[1] ?? '';
 
         $payer = [
             'name' => $firstName,
             'surname' => $lastName,
-            'email' => (string) $order->user->email,
+            'email' => (string) $payerUser->email,
         ];
 
-        $cleanPhone = (string) $order->user->clean_phone;
+        $cleanPhone = (string) $payerUser->clean_phone;
         if ($cleanPhone !== '') {
             if (strlen($cleanPhone) >= 10) {
                 $payer['phone'] = [
@@ -36,7 +53,7 @@ class MercadoPagoService
             }
         }
 
-        $cleanCpf = (string) $order->user->clean_cpf;
+        $cleanCpf = (string) $payerUser->clean_cpf;
         if ($cleanCpf !== '') {
             $payer['identification'] = [
                 'type' => strlen($cleanCpf) > 11 ? 'CNPJ' : 'CPF',
@@ -44,17 +61,27 @@ class MercadoPagoService
             ];
         }
 
-        $payload = [
-            'items' => [[
+        $items = [];
+        $orderIds = [];
+        foreach ($ordersList as $order) {
+            $orderIds[] = $order->id;
+            $items[] = [
                 'id' => (string) $order->product_id,
                 'title' => $order->product->title,
                 'description' => str($order->product->description)->limit(250)->toString(),
                 'quantity' => 1,
                 'currency_id' => 'BRL',
                 'unit_price' => (float) $order->amount,
-            ]],
+            ];
+        }
+
+        $externalReference = count($orderIds) === 1 ? 'order:'.$orderIds[0] : 'orders:'.implode(',', $orderIds);
+        $idempotencyKey = 'checkout-orders-'.implode('-', $orderIds);
+
+        $payload = [
+            'items' => $items,
             'payer' => $payer,
-            'external_reference' => 'order:'.$order->id,
+            'external_reference' => $externalReference,
             'back_urls' => [
                 'success' => route('checkout.return', ['status' => 'success']),
                 'failure' => route('checkout.return', ['status' => 'failure']),
@@ -68,7 +95,7 @@ class MercadoPagoService
         }
 
         $response = $this->client()
-            ->withHeader('X-Idempotency-Key', 'checkout-order-'.$order->id)
+            ->withHeader('X-Idempotency-Key', $idempotencyKey)
             ->post('/checkout/preferences', $payload)
             ->throw()
             ->json();

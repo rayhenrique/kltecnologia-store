@@ -272,32 +272,60 @@
 
                     {{-- Top Flag --}}
                     <div class="flex items-center justify-between">
-                        <span class="inline-flex items-center gap-1 rounded-full bg-teal-100 text-teal-800 px-3 py-0.5 text-xs font-bold uppercase tracking-wider">
-                            <span class="h-1.5 w-1.5 rounded-full bg-teal-600"></span>
-                            Pagamento Único
-                        </span>
-                        <span class="text-xs font-semibold text-emerald-600 flex items-center gap-1">
-                            ⚡ Envio Imediato
-                        </span>
+                        @if((float) $product->price <= 0)
+                            <span class="inline-flex items-center gap-1 rounded-full bg-emerald-100 text-emerald-800 px-3 py-0.5 text-xs font-bold uppercase tracking-wider">
+                                <span class="h-1.5 w-1.5 rounded-full bg-emerald-600"></span>
+                                100% Gratuito
+                            </span>
+                            <span class="text-xs font-semibold text-emerald-600 flex items-center gap-1">
+                                ⚡ Download Imediato
+                            </span>
+                        @else
+                            <span class="inline-flex items-center gap-1 rounded-full bg-teal-100 text-teal-800 px-3 py-0.5 text-xs font-bold uppercase tracking-wider">
+                                <span class="h-1.5 w-1.5 rounded-full bg-teal-600"></span>
+                                Pagamento Único
+                            </span>
+                            <span class="text-xs font-semibold text-emerald-600 flex items-center gap-1">
+                                ⚡ Envio Imediato
+                            </span>
+                        @endif
                     </div>
 
                     {{-- Price Display --}}
                     <div class="mt-5 border-y border-slate-100 py-4">
-                        <div class="flex items-baseline gap-2">
-                            <span class="text-xs font-medium text-slate-400">De:</span>
-                            <del class="text-sm font-semibold text-slate-400">
-                                R$ {{ number_format((float) ($product->price * 1.35), 2, ',', '.') }}
-                            </del>
-                        </div>
-                        <div class="mt-1 flex items-baseline gap-2">
-                            <span class="text-xs font-semibold text-slate-600">Por apenas:</span>
-                            <span class="font-display text-3xl sm:text-4xl font-extrabold text-slate-950 tracking-tight">
-                                R$ {{ number_format((float) $product->price, 2, ',', '.') }}
-                            </span>
-                        </div>
-                        <p class="mt-1.5 text-xs text-slate-500">
-                            Disponível no Pix à vista ou parcelado no Cartão de Crédito.
-                        </p>
+                        @if((float) $product->price <= 0)
+                            <div class="flex items-baseline gap-2">
+                                <span class="text-xs font-medium text-slate-400">De:</span>
+                                <del class="text-sm font-semibold text-slate-400">
+                                    R$ {{ number_format((float) ($product->regular_price ?: 47.00), 2, ',', '.') }}
+                                </del>
+                            </div>
+                            <div class="mt-1 flex items-baseline gap-2">
+                                <span class="text-xs font-semibold text-emerald-700">Por apenas:</span>
+                                <span class="font-display text-3xl sm:text-4xl font-extrabold text-emerald-600 tracking-tight">
+                                    GRÁTIS
+                                </span>
+                            </div>
+                            <p class="mt-1.5 text-xs text-slate-500">
+                                Sem cobrança. Acesso instantâneo e vitalício após o cadastro.
+                            </p>
+                        @else
+                            <div class="flex items-baseline gap-2">
+                                <span class="text-xs font-medium text-slate-400">De:</span>
+                                <del class="text-sm font-semibold text-slate-400">
+                                    R$ {{ number_format((float) ($product->price * 1.35), 2, ',', '.') }}
+                                </del>
+                            </div>
+                            <div class="mt-1 flex items-baseline gap-2">
+                                <span class="text-xs font-semibold text-slate-600">Por apenas:</span>
+                                <span class="font-display text-3xl sm:text-4xl font-extrabold text-slate-950 tracking-tight">
+                                    R$ {{ number_format((float) $product->price, 2, ',', '.') }}
+                                </span>
+                            </div>
+                            <p class="mt-1.5 text-xs text-slate-500">
+                                Disponível no Pix à vista ou parcelado no Cartão de Crédito.
+                            </p>
+                        @endif
                     </div>
 
                     {{-- Buttons: [+] Adicionar ao Carrinho & Comprar --}}
@@ -323,41 +351,16 @@
                                 </svg>
                             </button>
 
-                            {{-- Botão Comprar --}}
-                            @auth
-                                <form method="POST" action="{{ route('checkout.store', $product) }}" class="flex-1" novalidate x-data="{ submitting: false }" x-on:submit="submitting = true">
-                                    @csrf
-                                    <button 
-                                        class="w-full btn-teal text-base !h-[52px] px-6 font-bold shadow-lg shadow-teal-600/30 flex items-center justify-center gap-2 group transition" 
-                                        type="submit" 
-                                        :disabled="submitting"
-                                    >
-                                        <span x-show="!submitting" class="flex items-center gap-2">
-                                            <svg class="h-5 w-5 group-hover:scale-110 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                                            </svg>
-                                            Comprar
-                                        </span>
-                                        <span x-show="submitting" x-cloak class="flex items-center gap-2">
-                                            <svg class="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
-                                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
-                                            </svg>
-                                            Processando...
-                                        </span>
-                                    </button>
-                                </form>
-                            @else
-                                <a 
-                                    href="{{ route('login', ['redirect' => route('storefront.show', $product, false)]) }}" 
-                                    class="flex-1 btn-teal text-base !h-[52px] px-6 font-bold shadow-lg shadow-teal-600/30 flex items-center justify-center gap-2 group transition"
-                                >
-                                    <svg class="h-5 w-5 group-hover:scale-110 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                                    </svg>
-                                    Comprar
-                                </a>
-                            @endauth
+                            {{-- Botão Comprar / Baixar Grátis (Direto para o Checkout Seguro) --}}
+                            <a 
+                                href="{{ route('checkout.index', ['product' => $product->slug]) }}" 
+                                class="flex-1 {{ (float) $product->price <= 0 ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-600/30' : 'btn-teal shadow-teal-600/30' }} text-base !h-[52px] px-6 font-bold shadow-lg rounded-xl flex items-center justify-center gap-2 group transition"
+                            >
+                                <svg class="h-5 w-5 group-hover:scale-110 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ (float) $product->price <= 0 ? 'M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4' : 'M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z' }}" />
+                                </svg>
+                                <span>{{ (float) $product->price <= 0 ? 'Baixar Grátis' : 'Comprar Agora' }}</span>
+                            </a>
                         </div>
 
                         {{-- Botão de WhatsApp --}}
@@ -740,18 +743,24 @@
     <div class="fixed bottom-0 inset-x-0 z-30 bg-slate-950/95 backdrop-blur-md border-t border-slate-800 p-3 lg:hidden flex items-center justify-between gap-3 shadow-2xl">
         <div>
             <div class="flex items-baseline gap-1.5">
-                <span class="font-display text-lg font-black text-white">
-                    R$ {{ number_format($product->price, 2, ',', '.') }}
-                </span>
-                @if($product->regular_price && $product->regular_price > $product->price)
-                    <span class="text-[11px] text-slate-500 line-through">
-                        R$ {{ number_format($product->regular_price, 2, ',', '.') }}
+                @if((float) $product->price <= 0)
+                    <span class="font-display text-lg font-black text-emerald-400">
+                        GRÁTIS
                     </span>
+                @else
+                    <span class="font-display text-lg font-black text-white">
+                        R$ {{ number_format($product->price, 2, ',', '.') }}
+                    </span>
+                    @if($product->regular_price && $product->regular_price > $product->price)
+                        <span class="text-[11px] text-slate-500 line-through">
+                            R$ {{ number_format($product->regular_price, 2, ',', '.') }}
+                        </span>
+                    @endif
                 @endif
             </div>
             <span class="text-[10px] text-emerald-400 font-mono flex items-center gap-1">
                 <span class="h-1.5 w-1.5 rounded-full bg-emerald-400"></span>
-                Pix / Download Imediato
+                {{ (float) $product->price <= 0 ? 'Download 100% Gratuito' : 'Pix / Download Imediato' }}
             </span>
         </div>
         <div class="flex items-center gap-2">
@@ -774,10 +783,11 @@
                 </svg>
             </button>
             <a 
-                href="#card-compra" 
-                class="btn-teal !min-h-10 px-4 py-2 text-xs font-bold shadow-md shadow-teal-500/20"
+                href="{{ route('checkout.index', ['product' => $product->slug]) }}" 
+                class="{{ (float) $product->price <= 0 ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-500/20' : 'btn-teal shadow-teal-500/20' }} rounded-xl !min-h-10 px-4 py-2 text-xs font-bold shadow-md flex items-center gap-1.5"
             >
-                Comprar &darr;
+                <span>{{ (float) $product->price <= 0 ? 'Baixar Grátis' : 'Comprar' }}</span>
+                <span>&rarr;</span>
             </a>
         </div>
     </div>

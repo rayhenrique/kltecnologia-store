@@ -62,6 +62,10 @@
                 this.appliedCoupon = { code: code, percent: 15 };
                 this.couponSuccess = 'Cupom VIP de 15% de desconto aplicado!';
                 this.couponInput = '';
+            } else if (code === 'FREE100' || code === 'GRATIS100') {
+                this.appliedCoupon = { code: code, percent: 100 };
+                this.couponSuccess = 'Cupom 100% OFF aplicado! Seu pedido sairá totalmente gratuito.';
+                this.couponInput = '';
             } else {
                 this.couponError = 'Cupom inválido ou expirado. Tente VIP10 ou KL2026.';
             }
@@ -82,7 +86,9 @@
             return Math.max(0, this.getSubtotal() - this.getDiscount());
         },
         formatMoney(amount) {
-            return 'R$ ' + (parseFloat(amount) || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            const val = parseFloat(amount) || 0;
+            if (val <= 0) return 'GRÁTIS';
+            return 'R$ ' + val.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         }
     }"
 >
@@ -353,79 +359,32 @@
 
                         {{-- Checkout Action --}}
                         <div class="mt-6 pt-6 border-t border-slate-800">
-                            @auth
-                                {{-- Checkout Button for Authenticated User --}}
-                                <template x-if="items.length === 1">
-                                    <form method="POST" :action="'/checkout/' + items[0].id" x-data="{ submitting: false }" x-on:submit="submitting = true">
-                                        @csrf
-                                        <button 
-                                            type="submit" 
-                                            :disabled="submitting" 
-                                            class="w-full inline-flex items-center justify-center gap-2 rounded-2xl bg-teal-500 hover:bg-teal-400 px-6 py-4 text-sm font-extrabold text-slate-950 shadow-xl shadow-teal-500/25 transition-all duration-200 cursor-pointer disabled:opacity-50"
-                                        >
-                                            <span x-show="!submitting" class="flex items-center gap-2">
-                                                <span>Finalizar Compra Agora</span>
-                                                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                                                </svg>
-                                            </span>
-                                            <span x-show="submitting" x-cloak class="flex items-center gap-2">
-                                                <svg class="animate-spin h-4 w-4 text-slate-950" fill="none" viewBox="0 0 24 24">
-                                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
-                                                </svg>
-                                                <span>Abrindo Mercado Pago...</span>
-                                            </span>
-                                        </button>
-                                    </form>
-                                </template>
-
-                                <template x-if="items.length > 1">
-                                    <div class="space-y-3">
-                                        <p class="text-xs text-amber-400 bg-amber-500/10 border border-amber-500/20 rounded-xl p-3">
-                                            💡 <strong>Compras Individuais:</strong> Os sistemas e scripts possuem licenças independentes. Escolha abaixo qual item deseja iniciar o checkout primeiro:
-                                        </p>
-                                        <div class="space-y-2">
-                                            <template x-for="item in items" :key="item.id">
-                                                <form method="POST" :action="'/checkout/' + item.id">
-                                                    @csrf
-                                                    <button 
-                                                        type="submit" 
-                                                        class="w-full flex items-center justify-between rounded-xl border border-teal-500/40 bg-teal-500/10 hover:bg-teal-500/20 px-4 py-2.5 text-xs font-bold text-teal-300 transition cursor-pointer text-left"
-                                                    >
-                                                        <span class="truncate pr-2" x-text="'Pagar ' + item.title"></span>
-                                                        <span class="font-mono shrink-0" x-text="formatMoney(item.price)"></span>
-                                                    </button>
-                                                </form>
-                                            </template>
-                                        </div>
-                                    </div>
-                                </template>
-                            @else
-                                {{-- Guest Flow: Prompt to Login / Register --}}
-                                <div class="space-y-3">
-                                    <a 
-                                        href="{{ route('login') }}" 
-                                        class="w-full inline-flex items-center justify-center gap-2 rounded-2xl bg-teal-500 hover:bg-teal-400 px-6 py-4 text-sm font-extrabold text-slate-950 shadow-xl shadow-teal-500/25 transition-all duration-200"
-                                    >
-                                        <span>Entrar para Finalizar Compra</span>
-                                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                                        </svg>
-                                    </a>
-                                    <p class="text-[11px] text-slate-400 text-center">
-                                        Ainda não tem conta? <a href="{{ route('register') }}" class="text-teal-400 hover:underline font-semibold">Cadastre-se grátis</a> em menos de 1 minuto.
-                                    </p>
-                                </div>
-                            @endauth
+                            <a 
+                                href="{{ route('checkout.index') }}" 
+                                class="w-full inline-flex items-center justify-center gap-2 rounded-2xl bg-teal-500 hover:bg-teal-400 px-6 py-4 text-sm font-extrabold text-slate-950 shadow-xl shadow-teal-500/25 transition-all duration-200 group"
+                            >
+                                <span x-text="getTotal() <= 0 ? 'Avançar para Download Grátis' : 'Finalizar Compra / Ir para o Checkout'"></span>
+                                <svg class="h-4 w-4 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                                </svg>
+                            </a>
+                            <p class="mt-2.5 text-[11px] text-slate-400 text-center" x-text="getTotal() <= 0 ? 'Acesso 100% gratuito. Nenhuma cobrança será realizada.' : 'Pagamento 100% seguro com Pix, Cartão ou Boleto via Mercado Pago.'">
+                            </p>
 
                             {{-- Payment Icons & Badges --}}
                             <div class="mt-6 pt-6 border-t border-slate-800 text-center">
-                                <p class="text-[11px] text-slate-400 mb-3">Formas de pagamento aceitas:</p>
-                                <div class="flex items-center justify-center gap-3 text-slate-300">
-                                    <span class="rounded-lg bg-slate-950 border border-slate-800 px-2.5 py-1 text-xs font-mono font-bold text-teal-400">⚡ Pix</span>
-                                    <span class="rounded-lg bg-slate-950 border border-slate-800 px-2.5 py-1 text-xs font-semibold">💳 Cartão de Crédito</span>
-                                    <span class="rounded-lg bg-slate-950 border border-slate-800 px-2.5 py-1 text-xs font-semibold">📄 Boleto</span>
+                                <div x-show="getTotal() > 0">
+                                    <p class="text-[11px] text-slate-400 mb-3">Formas de pagamento aceitas:</p>
+                                    <div class="flex items-center justify-center gap-3 text-slate-300">
+                                        <span class="rounded-lg bg-slate-950 border border-slate-800 px-2.5 py-1 text-xs font-mono font-bold text-teal-400">⚡ Pix</span>
+                                        <span class="rounded-lg bg-slate-950 border border-slate-800 px-2.5 py-1 text-xs font-semibold">💳 Cartão de Crédito</span>
+                                        <span class="rounded-lg bg-slate-950 border border-slate-800 px-2.5 py-1 text-xs font-semibold">📄 Boleto</span>
+                                    </div>
+                                </div>
+                                <div x-show="getTotal() <= 0" x-cloak>
+                                    <div class="inline-flex items-center gap-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20 px-3 py-1.5 text-xs font-semibold text-emerald-400">
+                                        <span>⚡ Liberação Imediata dos Arquivos sem Custos</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>

@@ -11,11 +11,13 @@ class CustomerDownloadService
 {
     public function for(User $user): LengthAwarePaginator
     {
-        $orders = $user->orders()->with('product')->where('status', OrderStatus::Paid)->latest()->paginate(12);
+        $orders = $user->orders()->with('product')->latest()->paginate(12);
 
         return $orders->through(fn ($order): array => [
             'order' => $order,
-            'download_url' => URL::temporarySignedRoute('customer.download', now()->addMinutes(10), ['order' => $order]),
+            'download_url' => $order->status === OrderStatus::Paid
+                ? URL::temporarySignedRoute('customer.download', now()->addMinutes(10), ['order' => $order])
+                : null,
         ]);
     }
 }

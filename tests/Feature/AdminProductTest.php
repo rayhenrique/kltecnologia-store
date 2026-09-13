@@ -58,4 +58,22 @@ class AdminProductTest extends TestCase
         $this->assertFileExists(public_path($coverPath));
         File::delete(public_path($coverPath));
     }
+
+    public function test_admin_can_create_free_product_with_zero_price(): void
+    {
+        Storage::fake('digital_products');
+        $admin = User::factory()->admin()->create();
+        $response = $this->actingAs($admin)->post(route('admin.products.store'), [
+            'title' => 'Ebook Grátis de Automação',
+            'description' => 'Guia gratuito para novos clientes.',
+            'price' => '0.00',
+            'is_active' => '1',
+            'file' => UploadedFile::fake()->create('ebook.pdf', 50, 'application/pdf'),
+        ]);
+
+        $response->assertRedirect(route('admin.products.index'))->assertSessionHas('success');
+        $product = Product::where('slug', 'ebook-gratis-de-automacao')->first();
+        $this->assertNotNull($product);
+        $this->assertEquals(0.00, (float) $product->price);
+    }
 }

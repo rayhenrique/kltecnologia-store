@@ -46,4 +46,12 @@ class CartTest extends TestCase
         $response->assertOk()
             ->assertSee(route('cart.index'));
     }
+
+    public function test_cart_page_links_to_checkout_page(): void
+    {
+        $response = $this->get(route('cart.index'));
+
+        $response->assertOk()
+            ->assertSee(route('checkout.index'));
+    }
 }

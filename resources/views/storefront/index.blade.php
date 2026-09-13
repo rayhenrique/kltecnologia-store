@@ -330,9 +330,15 @@
                         <div class="mt-auto flex items-center justify-between gap-4 pt-6 border-t border-slate-100">
                             <div>
                                 <span class="text-[10px] uppercase font-mono text-slate-400">Valor Unitário</span>
-                                <p class="font-display text-xl font-extrabold text-slate-900">
-                                    R$ {{ number_format((float) $product->price, 2, ',', '.') }}
-                                </p>
+                                @if((float) $product->price <= 0)
+                                    <p class="font-display text-xl font-extrabold text-emerald-600">
+                                        GRÁTIS
+                                    </p>
+                                @else
+                                    <p class="font-display text-xl font-extrabold text-slate-900">
+                                        R$ {{ number_format((float) $product->price, 2, ',', '.') }}
+                                    </p>
+                                @endif
                             </div>
                             <div class="flex items-center gap-2">
                                 <button 
