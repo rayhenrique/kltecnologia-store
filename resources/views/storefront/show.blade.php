@@ -215,7 +215,7 @@
                                 <p class="mt-1 text-xs sm:text-sm text-slate-500">100% dos compradores avaliaram como excelente.</p>
                             </div>
 
-                            <a href="https://wa.me/5541998608485?text={{ urlencode('Olá! Gostaria de falar sobre o produto ' . $product->title) }}" target="_blank" rel="noopener noreferrer" class="btn-secondary text-xs sm:text-sm">
+                            <a href="https://wa.me/5582996304742?text={{ urlencode('Olá! Gostaria de falar sobre o produto ' . $product->title) }}" target="_blank" rel="noopener noreferrer" class="btn-secondary text-xs sm:text-sm">
                                 Tirar Dúvida com Especialista
                             </a>
                         </div>
@@ -300,68 +300,72 @@
                         </p>
                     </div>
 
-                    {{-- Buttons: Comprar Agora & WhatsApp --}}
+                    {{-- Buttons: [+] Adicionar ao Carrinho & Comprar --}}
                     <div class="mt-5 space-y-3">
-                        @auth
-                            <form method="POST" action="{{ route('checkout.store', $product) }}" novalidate x-data="{ submitting: false }" x-on:submit="submitting = true">
-                                @csrf
-                                <button 
-                                    class="w-full btn-teal text-base py-3.5 px-6 font-bold shadow-lg shadow-teal-600/30 flex items-center justify-center gap-2 group transition" 
-                                    type="submit" 
-                                    :disabled="submitting"
-                                >
-                                    <span x-show="!submitting" class="flex items-center gap-2">
-                                        <svg class="h-5 w-5 group-hover:scale-110 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                                        </svg>
-                                        Comprar Agora
-                                    </span>
-                                    <span x-show="submitting" x-cloak class="flex items-center gap-2">
-                                        <svg class="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
-                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
-                                        </svg>
-                                        Processando checkout...
-                                    </span>
-                                </button>
-                            </form>
-                        @else
-                            <a 
-                                href="{{ route('login', ['redirect' => route('storefront.show', $product, false)]) }}" 
-                                class="w-full btn-teal text-base py-3.5 px-6 font-bold shadow-lg shadow-teal-600/30 flex items-center justify-center gap-2 group transition"
+                        <div class="flex items-center gap-2.5">
+                            {{-- Botão [+] Adicionar ao Carrinho --}}
+                            <button 
+                                type="button"
+                                @click="window.addToCart({
+                                    id: {{ $product->id }},
+                                    title: {{ json_encode($product->title) }},
+                                    slug: {{ json_encode($product->slug) }},
+                                    price: {{ (float) $product->price }},
+                                    cover_image: {{ json_encode($product->cover_image) }},
+                                    category: {{ json_encode($product->categoryGroup?->name ?? $product->category ?? 'Sistema Web') }}
+                                })"
+                                class="inline-flex h-[52px] w-[52px] items-center justify-center rounded-2xl border border-teal-500/40 bg-teal-500/10 hover:bg-teal-500/20 text-teal-400 hover:text-teal-300 transition shadow-sm cursor-pointer shrink-0 group"
+                                title="Adicionar ao Carrinho (+)"
+                                aria-label="Adicionar ao carrinho"
                             >
-                                <svg class="h-5 w-5 group-hover:scale-110 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                                <svg class="h-6 w-6 group-hover:scale-110 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
                                 </svg>
-                                Entrar para Comprar
-                            </a>
-                        @endauth
+                            </button>
 
-                        {{-- Botão Adicionar ao Carrinho --}}
-                        <button 
-                            type="button"
-                            @click="window.addToCart({
-                                id: {{ $product->id }},
-                                title: {{ json_encode($product->title) }},
-                                slug: {{ json_encode($product->slug) }},
-                                price: {{ (float) $product->price }},
-                                cover_image: {{ json_encode($product->cover_image) }},
-                                category: {{ json_encode($product->categoryRelation?->name ?? 'Sistema Web') }}
-                            })"
-                            class="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-teal-500/40 bg-teal-500/10 hover:bg-teal-500/20 py-3 px-4 text-sm font-bold text-teal-300 transition cursor-pointer group"
-                        >
-                            <svg class="h-4 w-4 text-teal-400 group-hover:scale-110 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                            </svg>
-                            <span>Adicionar ao Carrinho</span>
-                        </button>
+                            {{-- Botão Comprar --}}
+                            @auth
+                                <form method="POST" action="{{ route('checkout.store', $product) }}" class="flex-1" novalidate x-data="{ submitting: false }" x-on:submit="submitting = true">
+                                    @csrf
+                                    <button 
+                                        class="w-full btn-teal text-base !h-[52px] px-6 font-bold shadow-lg shadow-teal-600/30 flex items-center justify-center gap-2 group transition" 
+                                        type="submit" 
+                                        :disabled="submitting"
+                                    >
+                                        <span x-show="!submitting" class="flex items-center gap-2">
+                                            <svg class="h-5 w-5 group-hover:scale-110 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                                            </svg>
+                                            Comprar
+                                        </span>
+                                        <span x-show="submitting" x-cloak class="flex items-center gap-2">
+                                            <svg class="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+                                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                                            </svg>
+                                            Processando...
+                                        </span>
+                                    </button>
+                                </form>
+                            @else
+                                <a 
+                                    href="{{ route('login', ['redirect' => route('storefront.show', $product, false)]) }}" 
+                                    class="flex-1 btn-teal text-base !h-[52px] px-6 font-bold shadow-lg shadow-teal-600/30 flex items-center justify-center gap-2 group transition"
+                                >
+                                    <svg class="h-5 w-5 group-hover:scale-110 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                                    </svg>
+                                    Comprar
+                                </a>
+                            @endauth
+                        </div>
 
                         {{-- Botão de WhatsApp --}}
                         <a 
-                            href="https://wa.me/5541998608485?text={{ urlencode('Olá! Gostaria de tirar dúvidas sobre o produto: ' . $product->title) }}" 
+                            href="https://wa.me/5582996304742?text={{ urlencode('Olá! Gostaria de tirar dúvidas sobre o produto: ' . $product->title) }}" 
                             target="_blank" 
                             rel="noopener noreferrer" 
-                            class="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-emerald-500/40 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold py-3 px-4 text-sm transition"
+                            class="w-full inline-flex items-center justify-center gap-2 rounded-2xl border border-emerald-500/40 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold py-3.5 px-4 text-sm transition shadow-sm"
                         >
                             <svg class="h-5 w-5 text-emerald-600" fill="currentColor" viewBox="0 0 24 24">
                                 <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.312.045-.694.062-2.18-.553-1.614-.666-2.736-2.3-2.825-2.42-.089-.12-1.042-1.385-1.042-2.641 0-1.256.657-1.874.887-2.13.23-.257.51-.322.68-.322.17 0 .34.003.49.01.157.009.366-.06.574.44.214.512.73 1.776.794 1.905.064.13.107.28.021.451-.085.17-.128.277-.255.426-.128.149-.268.332-.383.447-.128.128-.261.267-.112.523.149.256.662 1.089 1.42 1.764.975.869 1.796 1.139 2.052 1.267.256.128.405.107.554-.064.15-.17.639-.746.81-1.002.17-.256.341-.213.575-.128.234.085 1.491.703 1.747.831.256.128.426.192.49.3.064.106.064.618-.08 1.023z"/>
@@ -726,7 +730,7 @@
                     </svg>
                 </button>
                 <div x-show="openFaq === 4" class="px-5 pb-5 text-xs sm:text-sm text-slate-600 leading-relaxed border-t border-slate-100 pt-3">
-                    Disponibilizamos suporte direto pelo WhatsApp oficial <strong>(41) 99860-8485</strong> e e-mail para orientar sobre os requisitos do servidor, banco de dados e resolução de eventuais dúvidas de configuração.
+                    Disponibilizamos suporte direto pelo WhatsApp oficial <strong>(82) 99630-4742</strong> e e-mail para orientar sobre os requisitos do servidor, banco de dados e resolução de eventuais dúvidas de configuração.
                 </div>
             </div>
         </div>
@@ -759,7 +763,7 @@
                     slug: {{ json_encode($product->slug) }},
                     price: {{ (float) $product->price }},
                     cover_image: {{ json_encode($product->cover_image) }},
-                    category: {{ json_encode($product->categoryRelation?->name ?? 'Sistema Web') }}
+                    category: {{ json_encode($product->categoryGroup?->name ?? $product->category ?? 'Sistema Web') }}
                 })"
                 class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-slate-900 border border-slate-700 text-teal-400 hover:bg-slate-800 transition cursor-pointer"
                 title="Adicionar ao Carrinho"
@@ -773,7 +777,7 @@
                 href="#card-compra" 
                 class="btn-teal !min-h-10 px-4 py-2 text-xs font-bold shadow-md shadow-teal-500/20"
             >
-                Comprar Agora &darr;
+                Comprar &darr;
             </a>
         </div>
     </div>
