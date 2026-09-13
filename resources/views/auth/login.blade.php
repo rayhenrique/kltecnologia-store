@@ -1,7 +1,7 @@
 <x-guest-layout>
     <x-slot:title>Entrar na Conta</x-slot:title>
 
-    <div class="relative overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/85 p-8 sm:p-9 shadow-2xl backdrop-blur-xl">
+    <div class="relative overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/85 p-5 sm:p-8 shadow-2xl backdrop-blur-xl">
         {{-- Linha de destaque em gradiente no topo --}}
         <div class="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-teal-400 via-emerald-400 to-blue-500"></div>
 

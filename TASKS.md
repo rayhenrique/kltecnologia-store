@@ -98,6 +98,10 @@
   - [x] Substituir badge de texto/svg "KL" pelo ícone oficial na navbar da vitrine, mantendo o texto "KL Tecnologia" na frente.
   - [x] Atualizar rodapé da loja, sidebar do painel administrativo, tela de login/cadastro (guest) e navegação do cliente com o ícone oficial.
   - [x] Configurar tags `<link rel="icon">` e `<link rel="apple-touch-icon">` em todos os layouts da aplicação.
-
-
-
+- [x] **Fase 15: Auditoria e Responsividade Mobile-First**
+  - [x] Implementar drawer off-canvas deslizante com menu mobile na vitrine (`layouts/storefront.blade.php`), incluindo atalhos para catálogo, blog, termos de busca e autenticação.
+  - [x] Criar sanfona de filtros colapsável no catálogo (`catalog/index.blade.php`) para priorizar visualização dos produtos em telas menores.
+  - [x] Implementar barra inferior fixa (sticky purchase bar) na página de detalhes do produto (`storefront/show.blade.php`) com âncora direta de checkout.
+  - [x] Otimizar formulários de autenticação (`login.blade.php`, `register.blade.php`) com padding dinâmico para telas estreitas (360px–390px).
+  - [x] Compactar header e botões de ação do Painel Administrativo (`layouts/admin.blade.php`, `categories/_form.blade.php`, `posts/_form.blade.php`) garantindo layout sem quebras em visualização mobile.
+  - [x] Executar testes visuais automatizados via navegador em viewport 390x844 e validar 100% da suíte PHPUnit.

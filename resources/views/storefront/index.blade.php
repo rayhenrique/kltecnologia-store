@@ -30,13 +30,13 @@
                         type="text" 
                         name="q" 
                         value="{{ request('q') }}"
-                        placeholder="O que você deseja construir hoje? Ex: Dashboard, Script, Bot..." 
-                        class="w-full border-0 bg-transparent px-4 py-2.5 text-sm sm:text-base text-white placeholder-slate-400 focus:outline-none focus:ring-0"
+                        placeholder="Buscar scripts, templates, sistemas..." 
+                        class="w-full border-0 bg-transparent px-3 sm:px-4 py-2 text-xs sm:text-base text-white placeholder-slate-400 focus:outline-none focus:ring-0"
                     />
                     @if(request('q'))
                         <a href="{{ route('storefront.index') }}" class="mr-2 text-xs font-semibold text-slate-400 hover:text-white">Limpar</a>
                     @endif
-                    <button type="submit" class="btn-teal shrink-0 rounded-xl px-5 sm:px-7 py-3 font-bold uppercase tracking-wider text-xs sm:text-sm">
+                    <button type="submit" class="btn-teal shrink-0 rounded-xl px-4 sm:px-7 py-2.5 sm:py-3 font-bold uppercase tracking-wider text-xs sm:text-sm">
                         Buscar
                     </button>
                 </form>

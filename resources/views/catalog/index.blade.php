@@ -21,19 +21,39 @@
             <div class="catalog-layout flex flex-col md:flex-row items-start gap-8 w-full">
                 
                 {{-- SIDEBAR: FILTRAR PRODUTOS --}}
-                <aside class="catalog-sidebar w-full md:w-[270px] md:min-w-[270px] md:max-w-[270px] shrink-0 rounded-xl border border-slate-200 bg-white p-5 shadow-sm md:sticky md:top-24">
-                    <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
-                        <h2 class="font-display text-sm font-bold uppercase tracking-wider text-slate-800">
+                <aside x-data="{ filtersMobileOpen: {{ !empty(array_filter($filters)) ? 'true' : 'false' }} }" class="catalog-sidebar w-full md:w-[270px] md:min-w-[270px] md:max-w-[270px] shrink-0 rounded-xl border border-slate-200 bg-white p-4 sm:p-5 shadow-sm md:sticky md:top-24">
+                    {{-- Mobile Toggle Button --}}
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-3">
+                        <button 
+                            type="button" 
+                            @click="filtersMobileOpen = !filtersMobileOpen"
+                            class="md:hidden flex items-center justify-between w-full text-xs font-bold text-slate-800 cursor-pointer"
+                        >
+                            <span class="flex items-center gap-2">
+                                <svg class="h-4 w-4 text-teal-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                                </svg>
+                                <span>Filtros & Categorias</span>
+                                @if(!empty(array_filter($filters)))
+                                    <span class="rounded-full bg-teal-500 px-1.5 py-0.5 text-[10px] text-white">Ativos</span>
+                                @endif
+                            </span>
+                            <svg :class="filtersMobileOpen ? 'rotate-180' : ''" class="h-4 w-4 text-slate-400 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </button>
+
+                        <h2 class="hidden md:block font-display text-sm font-bold uppercase tracking-wider text-slate-800">
                             Filtrar produtos
                         </h2>
                         @if(!empty(array_filter($filters)))
-                            <a href="{{ route('catalog.index') }}" class="text-xs font-semibold text-teal-600 hover:text-teal-700 underline">
+                            <a href="{{ route('catalog.index') }}" class="hidden md:inline text-xs font-semibold text-teal-600 hover:text-teal-700 underline">
                                 Limpar
                             </a>
                         @endif
                     </div>
 
-                    <form action="{{ route('catalog.index') }}" method="GET" class="space-y-4">
+                    <form action="{{ route('catalog.index') }}" method="GET" class="space-y-4" :class="filtersMobileOpen ? 'block' : 'hidden md:block'">
                         {{-- Buscar --}}
                         <div>
                             <label for="filter-q" class="block text-xs font-bold text-slate-700 mb-1">

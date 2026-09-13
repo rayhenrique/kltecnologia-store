@@ -215,10 +215,10 @@
     </div>
 
     {{-- BOTÕES DE AÇÃO --}}
-    <div class="flex items-center justify-between pt-4 border-t border-slate-200">
+    <div class="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-3 pt-4 border-t border-slate-200">
         <a 
             href="{{ route('admin.posts.index') }}" 
-            class="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-50 transition"
+            class="inline-flex w-full sm:w-auto justify-center items-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-50 transition"
         >
             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -228,7 +228,7 @@
 
         <button 
             type="submit" 
-            class="inline-flex items-center gap-2 rounded-xl bg-teal-600 hover:bg-teal-500 px-6 py-2.5 text-xs font-bold text-white shadow-md shadow-teal-600/30 transition disabled:opacity-50"
+            class="inline-flex w-full sm:w-auto justify-center items-center gap-2 rounded-xl bg-teal-600 hover:bg-teal-500 px-6 py-2.5 text-xs font-bold text-white shadow-md shadow-teal-600/30 transition disabled:opacity-50"
             :disabled="submitting"
         >
             <template x-if="submitting">

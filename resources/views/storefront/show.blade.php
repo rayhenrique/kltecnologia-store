@@ -267,7 +267,7 @@
             <div class="lg:col-span-4 space-y-6 lg:sticky lg:top-24">
                 
                 {{-- Card de Compra (Purchase Card) --}}
-                <div class="panel rounded-2xl border-2 border-teal-500/40 bg-white p-6 shadow-xl shadow-teal-950/5 relative overflow-hidden">
+                <div id="card-compra" class="panel rounded-2xl border-2 border-teal-500/40 bg-white p-6 shadow-xl shadow-teal-950/5 relative overflow-hidden">
                     <div class="absolute -right-8 -top-8 h-24 w-24 rounded-full bg-teal-500/10 blur-xl pointer-events-none"></div>
 
                     {{-- Top Flag --}}
@@ -712,4 +712,30 @@
             </div>
         </div>
     </section>
+
+    {{-- Mobile Sticky Bottom Bar for Quick Purchase --}}
+    <div class="fixed bottom-0 inset-x-0 z-30 bg-slate-950/95 backdrop-blur-md border-t border-slate-800 p-3 lg:hidden flex items-center justify-between gap-3 shadow-2xl">
+        <div>
+            <div class="flex items-baseline gap-1.5">
+                <span class="font-display text-lg font-black text-white">
+                    R$ {{ number_format($product->price, 2, ',', '.') }}
+                </span>
+                @if($product->regular_price && $product->regular_price > $product->price)
+                    <span class="text-[11px] text-slate-500 line-through">
+                        R$ {{ number_format($product->regular_price, 2, ',', '.') }}
+                    </span>
+                @endif
+            </div>
+            <span class="text-[10px] text-emerald-400 font-mono flex items-center gap-1">
+                <span class="h-1.5 w-1.5 rounded-full bg-emerald-400"></span>
+                Pix / Download Imediato
+            </span>
+        </div>
+        <a 
+            href="#card-compra" 
+            class="btn-teal !min-h-10 px-5 py-2 text-xs font-bold shadow-md shadow-teal-500/20"
+        >
+            Comprar Agora &darr;
+        </a>
+    </div>
 </x-storefront-layout>
