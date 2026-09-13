@@ -37,6 +37,16 @@ class StorefrontController extends Controller
     {
         abort_unless($product->is_active, 404);
 
-        return view('storefront.show', compact('product'));
+        $relatedProducts = Product::query()
+            ->where('is_active', true)
+            ->where('id', '!=', $product->id)
+            ->inRandomOrder()
+            ->take(4)
+            ->get();
+
+        return view('storefront.show', [
+            'product' => $product,
+            'relatedProducts' => $relatedProducts,
+        ]);
     }
 }

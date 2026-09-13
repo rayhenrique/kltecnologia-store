@@ -29,4 +29,32 @@ class StorefrontTest extends TestCase
             ->assertSee($matched->title)
             ->assertDontSee($other->title);
     }
+
+    public function test_product_detail_page_renders_with_related_products_and_tabs(): void
+    {
+        $product = Product::factory()->create([
+            'title' => 'Shop Mobile WhatsApp',
+            'price' => 49.90,
+            'is_active' => true,
+            'description' => "Sistema de catálogo online.\n\n### Recursos do Sistema\n• Painel administrativo\n• Pedidos no WhatsApp",
+        ]);
+
+        $related = Product::factory()->create([
+            'title' => 'Sistema Delivery Express',
+            'price' => 69.90,
+            'is_active' => true,
+        ]);
+
+        $response = $this->get(route('storefront.show', $product));
+
+        $response->assertOk()
+            ->assertSee('Shop Mobile WhatsApp')
+            ->assertSee('49,90')
+            ->assertSee('Sistema de catálogo online')
+            ->assertSee('Recursos do Sistema')
+            ->assertSee('Painel administrativo')
+            ->assertSee('Sistema Delivery Express')
+            ->assertSee('Por que comprar na KL Tecnologia?')
+            ->assertSee('Perguntas Frequentes sobre a Compra');
+    }
 }
