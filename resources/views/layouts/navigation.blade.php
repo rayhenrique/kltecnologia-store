@@ -7,9 +7,7 @@
             {{-- Logo e Links Principais --}}
             <div class="flex items-center gap-6 lg:gap-8">
                 <a href="{{ route('storefront.index') }}" class="flex items-center gap-2.5 group shrink-0">
-                    <span class="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-teal-400 to-blue-600 font-display font-bold text-white shadow-md shadow-teal-500/20 group-hover:scale-105 transition">
-                        KL
-                    </span>
+                    <img src="{{ asset('images/logo-kltecnologia.png') }}" alt="KL" class="h-9 w-9 rounded-xl object-cover shadow-md shadow-teal-500/20 group-hover:scale-105 transition duration-200" />
                     <div class="flex items-center gap-2">
                         <span class="font-display text-base font-bold tracking-tight text-white group-hover:text-teal-400 transition">
                             KL<span class="text-teal-400">Tecnologia</span>

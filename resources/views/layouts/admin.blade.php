@@ -6,6 +6,8 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>{{ isset($title) ? $title.' | ' : '' }}Painel Admin - {{ config('app.name', 'KL Tecnologia') }}</title>
+    <link rel="icon" type="image/png" href="{{ asset('images/logo-kltecnologia.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('images/logo-kltecnologia.png') }}">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">

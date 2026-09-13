@@ -114,9 +114,7 @@
 
                     {{-- Caixa do Autor --}}
                     <div class="mt-8 rounded-2xl border border-slate-100 bg-slate-50 p-6 flex flex-col sm:flex-row items-center gap-5">
-                        <div class="h-16 w-16 shrink-0 rounded-2xl bg-gradient-to-br from-teal-400 to-blue-600 grid place-items-center text-white font-display font-extrabold text-xl shadow-md shadow-teal-500/20">
-                            KL
-                        </div>
+                        <img src="{{ asset('images/logo-kltecnologia.png') }}" alt="KL Tecnologia" class="h-16 w-16 shrink-0 rounded-2xl object-cover shadow-md shadow-teal-500/20" />
                         <div class="text-center sm:text-left">
                             <span class="font-mono text-[11px] font-bold uppercase tracking-wider text-teal-700">Equipe Editorial</span>
                             <h4 class="font-display text-base font-bold text-slate-900 mt-0.5">KL Tecnologia</h4>

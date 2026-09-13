@@ -169,9 +169,7 @@
                                 {{-- Rodapé do Card --}}
                                 <div class="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between text-xs">
                                     <div class="flex items-center gap-2">
-                                        <div class="h-6 w-6 rounded-full bg-gradient-to-br from-teal-400 to-blue-600 grid place-items-center text-white font-display font-bold text-[10px]">
-                                            KL
-                                        </div>
+                                        <img src="{{ asset('images/logo-kltecnologia.png') }}" alt="KL" class="h-6 w-6 rounded-md object-cover shadow-xs" />
                                         <span class="font-semibold text-slate-700">KL Tecnologia</span>
                                     </div>
 

@@ -1,9 +1,7 @@
 {{-- Sidebar Brand / Logo --}}
 <div class="flex h-16 shrink-0 items-center justify-between px-6 border-b border-slate-800/80 bg-slate-950">
     <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3 group">
-        <span class="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-teal-400 to-blue-600 font-display font-bold text-white shadow-md shadow-teal-500/20 group-hover:scale-105 transition">
-            KL
-        </span>
+        <img src="{{ asset('images/logo-kltecnologia.png') }}" alt="KL" class="h-9 w-9 rounded-xl object-cover shadow-md shadow-teal-500/20 group-hover:scale-105 transition duration-200" />
         <div class="flex flex-col">
             <span class="font-display text-sm font-bold tracking-tight text-white group-hover:text-teal-400 transition leading-tight">
                 KL<span class="text-teal-400">Tecnologia</span>

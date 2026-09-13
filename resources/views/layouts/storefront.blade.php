@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ isset($title) ? $title.' | ' : '' }}{{ config('app.name', 'KL Tecnologia') }}</title>
+    <link rel="icon" type="image/png" href="{{ asset('images/logo-kltecnologia.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('images/logo-kltecnologia.png') }}">
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=dm-sans:400,500,600,700&family=ibm-plex-mono:500,600&family=sora:600,700,800&display=swap" rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -41,9 +43,7 @@
         <div class="page-container flex min-h-20 items-center justify-between gap-4 py-3">
             {{-- Logo --}}
             <a href="{{ route('storefront.index') }}" class="flex items-center gap-3 group shrink-0">
-                <span class="grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br from-teal-400 to-blue-600 font-display font-bold text-white shadow-lg shadow-teal-500/20 group-hover:scale-105 transition">
-                    KL
-                </span>
+                <img src="{{ asset('images/logo-kltecnologia.png') }}" alt="KL" class="h-10 w-10 rounded-xl object-cover shadow-lg shadow-teal-500/20 group-hover:scale-105 transition duration-200" />
                 <span class="font-display text-lg font-bold tracking-tight text-white group-hover:text-teal-400 transition">
                     KL<span class="text-teal-400">Tecnologia</span>
                 </span>
@@ -313,9 +313,7 @@
             {{-- Col 1: About --}}
             <div>
                 <a href="{{ route('storefront.index') }}" class="flex items-center gap-3">
-                    <span class="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-teal-400 to-blue-600 font-display font-bold text-white">
-                        KL
-                    </span>
+                    <img src="{{ asset('images/logo-kltecnologia.png') }}" alt="KL" class="h-9 w-9 rounded-xl object-cover shadow-md shadow-teal-500/20" />
                     <span class="font-display text-lg font-bold text-white">
                         KL<span class="text-teal-400">Tecnologia</span>
                     </span>
