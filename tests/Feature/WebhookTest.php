@@ -39,6 +39,26 @@ class WebhookTest extends TestCase
             ->assertUnauthorized();
     }
 
+    public function test_mercado_pago_test_simulation_returns_ok_without_signature(): void
+    {
+        $payload = [
+            'action' => 'order.processed',
+            'api_version' => 'v1',
+            'application_id' => '4286257130284731',
+            'data' => [
+                'external_reference' => 'ext_ref_1234',
+                'id' => '123456',
+                'status' => 'processed',
+            ],
+            'type' => 'order',
+        ];
+
+        $response = $this->postJson('/webhooks/mercado-pago', $payload);
+
+        $response->assertOk();
+        $response->assertJson(['status' => 'ok']);
+    }
+
     private function signedHeaders(string $dataId): array
     {
         $timestamp = '1742505638683';
