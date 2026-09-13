@@ -109,17 +109,25 @@
                                     <span class="block text-[10px] font-mono text-slate-400">BRL</span>
                                 </td>
                                 <td class="px-6 py-4">
-                                    @if($product->is_active)
-                                        <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 border border-emerald-200/80 px-2.5 py-1 text-xs font-bold text-emerald-700">
-                                            <span class="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                                            <span>Ativo</span>
-                                        </span>
-                                    @else
-                                        <span class="inline-flex items-center gap-1.5 rounded-full bg-slate-100 border border-slate-200 px-2.5 py-1 text-xs font-bold text-slate-600">
-                                            <span class="h-1.5 w-1.5 rounded-full bg-slate-400"></span>
-                                            <span>Inativo</span>
-                                        </span>
-                                    @endif
+                                    <div class="flex flex-col gap-1 items-start">
+                                        @if($product->is_active)
+                                            <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 border border-emerald-200/80 px-2.5 py-0.5 text-xs font-bold text-emerald-700">
+                                                <span class="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                                                <span>Ativo</span>
+                                            </span>
+                                        @else
+                                            <span class="inline-flex items-center gap-1.5 rounded-full bg-slate-100 border border-slate-200 px-2.5 py-0.5 text-xs font-bold text-slate-600">
+                                                <span class="h-1.5 w-1.5 rounded-full bg-slate-400"></span>
+                                                <span>Inativo</span>
+                                            </span>
+                                        @endif
+
+                                        @if($product->is_featured)
+                                            <span class="inline-flex items-center gap-1 rounded-full bg-amber-50 border border-amber-200/80 px-2 py-0.5 text-[10px] font-bold text-amber-700" title="Exibido na seção Produtos em Destaque da Home">
+                                                <span>★ Destaque</span>
+                                            </span>
+                                        @endif
+                                    </div>
                                 </td>
                                 <td class="px-6 py-4 text-right">
                                     <div class="flex items-center justify-end gap-2">

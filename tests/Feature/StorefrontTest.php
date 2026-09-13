@@ -57,4 +57,50 @@ class StorefrontTest extends TestCase
             ->assertSee('Por que comprar na KL Tecnologia?')
             ->assertSee('Perguntas Frequentes sobre a Compra');
     }
+
+    public function test_storefront_displays_featured_products_in_featured_section(): void
+    {
+        $featured = Product::factory()->create([
+            'title' => 'Produto Especial VIP',
+            'is_active' => true,
+            'is_featured' => true,
+        ]);
+
+        $normal = Product::factory()->create([
+            'title' => 'Produto Comum Padrao',
+            'is_active' => true,
+            'is_featured' => false,
+        ]);
+
+        $response = $this->get(route('storefront.index'));
+        $response->assertOk();
+
+        $featuredProducts = $response->viewData('featuredProducts');
+        $this->assertTrue($featuredProducts->contains('id', $featured->id));
+        $this->assertFalse($featuredProducts->contains('id', $normal->id));
+    }
+
+    public function test_storefront_complete_catalog_shows_recently_created_or_updated_first(): void
+    {
+        $this->travelTo(now()->subDays(10));
+        $older = Product::factory()->create([
+            'title' => 'Primeiro Produto Criado',
+            'is_active' => true,
+        ]);
+
+        $this->travelTo(now()->subDays(5));
+        $newer = Product::factory()->create([
+            'title' => 'Segundo Produto Criado',
+            'is_active' => true,
+        ]);
+
+        $this->travelTo(now());
+        $older->update(['description' => 'Atualização recente de conteúdo']);
+
+        $response = $this->get(route('storefront.index'));
+        $response->assertOk();
+
+        $products = $response->viewData('products');
+        $this->assertSame($older->id, $products->first()->id);
+    }
 }

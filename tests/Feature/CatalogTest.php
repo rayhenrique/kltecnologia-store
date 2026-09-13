@@ -56,4 +56,28 @@ class CatalogTest extends TestCase
         $response->assertOk();
         $response->assertSeeInOrder([$productA->title, $productB->title]);
     }
+
+    public function test_catalog_shows_recently_updated_or_created_products_first_by_default(): void
+    {
+        $this->travelTo(now()->subDays(10));
+        $older = Product::factory()->create([
+            'title' => 'Item Antigo Criado',
+            'is_active' => true,
+        ]);
+
+        $this->travelTo(now()->subDays(5));
+        $newer = Product::factory()->create([
+            'title' => 'Item Novo Criado',
+            'is_active' => true,
+        ]);
+
+        $this->travelTo(now());
+        $older->update(['description' => 'Item Antigo Atualizado Recentemente']);
+
+        $response = $this->get(route('catalog.index'));
+        $response->assertOk();
+
+        $products = $response->viewData('products');
+        $this->assertSame($older->id, $products->first()->id);
+    }
 }

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Concerns\HasUniqueSlug;
 use Database\Factories\ProductFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -29,6 +30,7 @@ class Product extends Model
         'cover_path',
         'file_path',
         'is_active',
+        'is_featured',
     ];
 
     /**
@@ -36,6 +38,7 @@ class Product extends Model
      */
     protected $attributes = [
         'is_active' => true,
+        'is_featured' => false,
     ];
 
     protected static function booted(): void
@@ -72,6 +75,15 @@ class Product extends Model
     }
 
     /**
+     * @param  Builder<Product>  $query
+     * @return Builder<Product>
+     */
+    public function scopeFeatured($query)
+    {
+        return $query->where('is_featured', true);
+    }
+
+    /**
      * @return array<string, string>
      */
     protected function casts(): array
@@ -79,6 +91,7 @@ class Product extends Model
         return [
             'price' => 'decimal:2',
             'is_active' => 'boolean',
+            'is_featured' => 'boolean',
         ];
     }
 }

@@ -11,10 +11,20 @@ class CartController extends Controller
     {
         $featuredProducts = Product::query()
             ->where('is_active', true)
+            ->where('is_featured', true)
             ->with('categoryGroup')
-            ->latest('id')
+            ->orderByDesc('updated_at')
             ->take(4)
             ->get();
+
+        if ($featuredProducts->isEmpty()) {
+            $featuredProducts = Product::query()
+                ->where('is_active', true)
+                ->with('categoryGroup')
+                ->orderByDesc('updated_at')
+                ->take(4)
+                ->get();
+        }
 
         return view('cart.index', [
             'featuredProducts' => $featuredProducts,

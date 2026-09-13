@@ -21,6 +21,7 @@ class UpdateProductRequest extends FormRequest
             'description' => ['required', 'string', 'max:10000'],
             'price' => ['required', 'decimal:0,2', 'min:0', 'max:99999999.99'],
             'is_active' => ['nullable', 'boolean'],
+            'is_featured' => ['nullable', 'boolean'],
             'cover' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
             'file' => ['nullable', 'file', 'mimes:zip,pdf,doc,docx,xls,xlsx,ppt,pptx,rar,7z', 'max:102400'],
         ];
@@ -28,6 +29,9 @@ class UpdateProductRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
-        $this->merge(['is_active' => $this->boolean('is_active')]);
+        $this->merge([
+            'is_active' => $this->boolean('is_active'),
+            'is_featured' => $this->boolean('is_featured'),
+        ]);
     }
 }

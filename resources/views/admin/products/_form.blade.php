@@ -135,7 +135,7 @@
             </p>
         </div>
 
-        <div class="grid gap-6 sm:grid-cols-2">
+        <div class="grid gap-6 sm:grid-cols-1 lg:grid-cols-3">
             <div>
                 <x-input-label for="price" value="Preço em Reais (BRL)" class="text-xs font-bold uppercase text-slate-700 mb-1" />
                 <div class="relative">
@@ -146,7 +146,7 @@
                         id="price" 
                         name="price" 
                         type="number" 
-                        min="0.01" 
+                        min="0.00" 
                         max="99999999.99" 
                         step="0.01" 
                         placeholder="0,00"
@@ -157,7 +157,7 @@
                         :aria-invalid="$errors->has('price') ? 'true' : 'false'" 
                     />
                 </div>
-                <p id="price-hint" class="mt-1 text-[11px] text-slate-500">Valor cobrado no checkout do Mercado Pago.</p>
+                <p id="price-hint" class="mt-1 text-[11px] text-slate-500">Valor cobrado no checkout (R$ 0,00 = Grátis).</p>
                 <x-input-error id="price-error" :messages="$errors->get('price')" class="mt-1.5 text-xs text-red-500" />
             </div>
 
@@ -174,6 +174,26 @@
                     <div>
                         <span class="text-xs font-bold text-slate-800 block">Produto ativo na vitrine</span>
                         <span class="text-[11px] text-slate-500 block">Disponível para busca e compra no catálogo</span>
+                    </div>
+                </label>
+            </div>
+
+            <div>
+                <x-input-label value="Destaque na Loja" class="text-xs font-bold uppercase text-slate-700 mb-1" />
+                <label class="flex min-h-[46px] items-center gap-3 rounded-xl border border-amber-200 bg-amber-50/40 hover:bg-amber-50/80 px-4 py-2.5 cursor-pointer transition select-none">
+                    <input 
+                        type="checkbox" 
+                        name="is_featured" 
+                        value="1" 
+                        @checked(old('is_featured', $product->is_featured ?? false)) 
+                        class="h-4 w-4 rounded border-amber-300 text-amber-500 focus:ring-amber-500/30"
+                    >
+                    <div>
+                        <span class="text-xs font-bold text-amber-900 flex items-center gap-1.5">
+                            <span>Colocar em Destaque</span>
+                            <span class="rounded bg-amber-100 text-amber-800 text-[10px] font-bold px-1.5 py-0.5 border border-amber-300">★ HOT</span>
+                        </span>
+                        <span class="text-[11px] text-amber-700/80 block">Aparece na seção "Produtos em Destaque" da Home</span>
                     </div>
                 </label>
             </div>

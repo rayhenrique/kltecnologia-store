@@ -21,9 +21,35 @@ class StorefrontController extends Controller
             });
         }
 
-        $products = (clone $query)->latest()->paginate(12)->withQueryString();
-        $featuredProducts = (clone $query)->latest()->take(4)->get();
-        $recentUpdates = (clone $query)->latest()->take(8)->get();
+        // Catálogo Completo: sempre priorizar produtos criados ou atualizados recentemente
+        $products = (clone $query)
+            ->orderByDesc('updated_at')
+            ->orderByDesc('created_at')
+            ->paginate(12)
+            ->withQueryString();
+
+        // Produtos em Destaque: produtos selecionados no painel admin
+        $featuredProducts = (clone $query)
+            ->where('is_featured', true)
+            ->orderByDesc('updated_at')
+            ->orderByDesc('created_at')
+            ->take(8)
+            ->get();
+
+        // Fallback para manter o layout preenchido caso o admin ainda não tenha marcado nenhum item
+        if ($featuredProducts->isEmpty()) {
+            $featuredProducts = (clone $query)
+                ->orderByDesc('updated_at')
+                ->orderByDesc('created_at')
+                ->take(4)
+                ->get();
+        }
+
+        $recentUpdates = (clone $query)
+            ->orderByDesc('updated_at')
+            ->orderByDesc('created_at')
+            ->take(8)
+            ->get();
 
         return view('storefront.index', [
             'products' => $products,

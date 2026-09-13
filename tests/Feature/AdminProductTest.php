@@ -76,4 +76,44 @@ class AdminProductTest extends TestCase
         $this->assertNotNull($product);
         $this->assertEquals(0.00, (float) $product->price);
     }
+
+    public function test_admin_can_create_featured_product(): void
+    {
+        Storage::fake('digital_products');
+        $admin = User::factory()->admin()->create();
+
+        $response = $this->actingAs($admin)->post(route('admin.products.store'), [
+            'title' => 'Sistema ERP em Destaque',
+            'description' => 'Sistema premium para exibição na home.',
+            'price' => '199.90',
+            'is_active' => '1',
+            'is_featured' => '1',
+            'file' => UploadedFile::fake()->create('erp.zip', 50, 'application/zip'),
+        ]);
+
+        $response->assertRedirect(route('admin.products.index'))->assertSessionHas('success');
+        $product = Product::where('slug', 'sistema-erp-em-destaque')->first();
+        $this->assertNotNull($product);
+        $this->assertTrue($product->is_featured);
+    }
+
+    public function test_admin_can_update_product_featured_status(): void
+    {
+        Storage::fake('digital_products');
+        $admin = User::factory()->admin()->create();
+        $product = Product::factory()->create([
+            'is_featured' => false,
+        ]);
+
+        $response = $this->actingAs($admin)->put(route('admin.products.update', $product), [
+            'title' => $product->title,
+            'description' => $product->description,
+            'price' => (string) $product->price,
+            'is_active' => '1',
+            'is_featured' => '1',
+        ]);
+
+        $response->assertRedirect(route('admin.products.index'))->assertSessionHas('success');
+        $this->assertTrue($product->fresh()->is_featured);
+    }
 }

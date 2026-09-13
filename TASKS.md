@@ -266,3 +266,24 @@
     - `tests/Feature/AdminCouponTest.php` (9 testes, 42 asserções) cobrindo controle de acesso (visitante, cliente, admin), CRUD completo e regras de validação.
     - `tests/Feature/CouponValidationTest.php` (10 testes, 24 asserções) cobrindo o endpoint `/cupons/validar`, expiração, limite, agendamento futuro, produto específico e aplicação real no checkout com incremento de uso.
   - [x] Suíte geral elevada para **148 testes aprovados (600 asserções)** com 100% de conformidade no Laravel Pint.
+
+- [x] **Fase 27: Produtos em Destaque na Home & Ordenação Recente no Catálogo Completo**
+  - [x] Criar migration `2026_09_13_160000_add_is_featured_to_products_table.php` adicionando coluna indexada `is_featured` (boolean, default false) na tabela `products`.
+  - [x] Atualizar Model `Product` (`app/Models/Product.php`):
+    - Adicionar `is_featured` em `$fillable`, `$attributes` (false) e `$casts` (boolean).
+    - Criar escopo local `scopeFeatured($query)`.
+    - Atualizar `ProductFactory` com estado `featured()`.
+  - [x] Atualizar módulo administrativo de cadastro/edição de produtos:
+    - Form Requests (`StoreProductRequest` e `UpdateProductRequest`): regra `'is_featured' => ['nullable', 'boolean']` e merge em `prepareForValidation()`.
+    - Formulário (`admin/products/_form.blade.php`): campo interativo com destaque visual e badge "★ HOT" para marcar produtos como destaque na home.
+    - Listagem (`admin/products/index.blade.php`): badge "★ Destaque" no card de status do produto.
+  - [x] Atualizar vitrine da página inicial (`StorefrontController.php`):
+    - Seção "Produtos em Destaque" (`$featuredProducts`): consulta filtrada por `where('is_featured', true)` priorizando os produtos marcados pelo admin no painel (com fallback seguro para itens recentes).
+    - Seção "Catálogo Completo" (`$products`): ordenação automática por `orderByDesc('updated_at')->orderByDesc('created_at')` garantindo que produtos criados recentemente ou atualizados recentemente apareçam sempre primeiro.
+  - [x] Atualizar página de catálogo completo (`CatalogController.php`):
+    - Ordenação padrão configurada para priorizar produtos criados ou atualizados recentemente (`orderByDesc('updated_at')->orderByDesc('created_at')`).
+  - [x] Criar e atualizar testes automatizados:
+    - `AdminProductTest`: criação e edição de produtos com flag `is_featured`.
+    - `StorefrontTest`: verificação da seção de destaques e ordenação do catálogo completo com `travelTo()`.
+    - `CatalogTest`: verificação de ordenação cronológica com produtos atualizados recentemente no topo.
+  - [x] Suíte de testes geral elevada para **153 testes aprovados (616 asserções)** com 100% de conformidade no Laravel Pint.

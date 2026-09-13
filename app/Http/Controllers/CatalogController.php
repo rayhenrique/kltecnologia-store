@@ -42,7 +42,7 @@ class CatalogController extends Controller
             'price_asc' => $query->orderBy('price', 'asc'),
             'price_desc' => $query->orderBy('price', 'desc'),
             'title_asc' => $query->orderBy('title', 'asc'),
-            default => $query->latest(),
+            default => $query->orderByDesc('updated_at')->orderByDesc('created_at'),
         };
 
         $products = $query->paginate(12)->withQueryString();
