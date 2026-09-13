@@ -9,7 +9,10 @@ use Illuminate\Support\Facades\Log;
 
 class WebhookService
 {
-    public function __construct(private readonly MercadoPagoService $mercadoPago) {}
+    public function __construct(
+        private readonly MercadoPagoService $mercadoPago,
+        private readonly OrderMailService $mailService
+    ) {}
 
     public function handlePayment(string $paymentId): void
     {
@@ -22,8 +25,11 @@ class WebhookService
             return;
         }
 
-        DB::transaction(function () use ($orderIds, $payment, $paymentId): void {
-            $orders = Order::query()->lockForUpdate()->whereIn('id', $orderIds)->get();
+        $paidOrders = null;
+        $orderUser = null;
+
+        DB::transaction(function () use ($orderIds, $payment, $paymentId, &$paidOrders, &$orderUser): void {
+            $orders = Order::query()->lockForUpdate()->whereIn('id', $orderIds)->with(['user', 'product'])->get();
             if ($orders->isEmpty() || $orders->every(fn ($o) => $o->status === OrderStatus::Paid)) {
                 return;
             }
@@ -58,7 +64,16 @@ class WebhookService
                     'payment_method' => $paymentMethod,
                 ]);
             }
+
+            if ($status === OrderStatus::Paid) {
+                $paidOrders = $orders;
+                $orderUser = $orders->first()?->user;
+            }
         });
+
+        if ($paidOrders !== null && $orderUser !== null) {
+            $this->mailService->sendOrderPaidEmail($orderUser, $paidOrders);
+        }
     }
 
     private function orderIdsFromReference(string $reference): array

@@ -9,6 +9,7 @@ use App\Http\Requests\Admin\UpdateOrderRequest;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\User;
+use App\Services\OrderMailService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -103,11 +104,19 @@ class OrderController extends Controller
         ]);
     }
 
-    public function update(UpdateOrderRequest $request, Order $order): RedirectResponse
+    public function update(UpdateOrderRequest $request, Order $order, OrderMailService $mailService): RedirectResponse
     {
         Gate::authorize('update', $order);
 
+        $wasPaid = $order->status === OrderStatus::Paid;
         $order->update($request->validated());
+
+        if (! $wasPaid && $order->status === OrderStatus::Paid) {
+            $order->load(['user', 'product']);
+            if ($order->user) {
+                $mailService->sendOrderPaidEmail($order->user, $order);
+            }
+        }
 
         return redirect()->route('admin.orders.show', $order)
             ->with('success', "Pedido #{$order->id} atualizado com sucesso.");

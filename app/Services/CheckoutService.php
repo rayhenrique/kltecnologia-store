@@ -16,21 +16,31 @@ use Throwable;
 
 class CheckoutService
 {
-    public function __construct(private readonly MercadoPagoService $mercadoPago) {}
+    public function __construct(
+        private readonly MercadoPagoService $mercadoPago,
+        private readonly OrderMailService $mailService
+    ) {}
 
     /**
      * @return array{url: string, is_free: bool}
      */
     public function start(User $user, Product $product): array
     {
+        $isFirstPurchase = ($user->orders()->count() === 0);
+
         if ((float) $product->price <= 0.0) {
-            $user->orders()->create([
+            $order = $user->orders()->create([
                 'product_id' => $product->id,
                 'status' => OrderStatus::Paid,
                 'amount' => '0.00',
                 'payment_method' => 'free',
                 'gateway_reference' => 'FREE-'.uniqid(),
             ]);
+
+            if ($isFirstPurchase) {
+                $this->mailService->sendWelcomeEmail($user);
+            }
+            $this->mailService->sendOrderPaidEmail($user, $order);
 
             return [
                 'url' => route('customer.downloads'),
@@ -47,6 +57,11 @@ class CheckoutService
         try {
             $preference = $this->mercadoPago->createPreference($order->load(['product', 'user']));
             $order->update(['gateway_reference' => (string) $preference['id']]);
+
+            if ($isFirstPurchase) {
+                $this->mailService->sendWelcomeEmail($user);
+            }
+            $this->mailService->sendOrderPendingEmail($user, $order);
 
             return [
                 'url' => (string) $preference['init_point'],
@@ -65,6 +80,7 @@ class CheckoutService
     public function process(array $data, ?User $currentUser): array
     {
         $user = $currentUser;
+        $isFirstPurchase = ($user === null) || ($user->orders()->count() === 0);
 
         if ($user === null) {
             $user = User::create([
@@ -178,8 +194,14 @@ class CheckoutService
             $couponModel->incrementUsage();
         }
 
+        if ($isFirstPurchase) {
+            $this->mailService->sendWelcomeEmail($user);
+        }
+
         // Se nenhum item gerar cobrança (total R$ 0,00), libera imediatamente sem chamar o Mercado Pago
         if (! $hasPaidOrder) {
+            $this->mailService->sendOrderPaidEmail($user, $orders);
+
             return [
                 'url' => route('customer.downloads'),
                 'is_free' => true,
@@ -188,6 +210,10 @@ class CheckoutService
 
         // Caso haja itens pagos, envia somente os pedidos pendentes para o Mercado Pago
         $paidOrders = array_values(array_filter($orders, fn ($o) => $o->status === OrderStatus::Pending));
+        $freeOrders = array_values(array_filter($orders, fn ($o) => $o->status === OrderStatus::Paid));
+        if (! empty($freeOrders)) {
+            $this->mailService->sendOrderPaidEmail($user, $freeOrders);
+        }
 
         try {
             foreach ($paidOrders as $order) {
@@ -201,6 +227,8 @@ class CheckoutService
             foreach ($paidOrders as $order) {
                 $order->update(['gateway_reference' => $gatewayReference]);
             }
+
+            $this->mailService->sendOrderPendingEmail($user, $paidOrders);
 
             return [
                 'url' => (string) $preference['init_point'],

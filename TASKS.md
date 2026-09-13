@@ -319,3 +319,31 @@
     - `tests/Feature/NewsletterTest.php` (7 testes) cobrindo inscrição via form, requisições JSON, e-mails em caixa alta, idempotência, reativação de inativos/deletados e validações.
     - `tests/Feature/AdminNewsletterTest.php` (7 testes) cobrindo proteção de rotas contra visitantes e clientes comuns, visualização de métricas e listagem, busca por e-mail, filtro por status, exportação CSV com validação de BOM e headers, e exclusão de leads.
   - [x] Suíte de testes geral elevada para **167 testes aprovados (667 asserções)** com 100% de conformidade no Laravel Pint.
+
+- [x] **Fase 29: E-mails Transacionais de Notificação ao Cliente (Boas-Vindas, Pendência e Confirmação de Compra)**
+  - [x] Criar classes Mailables no padrão Laravel 13.x (`app/Mail/`):
+    - `WelcomeCustomerMail`: E-mail de boas-vindas com confirmação de ativação de conta, dados de acesso e orientações de segurança.
+    - `OrderPendingMail`: E-mail de pedido recebido aguardando compensação de pagamento (PIX, Boleto, Cartão), lista de produtos e instruções de compensação.
+    - `OrderPaidMail`: E-mail de compra confirmada e pagamento aprovado com botão destacado para "Baixar Meus Produtos Agora" e instruções de uso.
+  - [x] Desenvolver templates responsivos de e-mail com layout dark/light moderno SaaS da KL Tecnologia (`resources/views/emails/`):
+    - `emails.layouts.default`: Cabeçalho escuro `#040812` com logotipo em teal `#14b8a6`, container centralizado de 600px, tipografia limpa e rodapé com informações da loja e suporte.
+    - `emails.welcome-customer`: Card de boas-vindas, e-mail de acesso e botão de direcionamento para o painel.
+    - `emails.order-pending`: Tabela com itens do pedido, valores em R$, orientações para PIX/Cartão/Boleto e link para acompanhar.
+    - `emails.order-paid`: Badge verde de pagamento aprovado, resumo dos produtos adquiridos e botão direto para download dos arquivos.
+  - [x] Criar serviço dedicado `OrderMailService` (`app/Services/OrderMailService.php`):
+    - Métodos `sendWelcomeEmail()`, `sendOrderPendingEmail()` e `sendOrderPaidEmail()`.
+    - Normalização automática de pedidos individuais ou múltiplos (carrinho de compras).
+    - Tratamento resiliente a falhas com `try/catch` e logs detalhados, garantindo que oscilações de SMTP nunca travem o checkout ou webhooks.
+  - [x] Integrar disparos automáticos nos pontos estratégicos do ciclo de vida de pedidos:
+    - `CheckoutService::process` e `start`: detecção inteligente de primeiro pedido/cadastro para envio de boas-vindas (`WelcomeCustomerMail`), envio de pendência para pedidos com valor pendente (`OrderPendingMail`) e envio de pagamento aprovado imediato para pedidos 100% gratuitos (`OrderPaidMail`).
+    - `WebhookService::handlePayment`: disparo de `OrderPaidMail` assim que o Mercado Pago confirma status `approved` (com proteção contra reenvio em webhooks repetidos).
+    - `Admin\OrderController::update`: disparo de `OrderPaidMail` caso o administrador atualize manualmente o status de um pedido para `Paid`.
+  - [x] Desenvolver suíte completa de testes automatizados (`tests/Feature/OrderEmailTest.php` com 7 testes e 36 asserções):
+    - Boas-vindas e pendência no checkout de novo cliente.
+    - Boas-vindas e confirmação imediata em checkout gratuito.
+    - Não reenvio de boas-vindas para clientes antigos com compras anteriores.
+    - Confirmação de compra via Webhook do Mercado Pago.
+    - Idempotência para webhooks duplicados.
+    - Confirmação manual de pedido no painel administrativo.
+    - Renderização sem erros de todos os templates HTML de e-mail.
+  - [x] Suíte de testes geral elevada para **174 testes aprovados (703 asserções)** com 100% de conformidade no Laravel Pint.
