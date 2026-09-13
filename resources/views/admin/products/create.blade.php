@@ -1,0 +1,1 @@
+<x-app-layout><x-slot:title>Novo produto</x-slot:title><x-slot name="header"><div><p class="eyebrow">Catálogo</p><h1 class="mt-1 font-display text-2xl font-bold">Novo produto</h1></div></x-slot><div class="page-container py-8"><div class="panel mx-auto max-w-3xl p-6 sm:p-8">@include('admin.products._form')</div></div></x-app-layout>
