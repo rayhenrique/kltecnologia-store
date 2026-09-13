@@ -3,21 +3,29 @@
         {{-- Header da Página --}}
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-                <h2 class="font-display text-2xl font-bold tracking-tight text-white">
+                <div class="flex items-center gap-2 mb-1">
+                    <span class="rounded bg-teal-50 border border-teal-200/80 px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wider text-teal-700">
+                        Conteúdo & Blog
+                    </span>
+                    <span class="font-mono text-xs text-slate-500 font-semibold">
+                        {{ $posts->total() }} {{ $posts->total() === 1 ? 'artigo cadastrado' : 'artigos cadastrados' }}
+                    </span>
+                </div>
+                <h1 class="font-display text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">
                     Artigos do Blog
-                </h2>
-                <p class="text-xs text-slate-400 mt-1">
+                </h1>
+                <p class="text-xs sm:text-sm text-slate-500 mt-1">
                     Crie, edite e monitore o alcance dos artigos e tutoriais da KL Tecnologia.
                 </p>
             </div>
 
-            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-2.5">
                 <a 
                     href="{{ route('blog.index') }}" 
                     target="_blank"
-                    class="inline-flex items-center gap-2 rounded-xl border border-slate-700 bg-slate-800/80 px-3.5 py-2 text-xs font-semibold text-slate-200 hover:bg-slate-700 transition"
+                    class="btn-secondary text-xs !min-h-10 !px-3.5 flex items-center gap-1.5 shadow-2xs"
                 >
-                    <svg class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg class="h-4 w-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                     </svg>
                     <span>Ver Blog Público</span>
@@ -25,7 +33,7 @@
 
                 <a 
                     href="{{ route('admin.posts.create') }}" 
-                    class="inline-flex items-center gap-2 rounded-xl bg-teal-600 hover:bg-teal-500 px-4 py-2 text-xs font-bold text-white shadow-md shadow-teal-600/30 transition"
+                    class="inline-flex items-center gap-1.5 rounded-xl bg-teal-600 hover:bg-teal-500 px-4 py-2 text-xs font-bold text-white shadow-sm shadow-teal-600/20 transition transform active:scale-95"
                 >
                     <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -36,7 +44,7 @@
         </div>
 
         {{-- Barra de Filtros & Busca --}}
-        <div class="rounded-2xl border border-slate-800 bg-slate-900/60 p-4 backdrop-blur-xs">
+        <div class="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-xs">
             <form action="{{ route('admin.posts.index') }}" method="GET" class="flex flex-col sm:flex-row gap-3">
                 <div class="relative flex-1">
                     <input 
@@ -44,9 +52,9 @@
                         name="q" 
                         value="{{ $search }}"
                         placeholder="Buscar por título, conteúdo ou categoria..." 
-                        class="w-full rounded-xl border-slate-700 bg-slate-950/80 pl-9 pr-4 py-2 text-xs sm:text-sm text-slate-200 placeholder-slate-500 focus:border-teal-500 focus:ring-1 focus:ring-teal-500/30"
+                        class="w-full rounded-xl border border-slate-300 bg-slate-50/60 pl-9 pr-4 py-2.5 text-xs sm:text-sm text-slate-900 placeholder-slate-400 focus:border-teal-500 focus:bg-white focus:ring-2 focus:ring-teal-500/20 shadow-2xs"
                     />
-                    <svg class="pointer-events-none absolute left-3 top-2.5 h-4 w-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg class="pointer-events-none absolute left-3 top-3 h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
                 </div>
@@ -55,7 +63,7 @@
                     <select 
                         name="categoria" 
                         onchange="this.form.submit()"
-                        class="rounded-xl border-slate-700 bg-slate-950/80 px-3 py-2 text-xs text-slate-200 focus:border-teal-500 focus:ring-1 focus:ring-teal-500/30"
+                        class="rounded-xl border border-slate-300 bg-slate-50/60 px-3.5 py-2.5 text-xs text-slate-800 focus:border-teal-500 focus:bg-white focus:ring-2 focus:ring-teal-500/20 shadow-2xs"
                     >
                         <option value="">Todas as Categorias</option>
                         @foreach($categories as $cat)
@@ -67,7 +75,7 @@
 
                     <button 
                         type="submit" 
-                        class="rounded-xl bg-slate-800 border border-slate-700 hover:bg-slate-700 px-4 py-2 text-xs font-semibold text-white transition"
+                        class="rounded-xl bg-slate-900 hover:bg-slate-800 px-4 py-2.5 text-xs font-bold text-white transition shadow-xs"
                     >
                         Filtrar
                     </button>
@@ -75,7 +83,7 @@
                     @if($search !== '' || $selectedCategory !== '')
                         <a 
                             href="{{ route('admin.posts.index') }}" 
-                            class="rounded-xl bg-red-950/50 border border-red-800/40 hover:bg-red-900/40 px-3 py-2 text-xs text-red-300 transition"
+                            class="rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-200 px-3 py-2.5 text-xs font-semibold text-slate-700 transition"
                             title="Limpar filtros"
                         >
                             Limpar
@@ -86,30 +94,30 @@
         </div>
 
         {{-- Tabela de Artigos --}}
-        <div class="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/40 shadow-xs">
+        <div class="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-xs">
             <div class="overflow-x-auto">
-                <table class="w-full text-left text-xs text-slate-300">
-                    <thead class="border-b border-slate-800 bg-slate-950/70 font-mono uppercase tracking-wider text-[11px] text-slate-400">
+                <table class="w-full text-left text-xs">
+                    <thead class="border-b border-slate-200 bg-slate-50/80 font-mono uppercase tracking-wider text-[11px] font-bold text-slate-600">
                         <tr>
-                            <th class="px-5 py-3.5">Artigo</th>
-                            <th class="px-5 py-3.5">Categoria</th>
-                            <th class="px-5 py-3.5 text-center">Visualizações</th>
-                            <th class="px-5 py-3.5 text-center">Status</th>
-                            <th class="px-5 py-3.5">Publicado Em</th>
-                            <th class="px-5 py-3.5 text-right">Ações</th>
+                            <th class="px-6 py-3.5">Artigo</th>
+                            <th class="px-6 py-3.5">Categoria</th>
+                            <th class="px-6 py-3.5 text-center">Visualizações</th>
+                            <th class="px-6 py-3.5 text-center">Status</th>
+                            <th class="px-6 py-3.5">Publicado Em</th>
+                            <th class="px-6 py-3.5 text-right">Ações</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-800/60 font-sans">
+                    <tbody class="divide-y divide-slate-100 font-sans text-slate-700">
                         @forelse($posts as $post)
-                            <tr class="hover:bg-slate-800/30 transition group">
+                            <tr class="hover:bg-slate-50/80 transition group">
                                 {{-- Capa + Título --}}
-                                <td class="px-5 py-3.5">
-                                    <div class="flex items-center gap-3">
-                                        <div class="h-12 w-16 shrink-0 rounded-lg overflow-hidden bg-slate-800 border border-slate-700 flex items-center justify-center">
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center gap-3.5">
+                                        <div class="h-12 w-16 shrink-0 rounded-lg overflow-hidden bg-slate-100 border border-slate-200 flex items-center justify-center shadow-2xs">
                                             @if($post->cover_path)
                                                 <img src="{{ asset($post->cover_path) }}" alt="{{ $post->title }}" class="h-full w-full object-cover">
                                             @else
-                                                <svg class="h-5 w-5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <svg class="h-5 w-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
                                                 </svg>
                                             @endif
@@ -117,11 +125,11 @@
                                         <div class="min-w-0 flex-1">
                                             <a 
                                                 href="{{ route('admin.posts.edit', $post) }}" 
-                                                class="font-semibold text-white group-hover:text-teal-400 transition line-clamp-1 block text-sm"
+                                                class="font-bold text-slate-900 group-hover:text-teal-600 transition line-clamp-1 block text-sm"
                                             >
                                                 {{ $post->title }}
                                             </a>
-                                            <p class="text-[11px] text-slate-500 line-clamp-1 mt-0.5">
+                                            <p class="text-xs text-slate-500 line-clamp-1 mt-0.5 font-normal">
                                                 {{ $post->excerpt ?: Str::limit(strip_tags($post->content), 80) }}
                                             </p>
                                         </div>
@@ -129,16 +137,16 @@
                                 </td>
 
                                 {{-- Categoria --}}
-                                <td class="px-5 py-3.5 whitespace-nowrap">
-                                    <span class="inline-flex items-center rounded-md bg-teal-950/60 border border-teal-800/50 px-2 py-0.5 font-mono text-[10px] font-bold text-teal-300">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="inline-flex items-center rounded-md bg-teal-50 border border-teal-200/80 px-2 py-0.5 font-mono text-[10px] font-bold text-teal-800">
                                         {{ $post->category ?? 'Geral' }}
                                     </span>
                                 </td>
 
                                 {{-- Views --}}
-                                <td class="px-5 py-3.5 whitespace-nowrap text-center">
-                                    <span class="inline-flex items-center gap-1 font-mono text-xs text-slate-400">
-                                        <svg class="h-3.5 w-3.5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <td class="px-6 py-4 whitespace-nowrap text-center">
+                                    <span class="inline-flex items-center gap-1 font-mono text-xs text-slate-600 font-semibold">
+                                        <svg class="h-3.5 w-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                         </svg>
@@ -147,32 +155,32 @@
                                 </td>
 
                                 {{-- Status --}}
-                                <td class="px-5 py-3.5 whitespace-nowrap text-center">
+                                <td class="px-6 py-4 whitespace-nowrap text-center">
                                     @if($post->is_published)
-                                        <span class="inline-flex items-center gap-1 rounded-full bg-emerald-950/60 border border-emerald-800/60 px-2.5 py-0.5 text-[10px] font-semibold text-emerald-400">
-                                            <span class="h-1.5 w-1.5 rounded-full bg-emerald-400"></span>
+                                        <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 text-[10px] font-bold text-emerald-700">
+                                            <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
                                             Publicado
                                         </span>
                                     @else
-                                        <span class="inline-flex items-center gap-1 rounded-full bg-amber-950/60 border border-amber-800/60 px-2.5 py-0.5 text-[10px] font-semibold text-amber-400">
-                                            <span class="h-1.5 w-1.5 rounded-full bg-amber-400"></span>
+                                        <span class="inline-flex items-center gap-1.5 rounded-full bg-amber-50 border border-amber-200 px-2.5 py-0.5 text-[10px] font-bold text-amber-700">
+                                            <span class="h-1.5 w-1.5 rounded-full bg-amber-500"></span>
                                             Rascunho
                                         </span>
                                     @endif
                                 </td>
 
                                 {{-- Data --}}
-                                <td class="px-5 py-3.5 whitespace-nowrap font-mono text-[11px] text-slate-400">
+                                <td class="px-6 py-4 whitespace-nowrap font-mono text-xs text-slate-600">
                                     {{ $post->published_at ? $post->published_at->format('d/m/Y H:i') : $post->created_at->format('d/m/Y') }}
                                 </td>
 
                                 {{-- Ações --}}
-                                <td class="px-5 py-3.5 whitespace-nowrap text-right">
-                                    <div class="flex items-center justify-end gap-2">
+                                <td class="px-6 py-4 whitespace-nowrap text-right">
+                                    <div class="flex items-center justify-end gap-1">
                                         <a 
                                             href="{{ route('blog.show', $post) }}" 
                                             target="_blank"
-                                            class="rounded-lg p-1.5 text-slate-400 hover:bg-slate-800 hover:text-teal-400 transition"
+                                            class="rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-teal-600 transition"
                                             title="Ver post público"
                                         >
                                             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -183,7 +191,7 @@
 
                                         <a 
                                             href="{{ route('admin.posts.edit', $post) }}" 
-                                            class="rounded-lg p-1.5 text-slate-400 hover:bg-slate-800 hover:text-white transition"
+                                            class="rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-teal-600 transition"
                                             title="Editar artigo"
                                         >
                                             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -201,7 +209,7 @@
                                             @method('DELETE')
                                             <button 
                                                 type="submit" 
-                                                class="rounded-lg p-1.5 text-slate-400 hover:bg-red-950/60 hover:text-red-400 transition"
+                                                class="rounded-lg p-2 text-slate-500 hover:bg-red-50 hover:text-red-600 transition"
                                                 title="Excluir artigo"
                                             >
                                                 <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -214,11 +222,11 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="px-5 py-12 text-center text-slate-500">
-                                    <svg class="h-10 w-10 mx-auto mb-3 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <td colspan="6" class="px-6 py-12 text-center text-slate-500">
+                                    <svg class="h-10 w-10 mx-auto mb-3 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
                                     </svg>
-                                    <p class="font-medium text-slate-400">Nenhum artigo encontrado</p>
+                                    <p class="font-bold text-slate-700">Nenhum artigo encontrado</p>
                                     <p class="text-xs text-slate-500 mt-1">Tente ajustar seus termos de busca ou crie um novo artigo.</p>
                                 </td>
                             </tr>
@@ -228,7 +236,7 @@
             </div>
 
             @if($posts->hasPages())
-                <div class="border-t border-slate-800 bg-slate-950/60 px-5 py-4">
+                <div class="border-t border-slate-200 bg-slate-50/50 px-6 py-4">
                     {{ $posts->links() }}
                 </div>
             @endif

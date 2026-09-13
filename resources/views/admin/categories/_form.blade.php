@@ -76,19 +76,19 @@
                         placeholder="Ex: code, cloud, bot, chart, template, mobile" 
                     />
                 </div>
-                <div class="mt-1.5 flex flex-wrap gap-1.5 text-[11px] text-slate-500">
-                    <span class="font-semibold">Sugestões:</span>
-                    <button type="button" @click="icon = 'code'" class="hover:text-teal-600 underline">code</button>
+                <div class="mt-1.5 flex flex-wrap items-center gap-1.5 text-xs text-slate-600">
+                    <span class="font-bold text-slate-700">Sugestões:</span>
+                    <button type="button" @click="icon = 'code'" class="text-teal-700 font-semibold hover:text-teal-900 underline">code</button>
                     <span>&bull;</span>
-                    <button type="button" @click="icon = 'cloud'" class="hover:text-teal-600 underline">cloud</button>
+                    <button type="button" @click="icon = 'cloud'" class="text-teal-700 font-semibold hover:text-teal-900 underline">cloud</button>
                     <span>&bull;</span>
-                    <button type="button" @click="icon = 'bot'" class="hover:text-teal-600 underline">bot</button>
+                    <button type="button" @click="icon = 'bot'" class="text-teal-700 font-semibold hover:text-teal-900 underline">bot</button>
                     <span>&bull;</span>
-                    <button type="button" @click="icon = 'chart'" class="hover:text-teal-600 underline">chart</button>
+                    <button type="button" @click="icon = 'chart'" class="text-teal-700 font-semibold hover:text-teal-900 underline">chart</button>
                     <span>&bull;</span>
-                    <button type="button" @click="icon = 'template'" class="hover:text-teal-600 underline">template</button>
+                    <button type="button" @click="icon = 'template'" class="text-teal-700 font-semibold hover:text-teal-900 underline">template</button>
                     <span>&bull;</span>
-                    <button type="button" @click="icon = 'mobile'" class="hover:text-teal-600 underline">mobile</button>
+                    <button type="button" @click="icon = 'mobile'" class="text-teal-700 font-semibold hover:text-teal-900 underline">mobile</button>
                 </div>
                 <x-input-error :messages="$errors->get('icon')" class="mt-1.5 text-xs text-red-500" />
             </div>
