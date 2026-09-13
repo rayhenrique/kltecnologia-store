@@ -121,4 +121,15 @@
   - [x] Ajustar padding dinâmico da área principal de conteúdo (`admin-main-collapsed` e `admin-main-expanded`) garantindo transição sem sobreposições.
   - [x] Preservar drawer off-canvas mobile em telas menores (< 1024px) para não afetar usabilidade em smartphones e tablets.
 
+- [x] **Fase 18: CRUD Completo de Pedidos no Painel Administrativo**
+  - [x] Atualizar Model `Order` com `user_id` em `$fillable` e query scopes `scopeSearch` e `scopeStatus`.
+  - [x] Expandir `OrderPolicy` com autorização administrativa para `view`, `create`, `update` e `delete`.
+  - [x] Criar Form Requests `StoreOrderRequest` e `UpdateOrderRequest` com sanitização e validação de valores e enums.
+  - [x] Registrar recurso completo de rotas `Route::resource('orders', AdminOrderController::class)` em `routes/web.php`.
+  - [x] Implementar todos os métodos no `Admin\OrderController` (`index`, `create`, `store`, `show`, `edit`, `update`, `destroy`).
+  - [x] Desenvolver views do painel: `index` (com 4 cards de métricas, busca textual, filtro de status e ações), `create`, `edit`, `_form` compartilhado e `show` (com dados do produto, cliente, financeiro e alteração rápida de status).
+  - [x] Criar suíte de testes Feature `AdminOrderCrudTest` com 8 testes cobrindo todas as operações e validações.
+  - [x] Validar 100% de aprovação na suíte geral do PHPUnit (100 testes, 386 asserções) e conformidade no Pint.
+
+
 

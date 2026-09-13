@@ -45,7 +45,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'verified', 'admin']
     Route::resource('products', AdminProductController::class)->except(['show']);
     Route::resource('categories', AdminCategoryController::class)->except(['show']);
     Route::resource('posts', AdminPostController::class)->except(['show']);
-    Route::get('/orders', [AdminOrderController::class, 'index'])->name('orders.index');
+    Route::resource('orders', AdminOrderController::class);
 });
 
 require __DIR__.'/auth.php';
