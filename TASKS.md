@@ -88,4 +88,9 @@
   - [x] Integrar formulário de produtos (`admin.products._form`) com select de categorias cadastradas e link rápido para gestão.
   - [x] Criar suíte de testes `AdminCategoryTest` cobrindo permissões, CRUD e vínculo de produtos com 100% de aprovação (89 testes no total).
 
+- [x] **Fase 13: Topbar Interativa & Modal de Busca Global**
+  - [x] Adicionar ícones de Favoritos e Carrinho com contadores dinâmicos via `localStorage` e eventos Alpine.js na navbar (topbar).
+  - [x] Substituir caixa de busca fixa por botão de ícone de lupa interativo na topbar.
+  - [x] Implementar Modal de Busca global (Spotlight) com backdrop escuro com blur, atalhos de teclado (`Ctrl+K` / `Cmd+K` / `ESC`), foco automático no input e tags de termos em alta.
+
 
