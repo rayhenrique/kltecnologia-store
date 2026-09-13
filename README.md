@@ -109,9 +109,15 @@ DB_ENGINE=InnoDB
 php artisan migrate --seed
 ```
 
-> **Contas Criadas pelo Seeder:**
-> - **Administrador:** `admin@kltecnologia.test` | Senha: `password`
-> - **Cliente:** `cliente@kltecnologia.test` | Senha: `password`
+> **Contas Pré-configuradas:**
+> - **Administrador Principal:** `admin@example.com` | Senha: `[REMOVED-ADMIN-PASSWORD]`
+> - **Administrador Dev:** `admin@kltecnologia.test` | Senha: `password`
+> - **Cliente Demo:** `cliente@kltecnologia.test` | Senha: `password`
+>
+> *Para criar ou resetar o admin em qualquer ambiente via terminal:*
+> ```bash
+> php artisan app:create-admin admin@example.com [REMOVED-ADMIN-PASSWORD]
+> ```
 
 ### 5. Compilar Assets e Iniciar o Servidor
 Em terminais separados (ou via script integrado):

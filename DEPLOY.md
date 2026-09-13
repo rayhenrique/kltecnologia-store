@@ -197,12 +197,15 @@ Execute a criação das tabelas no MySQL da produção:
 php8.4 artisan migrate --force
 ```
 
-### 7.2. (Opcional) Criar Usuário Administrador
-Para criar os dados demonstrativos e o usuário admin inicial:
+### 7.2. Usuário Administrador em Produção
+A migration do projeto já provisiona automaticamente o administrador principal ao rodar o `migrate`:
+- **E-mail:** `admin@example.com`
+- **Senha:** `[REMOVED-ADMIN-PASSWORD]`
+
+Se desejar alterar a senha ou recriar o usuário administrador a qualquer momento no servidor, basta rodar o comando seguro:
 ```bash
-php8.4 artisan db:seed --force
+php8.4 artisan app:create-admin admin@example.com [REMOVED-ADMIN-PASSWORD]
 ```
-*(Credenciais criadas: `admin@kltecnologia.test` e senha `password`. Lembre-se de alterar a senha e o e-mail no painel administrativo imediatamente)*.
 
 ### 7.3. Configurar Storage de Arquivos
 Crie o link simbólico do storage público:
