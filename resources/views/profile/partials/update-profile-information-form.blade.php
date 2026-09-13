@@ -47,6 +47,20 @@
             @endif
         </div>
 
+        <div>
+            <x-input-label for="cpf" :value="__('CPF (Mercado Pago / Documento)')" />
+            <x-text-input id="cpf" name="cpf" type="text" class="mt-1 block w-full" :value="old('cpf', $user->cpf)" placeholder="000.000.000-00" autocomplete="off" />
+            <p class="mt-1 text-xs text-gray-500">Necessário para faturamento, PIX e validações antifraude do Mercado Pago.</p>
+            <x-input-error class="mt-2" :messages="$errors->get('cpf')" />
+        </div>
+
+        <div>
+            <x-input-label for="phone" :value="__('WhatsApp / Telefone com DDD')" />
+            <x-text-input id="phone" name="phone" type="tel" class="mt-1 block w-full" :value="old('phone', $user->phone)" placeholder="(11) 99999-9999" autocomplete="tel" />
+            <p class="mt-1 text-xs text-gray-500">Utilizado para confirmação de compras e contato direto do suporte.</p>
+            <x-input-error class="mt-2" :messages="$errors->get('phone')" />
+        </div>
+
         <div class="flex items-center gap-4">
             <x-primary-button>{{ __('Save') }}</x-primary-button>
 

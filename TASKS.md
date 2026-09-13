@@ -39,3 +39,12 @@
 - [x] **Fase 7: Refinamento e Testes**
   - [x] Ajustar UI/UX de mensagens flash (sucesso, erro).
   - [x] Escrever testes básicos automatizados (Feature Tests) para: Bloqueio de download sem pagamento, alteração de status via webhook simulado e criação de produto por Admin.
+
+- [x] **Fase 8: Conformidade Mercado Pago & Cadastro do Cliente**
+  - [x] Adicionar campos `cpf` e `phone` na tabela `users` via migration.
+  - [x] Atualizar Model `User` com `$fillable` e accessors limpos (`clean_cpf`, `clean_phone`).
+  - [x] Atualizar `RegisterRequest` e `ProfileUpdateRequest` com validações.
+  - [x] Adicionar inputs no design dark SaaS de `register.blade.php` e no perfil com máscaras automáticas em JavaScript.
+  - [x] Integrar dados completos do pagador (`name`, `surname`, `identification`, `phone`) no `MercadoPagoService::createPreference` para aprovação e antifraude sem atrito.
+  - [x] Criar e executar testes automatizados cobrindo o novo fluxo de cadastro.
+

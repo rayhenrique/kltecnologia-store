@@ -11,6 +11,39 @@ class MercadoPagoService
 {
     public function createPreference(Order $order): array
     {
+        $nameParts = explode(' ', trim((string) $order->user->name), 2);
+        $firstName = $nameParts[0] ?? (string) $order->user->name;
+        $lastName = $nameParts[1] ?? '';
+
+        $payer = [
+            'name' => $firstName,
+            'surname' => $lastName,
+            'email' => (string) $order->user->email,
+        ];
+
+        $cleanPhone = (string) $order->user->clean_phone;
+        if ($cleanPhone !== '') {
+            if (strlen($cleanPhone) >= 10) {
+                $payer['phone'] = [
+                    'area_code' => substr($cleanPhone, 0, 2),
+                    'number' => substr($cleanPhone, 2),
+                ];
+            } else {
+                $payer['phone'] = [
+                    'area_code' => '',
+                    'number' => $cleanPhone,
+                ];
+            }
+        }
+
+        $cleanCpf = (string) $order->user->clean_cpf;
+        if ($cleanCpf !== '') {
+            $payer['identification'] = [
+                'type' => strlen($cleanCpf) > 11 ? 'CNPJ' : 'CPF',
+                'number' => $cleanCpf,
+            ];
+        }
+
         $payload = [
             'items' => [[
                 'id' => (string) $order->product_id,
@@ -20,7 +53,7 @@ class MercadoPagoService
                 'currency_id' => 'BRL',
                 'unit_price' => (float) $order->amount,
             ]],
-            'payer' => ['email' => $order->user->email],
+            'payer' => $payer,
             'external_reference' => 'order:'.$order->id,
             'back_urls' => [
                 'success' => route('checkout.return', ['status' => 'success']),

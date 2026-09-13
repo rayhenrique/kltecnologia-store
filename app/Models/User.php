@@ -19,7 +19,13 @@ class User extends Authenticatable
     /**
      * @var list<string>
      */
-    protected $fillable = ['name', 'email', 'password'];
+    protected $fillable = [
+        'name',
+        'email',
+        'cpf',
+        'phone',
+        'password',
+    ];
 
     /**
      * @var list<string>
@@ -53,6 +59,16 @@ class User extends Authenticatable
     public function scopeWhereIsAdmin(Builder $query): Builder
     {
         return $query->where('role', UserRole::Admin->value);
+    }
+
+    public function getCleanCpfAttribute(): string
+    {
+        return preg_replace('/\D/', '', (string) $this->cpf);
+    }
+
+    public function getCleanPhoneAttribute(): string
+    {
+        return preg_replace('/\D/', '', (string) $this->phone);
     }
 
     /**

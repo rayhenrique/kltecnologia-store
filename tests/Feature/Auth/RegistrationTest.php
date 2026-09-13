@@ -30,6 +30,26 @@ class RegistrationTest extends TestCase
         $response->assertRedirect(route('dashboard', absolute: false));
     }
 
+    public function test_new_users_can_register_with_cpf_and_phone(): void
+    {
+        $response = $this->post('/register', [
+            'name' => 'Maria Silva',
+            'email' => 'maria@example.com',
+            'cpf' => '123.456.789-00',
+            'phone' => '(11) 98888-7777',
+            'password' => 'password',
+            'password_confirmation' => 'password',
+        ]);
+
+        $this->assertAuthenticated();
+        $response->assertRedirect(route('dashboard', absolute: false));
+        $this->assertDatabaseHas('users', [
+            'email' => 'maria@example.com',
+            'cpf' => '123.456.789-00',
+            'phone' => '(11) 98888-7777',
+        ]);
+    }
+
     public function test_registration_cannot_assign_the_admin_role(): void
     {
         $response = $this->post('/register', [
