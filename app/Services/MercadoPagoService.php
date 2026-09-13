@@ -61,18 +61,29 @@ class MercadoPagoService
             ];
         }
 
+        if ($payerUser->created_at) {
+            $payer['date_created'] = $payerUser->created_at->toIso8601String();
+        }
+
         $items = [];
         $orderIds = [];
         foreach ($ordersList as $order) {
             $orderIds[] = $order->id;
-            $items[] = [
+            $item = [
                 'id' => (string) $order->product_id,
                 'title' => $order->product->title,
                 'description' => str($order->product->description)->limit(250)->toString(),
                 'quantity' => 1,
                 'currency_id' => 'BRL',
                 'unit_price' => (float) $order->amount,
+                'category_id' => 'software',
             ];
+
+            if ($order->product->cover_path) {
+                $item['picture_url'] = url($order->product->cover_path);
+            }
+
+            $items[] = $item;
         }
 
         $externalReference = count($orderIds) === 1 ? 'order:'.$orderIds[0] : 'orders:'.implode(',', $orderIds);
@@ -82,6 +93,7 @@ class MercadoPagoService
             'items' => $items,
             'payer' => $payer,
             'external_reference' => $externalReference,
+            'statement_descriptor' => 'KL TECNOLOGIA',
             'back_urls' => [
                 'success' => route('checkout.return', ['status' => 'success']),
                 'failure' => route('checkout.return', ['status' => 'failure']),
