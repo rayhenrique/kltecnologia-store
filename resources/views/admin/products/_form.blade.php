@@ -146,10 +146,26 @@
 
             {{-- Arquivo do Produto --}}
             <div class="rounded-xl border border-teal-200/80 bg-teal-50/20 p-4">
-                <div class="flex items-center justify-between mb-1">
+                <div class="flex items-center justify-between mb-2">
                     <x-input-label for="file" value="Arquivo Digital Protegido" class="text-xs font-bold uppercase text-teal-900" />
                     <span class="rounded bg-teal-100/70 px-1.5 py-0.5 text-[10px] font-mono font-bold text-teal-800">Storage Privado</span>
                 </div>
+
+                @if($editing && empty($product->file_path))
+                    <div class="mb-3 rounded-lg border border-amber-300 bg-amber-50/90 p-2.5 text-xs text-amber-800 flex items-center gap-2">
+                        <svg class="h-4 w-4 shrink-0 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                        <span><strong>Pendente de upload:</strong> Selecione o arquivo (.zip) abaixo e salve para disponibilizá-lo aos compradores.</span>
+                    </div>
+                @elseif($editing && !empty($product->file_path))
+                    <div class="mb-3 rounded-lg border border-emerald-200 bg-emerald-50/80 p-2 text-xs text-emerald-800 flex items-center gap-2">
+                        <svg class="h-4 w-4 shrink-0 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        <span>Arquivo ativo no storage privado. Envie outro se desejar substituir.</span>
+                    </div>
+                @endif
                 <input 
                     id="file" 
                     name="file" 

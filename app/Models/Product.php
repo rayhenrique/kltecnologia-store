@@ -41,6 +41,11 @@ class Product extends Model
         return $this->hasMany(Order::class);
     }
 
+    public function getHasFileAttribute(): bool
+    {
+        return ! empty($this->file_path);
+    }
+
     /**
      * @return array<string, string>
      */

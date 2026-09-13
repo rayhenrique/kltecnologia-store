@@ -13,7 +13,12 @@ class DownloadController extends Controller
     public function __invoke(Order $order): StreamedResponse
     {
         Gate::authorize('download', $order);
-        $extension = pathinfo($order->product->file_path, PATHINFO_EXTENSION);
+
+        if (! $order->product->file_path || ! Storage::disk('digital_products')->exists($order->product->file_path)) {
+            abort(404, 'O arquivo deste produto está sendo atualizado pelo administrador. Por favor, contate o suporte.');
+        }
+
+        $extension = pathinfo((string) $order->product->file_path, PATHINFO_EXTENSION);
         $filename = Str::slug($order->product->title).($extension ? '.'.$extension : '');
 
         return Storage::disk('digital_products')->download($order->product->file_path, $filename);

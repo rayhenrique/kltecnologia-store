@@ -83,12 +83,21 @@
                                                     /{{ $product->slug }}
                                                 </span>
                                                 <span class="text-slate-300">•</span>
-                                                <span class="text-[10px] font-semibold text-teal-600 flex items-center gap-1">
-                                                    <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                                                    </svg>
-                                                    Privado
-                                                </span>
+                                                @if($product->has_file)
+                                                    <span class="text-[10px] font-semibold text-teal-600 flex items-center gap-1" title="Arquivo digital no storage">
+                                                        <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                                        </svg>
+                                                        Arquivo OK
+                                                    </span>
+                                                @else
+                                                    <span class="text-[10px] font-semibold text-amber-600 flex items-center gap-1" title="Upload do arquivo pendente">
+                                                        <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                                        </svg>
+                                                        Upload pendente
+                                                    </span>
+                                                @endif
                                             </div>
                                         </div>
                                     </div>

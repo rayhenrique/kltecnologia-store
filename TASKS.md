@@ -48,3 +48,12 @@
   - [x] Integrar dados completos do pagador (`name`, `surname`, `identification`, `phone`) no `MercadoPagoService::createPreference` para aprovação e antifraude sem atrito.
   - [x] Criar e executar testes automatizados cobrindo o novo fluxo de cadastro.
 
+- [x] **Fase 9: Web Scraper & Importação do Catálogo PLW Design**
+  - [x] Criar migration tornando `file_path` nullable na tabela `products` para suporte a upload posterior.
+  - [x] Criar comando Artisan `app:scrape-plw` para varredura e importação paginada com parser DOM.
+  - [x] Extrair títulos, descrições detalhadas, capas em alta resolução e preços comerciais de tabela (`<del>`).
+  - [x] Baixar e salvar capas localmente em `public/covers/`.
+  - [x] Ajustar painel admin com alerta visual de upload pendente e edição direta de arquivos.
+  - [x] Criar testes automatizados para o scraper e garantir 100% de sucesso da suíte.
+
+
