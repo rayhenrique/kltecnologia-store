@@ -192,6 +192,25 @@
                 </span>
                 <span x-show="!{{ $isMobile ? 'true' : 'false' }} && sidebarCollapsed" class="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-emerald-400"></span>
             </a>
+
+            {{-- Newsletter (Leads / Inscritos) --}}
+            <a 
+                href="{{ route('admin.newsletter.index') }}" 
+                :title="(!{{ $isMobile ? 'true' : 'false' }} && sidebarCollapsed) ? 'Newsletter ({{ \App\Models\NewsletterSubscriber::count() }})' : ''"
+                class="relative flex items-center rounded-xl text-xs font-semibold transition group {{ request()->routeIs('admin.newsletter.*') ? 'bg-teal-600 text-white shadow-sm shadow-teal-600/30 font-bold' : 'text-slate-300 hover:bg-slate-900 hover:text-white' }}"
+                :class="(!{{ $isMobile ? 'true' : 'false' }} && sidebarCollapsed) ? 'justify-center h-11 w-11 mx-auto p-0' : 'justify-between px-3 py-2 w-full'"
+            >
+                <div class="flex items-center gap-3 min-w-0">
+                    <svg class="h-5 w-5 shrink-0 {{ request()->routeIs('admin.newsletter.*') ? 'text-white' : 'text-slate-400 group-hover:text-teal-400' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                    <span x-show="{{ $isMobile ? 'true' : '!sidebarCollapsed' }}" x-cloak class="truncate whitespace-nowrap">Newsletter</span>
+                </div>
+                <span x-show="{{ $isMobile ? 'true' : '!sidebarCollapsed' }}" x-cloak class="rounded-md bg-slate-900 px-1.5 py-0.5 text-[10px] font-mono text-cyan-400 border border-slate-800 shrink-0">
+                    {{ \App\Models\NewsletterSubscriber::count() }}
+                </span>
+                <span x-show="!{{ $isMobile ? 'true' : 'false' }} && sidebarCollapsed" class="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-cyan-400"></span>
+            </a>
         </nav>
     </div>
 

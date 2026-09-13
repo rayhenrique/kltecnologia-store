@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\BlogCategoryController as AdminBlogCategoryContro
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Admin\CouponController as AdminCouponController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Admin\NewsletterSubscriberController as AdminNewsletterSubscriberController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Admin\PostController as AdminPostController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
@@ -17,6 +18,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DownloadController;
 use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\LegalController;
+use App\Http\Controllers\NewsletterSubscriptionController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\StorefrontController;
 use App\Http\Controllers\WebhookController;
@@ -28,6 +30,7 @@ Route::get('/carrinho', [CartController::class, 'index'])->name('cart.index');
 Route::get('/favoritos', [FavoriteController::class, 'index'])->name('favorites.index');
 Route::post('/favoritos/items', [FavoriteController::class, 'items'])->name('favorites.items');
 Route::post('/cupons/validar', [CouponValidationController::class, 'validateCoupon'])->name('coupons.validate');
+Route::post('/newsletter', [NewsletterSubscriptionController::class, 'store'])->name('newsletter.subscribe');
 Route::get('/produtos/{product:slug}', [StorefrontController::class, 'show'])->name('storefront.show');
 Route::get('/politica-de-privacidade', [LegalController::class, 'privacy'])->name('privacy.index');
 Route::get('/termos-de-uso', [LegalController::class, 'terms'])->name('terms.index');
@@ -61,6 +64,9 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'verified', 'admin']
     Route::resource('posts', AdminPostController::class)->except(['show']);
     Route::resource('blog-categories', AdminBlogCategoryController::class)->except(['show']);
     Route::resource('orders', AdminOrderController::class);
+    Route::get('/newsletter/export', [AdminNewsletterSubscriberController::class, 'export'])->name('newsletter.export');
+    Route::get('/newsletter', [AdminNewsletterSubscriberController::class, 'index'])->name('newsletter.index');
+    Route::delete('/newsletter/{subscriber}', [AdminNewsletterSubscriberController::class, 'destroy'])->name('newsletter.destroy');
 });
 
 require __DIR__.'/auth.php';

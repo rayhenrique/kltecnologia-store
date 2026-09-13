@@ -562,17 +562,88 @@
                     Cadastre-se para receber avisos de lançamentos, promoções relâmpago e materiais exclusivos.
                 </p>
             </div>
-            <form onsubmit="event.preventDefault(); alert('Inscrição confirmada com sucesso!'); this.reset();" class="flex w-full max-w-md flex-col sm:flex-row gap-2">
-                <input 
-                    type="email" 
-                    required 
-                    placeholder="Seu melhor e-mail..." 
-                    class="flex-1 rounded-xl border-slate-700 bg-slate-900/90 px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:border-teal-400 focus:ring-2 focus:ring-teal-400/30"
-                />
-                <button type="submit" class="btn-teal whitespace-nowrap shadow-lg shadow-teal-600/30">
-                    Receber Novidades
-                </button>
-            </form>
+            <div 
+                x-data="{
+                    email: '',
+                    loading: false,
+                    successMessage: '',
+                    errorMessage: '',
+                    async submitForm() {
+                        if (!this.email || this.loading) return;
+                        this.loading = true;
+                        this.errorMessage = '';
+                        this.successMessage = '';
+
+                        try {
+                            const res = await fetch('{{ route('newsletter.subscribe') }}', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Accept': 'application/json',
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name=\'csrf-token\']')?.content || '{{ csrf_token() }}'
+                                },
+                                body: JSON.stringify({ email: this.email })
+                            });
+
+                            const data = await res.json();
+
+                            if (res.ok && data.success) {
+                                this.successMessage = data.message || 'Inscrição realizada com sucesso!';
+                                this.email = '';
+                                window.dispatchEvent(new CustomEvent('toast-message', { 
+                                    detail: { message: this.successMessage } 
+                                }));
+                            } else {
+                                this.errorMessage = data.message || (data.errors ? Object.values(data.errors).flat().join(', ') : 'Erro ao processar inscrição. Tente novamente.');
+                            }
+                        } catch (err) {
+                            this.errorMessage = 'Ocorreu um erro de conexão. Tente novamente.';
+                        } finally {
+                            this.loading = false;
+                        }
+                    }
+                }"
+                class="w-full max-w-md"
+            >
+                <form @submit.prevent="submitForm" class="flex flex-col sm:flex-row gap-2">
+                    <input 
+                        type="email" 
+                        x-model="email"
+                        required 
+                        :disabled="loading"
+                        placeholder="Seu melhor e-mail..." 
+                        class="flex-1 rounded-xl border-slate-700 bg-slate-900/90 px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:border-teal-400 focus:ring-2 focus:ring-teal-400/30 disabled:opacity-50"
+                    />
+                    <button 
+                        type="submit" 
+                        :disabled="loading"
+                        class="btn-teal whitespace-nowrap shadow-lg shadow-teal-600/30 flex items-center justify-center gap-2 disabled:opacity-60"
+                    >
+                        <template x-if="loading">
+                            <svg class="h-4 w-4 animate-spin text-slate-950" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                        </template>
+                        <span x-text="loading ? 'Enviando...' : 'Receber Novidades'"></span>
+                    </button>
+                </form>
+
+                {{-- Feedback messages --}}
+                <div x-show="successMessage" x-cloak class="mt-2.5 flex items-center gap-2 text-xs font-medium text-emerald-400 bg-emerald-950/40 border border-emerald-500/20 px-3 py-2 rounded-lg">
+                    <svg class="w-4 h-4 shrink-0 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span x-text="successMessage"></span>
+                </div>
+
+                <div x-show="errorMessage" x-cloak class="mt-2.5 flex items-center gap-2 text-xs font-medium text-rose-400 bg-rose-950/40 border border-rose-500/20 px-3 py-2 rounded-lg">
+                    <svg class="w-4 h-4 shrink-0 text-rose-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span x-text="errorMessage"></span>
+                </div>
+            </div>
         </div>
     </section>
 

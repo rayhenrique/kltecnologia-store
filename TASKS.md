@@ -287,3 +287,35 @@
     - `StorefrontTest`: verificação da seção de destaques e ordenação do catálogo completo com `travelTo()`.
     - `CatalogTest`: verificação de ordenação cronológica com produtos atualizados recentemente no topo.
   - [x] Suíte de testes geral elevada para **153 testes aprovados (616 asserções)** com 100% de conformidade no Laravel Pint.
+
+- [x] **Fase 28: Módulo de Newsletter e Exportação de Leads no Painel Admin**
+  - [x] Criar migration `2026_09_13_170000_create_newsletter_subscribers_table.php` criando a tabela `newsletter_subscribers` com colunas `email` (único, indexado), `ip_address`, `user_agent`, `is_active`, `subscribed_at`, `unsubscribed_at`, `created_at`, `updated_at` e `deleted_at` (soft deletes).
+  - [x] Criar Model `NewsletterSubscriber` (`app/Models/NewsletterSubscriber.php`):
+    - `$fillable`, `$attributes`, `$casts`, normalização automática para minúsculo em `booted()`, `scopeActive()` e suporte a `SoftDeletes`.
+  - [x] Criar Policy `NewsletterSubscriberPolicy` (`app/Policies/NewsletterSubscriberPolicy.php`):
+    - Restrição de `viewAny`, `view`, `delete` e `export` exclusivamente para administradores (`$user->isAdmin()`).
+  - [x] Criar Form Request `StoreNewsletterSubscriberRequest` (`app/Http/Requests/StoreNewsletterSubscriberRequest.php`):
+    - Validação de e-mail obrigatório, formato válido e normalização em `prepareForValidation()`.
+  - [x] Criar Controller público de inscrição `NewsletterSubscriptionController` (`app/Http/Controllers/NewsletterSubscriptionController.php`):
+    - Tratamento idempotente de novos cadastros e reativação de descadastrados ou registros excluídos.
+    - Suporte a requisições JSON assíncronas (fetch/AJAX) e submissões tradicionais de formulário com flash message.
+  - [x] Conectar o formulário de Newsletter da vitrine inicial (`resources/views/layouts/storefront.blade.php`):
+    - Componente interativo Alpine.js com envio assíncrono via `fetch` para `route('newsletter.subscribe')`.
+    - Token CSRF dinâmico, animação de loading spinner, feedback visual de sucesso e erro, e disparo do evento global de toast.
+  - [x] Criar módulo administrativo completo de Newsletter (`/admin/newsletter`):
+    - Controller `Admin\NewsletterSubscriberController`:
+      - `index()`: 4 cards de métricas (Total de Inscritos, Leads Ativos, Novos este Mês, Novos Hoje), busca textual por e-mail, filtro por status (Todos, Ativos, Inativos) e paginação com preservação de querystring.
+      - `export()`: Download em streaming de arquivo CSV (`newsletter-inscritos-YYYY-MM-DD.csv`) com delimitador ponto e vírgula, codificação UTF-8 com BOM (`\xEF\xBB\xBF`) garantindo compatibilidade imediata com Microsoft Excel e Google Sheets, processamento em chunks de 500 registros para alta escalabilidade.
+      - `destroy()`: Exclusão com confirmação e soft delete.
+    - View `resources/views/admin/newsletter/index.blade.php`:
+      - Interface visual dark/light minimalista SaaS com Alpine.js.
+      - Botão de exportação direta para CSV.
+      - Botão "Copiar E-mails da Página" para área de transferência em 1 clique.
+      - Botão de cópia individual ao passar o mouse sobre qualquer e-mail da listagem.
+      - Estado vazio acolhedor quando nenhum lead for encontrado.
+    - Menu lateral (`resources/views/layouts/partials/admin-sidebar.blade.php`):
+      - Novo item "Newsletter" com ícone dedicado e contador de leads cadastrados em tempo real.
+  - [x] Desenvolver suítes completas de testes automatizados:
+    - `tests/Feature/NewsletterTest.php` (7 testes) cobrindo inscrição via form, requisições JSON, e-mails em caixa alta, idempotência, reativação de inativos/deletados e validações.
+    - `tests/Feature/AdminNewsletterTest.php` (7 testes) cobrindo proteção de rotas contra visitantes e clientes comuns, visualização de métricas e listagem, busca por e-mail, filtro por status, exportação CSV com validação de BOM e headers, e exclusão de leads.
+  - [x] Suíte de testes geral elevada para **167 testes aprovados (667 asserções)** com 100% de conformidade no Laravel Pint.
