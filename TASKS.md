@@ -143,6 +143,15 @@
   - [x] Integrar formulário de artigos (`admin/posts/_form.blade.php`) com select de categorias cadastradas e link rápido de gestão.
   - [x] Criar suíte de testes `AdminBlogCategoryTest` com 7 testes aprovados (107 testes no total, 420 asserções) e Pint 100% validado.
 
+- [x] **Fase 20: Redesign da Página de Perfil (`/profile`)**
+  - [x] Criar Hero Profile Banner moderno escuro (`bg-slate-950` com luz ambiente teal/azul), avatar dinâmico com iniciais estilizadas, badges de perfil (`Admin Master` / `Cliente VIP`) e verificação de e-mail.
+  - [x] Redesenhar formulário de Dados Pessoais & Faturamento com inputs modernos, suporte a CPF (Mercado Pago), WhatsApp e máscaras reativas em tempo real.
+  - [x] Redesenhar formulário de Segurança & Alteração de Senha com botões de alternância de visibilidade (olho), checklist de requisitos e feedback visual.
+  - [x] Criar coluna lateral com Resumo de Status da Conta (total de pedidos, downloads liberados, CPF/WhatsApp vinculados e atalho para biblioteca).
+  - [x] Adicionar card de Privacidade & Proteção (Criptografia SSL 256-bit, LGPD, antifraude Mercado Pago).
+  - [x] Reformular seção de Zona de Risco e Modal de Exclusão de Conta com avisos claros em português e proteção por senha.
+  - [x] Garantir 100% de responsividade mobile-first e aprovação total nos testes automatizados (`ProfileTest`, `PasswordUpdateTest` e suíte geral de 107 testes).
+
 
 
 
