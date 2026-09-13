@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Enums\OrderStatus;
+use App\Models\Coupon;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\User;
@@ -94,8 +95,27 @@ class CheckoutService
             throw new RuntimeException('Nenhum produto válido encontrado para compra.');
         }
 
-        $discountPercent = $this->resolveDiscountPercent($data['coupon'] ?? null);
-        $discountMultiplier = (100 - $discountPercent) / 100;
+        $subtotal = (float) $products->sum('price');
+        $couponCode = strtoupper(trim((string) ($data['coupon'] ?? '')));
+        $couponModel = null;
+        $legacyDiscountPercent = 0;
+
+        if ($couponCode !== '') {
+            $foundCoupon = Coupon::where('code', $couponCode)->first();
+            if ($foundCoupon) {
+                $eval = $foundCoupon->evaluate($products, $subtotal);
+                if ($eval['valid']) {
+                    $couponModel = $foundCoupon;
+                }
+            } else {
+                $legacyDiscountPercent = $this->resolveDiscountPercent($couponCode);
+            }
+        }
+
+        $remainingFixedDiscount = 0.0;
+        if ($couponModel && $couponModel->discount_type === 'fixed' && $couponModel->isApplicableToStorewide()) {
+            $remainingFixedDiscount = (float) $couponModel->discount_value;
+        }
 
         /** @var list<Order> $orders */
         $orders = [];
@@ -106,9 +126,34 @@ class CheckoutService
             $amount = 0.0;
 
             if (! $isProductFree) {
-                $amount = $discountPercent > 0
-                    ? max(0.00, round(((float) $product->price) * $discountMultiplier, 2))
-                    : (float) $product->price;
+                if ($couponModel) {
+                    if ($couponModel->product_id !== null) {
+                        if ($couponModel->product_id === $product->id) {
+                            if ($couponModel->discount_type === 'percentage') {
+                                $discountMultiplier = (100 - (float) $couponModel->discount_value) / 100;
+                                $amount = max(0.00, round(((float) $product->price) * $discountMultiplier, 2));
+                            } else {
+                                $amount = max(0.00, round(((float) $product->price) - (float) $couponModel->discount_value, 2));
+                            }
+                        } else {
+                            $amount = (float) $product->price;
+                        }
+                    } else {
+                        if ($couponModel->discount_type === 'percentage') {
+                            $discountMultiplier = (100 - (float) $couponModel->discount_value) / 100;
+                            $amount = max(0.00, round(((float) $product->price) * $discountMultiplier, 2));
+                        } else {
+                            $deduct = min((float) $product->price, $remainingFixedDiscount);
+                            $amount = max(0.00, round(((float) $product->price) - $deduct, 2));
+                            $remainingFixedDiscount = max(0.00, $remainingFixedDiscount - $deduct);
+                        }
+                    }
+                } elseif ($legacyDiscountPercent > 0) {
+                    $discountMultiplier = (100 - $legacyDiscountPercent) / 100;
+                    $amount = max(0.00, round(((float) $product->price) * $discountMultiplier, 2));
+                } else {
+                    $amount = (float) $product->price;
+                }
             }
 
             if ($amount > 0.0) {
@@ -127,6 +172,10 @@ class CheckoutService
                     'gateway_reference' => 'FREE-'.uniqid(),
                 ]);
             }
+        }
+
+        if ($couponModel) {
+            $couponModel->incrementUsage();
         }
 
         // Se nenhum item gerar cobrança (total R$ 0,00), libera imediatamente sem chamar o Mercado Pago

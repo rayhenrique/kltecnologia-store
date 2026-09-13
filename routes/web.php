@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\BlogCategoryController as AdminBlogCategoryController;
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
+use App\Http\Controllers\Admin\CouponController as AdminCouponController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Admin\PostController as AdminPostController;
@@ -10,6 +11,7 @@ use App\Http\Controllers\BlogController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CatalogController;
 use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\CouponValidationController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DownloadController;
@@ -25,6 +27,7 @@ Route::get('/catalogo', [CatalogController::class, 'index'])->name('catalog.inde
 Route::get('/carrinho', [CartController::class, 'index'])->name('cart.index');
 Route::get('/favoritos', [FavoriteController::class, 'index'])->name('favorites.index');
 Route::post('/favoritos/items', [FavoriteController::class, 'items'])->name('favorites.items');
+Route::post('/cupons/validar', [CouponValidationController::class, 'validateCoupon'])->name('coupons.validate');
 Route::get('/produtos/{product:slug}', [StorefrontController::class, 'show'])->name('storefront.show');
 Route::get('/politica-de-privacidade', [LegalController::class, 'privacy'])->name('privacy.index');
 Route::get('/termos-de-uso', [LegalController::class, 'terms'])->name('terms.index');
@@ -54,6 +57,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'verified', 'admin']
     Route::get('/', AdminDashboardController::class)->name('dashboard');
     Route::resource('products', AdminProductController::class)->except(['show']);
     Route::resource('categories', AdminCategoryController::class)->except(['show']);
+    Route::resource('coupons', AdminCouponController::class)->except(['show']);
     Route::resource('posts', AdminPostController::class)->except(['show']);
     Route::resource('blog-categories', AdminBlogCategoryController::class)->except(['show']);
     Route::resource('orders', AdminOrderController::class);

@@ -234,5 +234,35 @@
     - Atualização dos fluxos de compras de visitantes, clientes e cupons com aceite de termos, totalizando 129 testes aprovados (534 asserções).
   - [x] 100% de conformidade com o Laravel Pint.
 
-
-
+- [x] **Fase 26: Módulo Completo de Cupons de Desconto no Painel Administrativo & Checkout Dinâmico**
+  - [x] Criar migration `2026_09_13_150000_create_coupons_table.php` e tabela `coupons`:
+    - Campos: `code`, `description`, `discount_type` (percentage/fixed), `discount_value`, `min_order_amount`, `product_id` (nullable com foreign key e onDelete null), `max_uses` (nullable), `times_used` (contador), `starts_at` (temporário agendado), `expires_at` (data de expiração), `is_active` (boolean), soft deletes, timestamps e índices de busca.
+  - [x] Desenvolver Model `Coupon` (`app/Models/Coupon.php`):
+    - Relacionamento `belongsTo(Product::class)`.
+    - Sanitização automática com código em caixa alta (`strtoupper`) ao salvar.
+    - Métodos auxiliares: `isExpired()`, `hasStarted()`, `hasReachedLimit()`, `isApplicableToStorewide()`, `incrementUsage()`.
+    - Método de inteligência de negócio `evaluate(Collection $products, float $subtotal)` que valida se o cupom está ativo, no prazo, dentro do limite, atinge valor mínimo e é elegível aos itens do pedido, calculando o desconto preciso.
+  - [x] Criar Policy `CouponPolicy` (`app/Policies/CouponPolicy.php`) restringindo visualização, criação, edição e exclusão a administradores (`$user->isAdmin()`).
+  - [x] Criar Form Requests com validações completas:
+    - `StoreCouponRequest`: Código único, validação de percentual (máx 100%), datas válidas (`after_or_equal`), limite numérico de utilizações e tipo de desconto (`percentage` ou `fixed`).
+    - `UpdateCouponRequest`: Validação única ignorando o registro atual, mensagens amigáveis em português.
+  - [x] Criar `Admin\CouponController` (`app/Http/Controllers/Admin/CouponController.php`):
+    - CRUD completo com listagem paginada, filtros por status e busca textual por código ou descrição.
+    - Métricas em cards no topo (total de cupons, ativos, utilizações acumuladas, expirados).
+    - `store()`, `edit()`, `update()` e `destroy()` com exclusão segura e mensagens flash de feedback.
+  - [x] Desenvolver Views Blade administrativas com design moderno SaaS (`resources/views/admin/coupons/`):
+    - `index.blade.php`: Tabela responsiva com badges de status pulsantes, atalho de cópia do código para área de transferência em 1 clique, tipo de desconto destacado, escopo (Geral / Produto Específico) e paginação.
+    - `create.blade.php`: Formulário dinâmico com Alpine.js alternando escopo (Toda a Loja vs Produto Específico) e tipo de desconto (% vs R$).
+    - `edit.blade.php`: Formulário de edição com alerta de utilizações já realizadas.
+  - [x] Integrar link de Cupons no menu lateral administrativo (`resources/views/layouts/partials/admin-sidebar.blade.php`) com badge de contagem em tempo real.
+  - [x] Desenvolver endpoint de validação em tempo real `POST /cupons/validar` (`CouponValidationController`):
+    - Validação de código contra o banco com checagem de regras em tempo real (data, limite, produto e valor mínimo).
+    - Fallback legado compatível para códigos promocionais de testes (`FREE100`, `VIP10`, `KL2026`).
+  - [x] Integrar validação e cálculo dinâmico de desconto:
+    - `app/Services/CheckoutService.php`: Avaliação e aplicação de cupons dinâmicos aos itens do pedido, suporte a cupons de produto ou gerais (% ou fixo) e incremento automático de `times_used`.
+    - `resources/views/checkout/index.blade.php`: Validação assíncrona via `fetch('/cupons/validar')` com feedback visual de carregamento, cálculo automático de desconto e submissão com o pedido.
+    - `resources/views/cart/index.blade.php`: Validação assíncrona via `fetch('/cupons/validar')` no carrinho.
+  - [x] Desenvolver suítes completas de testes automatizados:
+    - `tests/Feature/AdminCouponTest.php` (9 testes, 42 asserções) cobrindo controle de acesso (visitante, cliente, admin), CRUD completo e regras de validação.
+    - `tests/Feature/CouponValidationTest.php` (10 testes, 24 asserções) cobrindo o endpoint `/cupons/validar`, expiração, limite, agendamento futuro, produto específico e aplicação real no checkout com incremento de uso.
+  - [x] Suíte geral elevada para **148 testes aprovados (600 asserções)** com 100% de conformidade no Laravel Pint.

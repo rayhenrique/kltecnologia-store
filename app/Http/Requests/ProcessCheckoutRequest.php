@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Coupon;
 use App\Models\Product;
 use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
@@ -91,6 +92,17 @@ class ProcessCheckoutRequest extends FormRequest
         $coupon = strtoupper(trim((string) $this->input('coupon')));
         if ($coupon === 'FREE100' || $coupon === 'GRATIS100') {
             return true;
+        }
+
+        if ($coupon !== '') {
+            $couponModel = Coupon::where('code', $coupon)->first();
+            if ($couponModel) {
+                $products = Product::whereIn('id', $ids)->where('is_active', true)->get();
+                $eval = $couponModel->evaluate($products, $total);
+                if ($eval['valid'] && $eval['discount_amount'] >= $total) {
+                    return true;
+                }
+            }
         }
 
         return $total <= 0.0;

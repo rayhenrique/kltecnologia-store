@@ -44,30 +44,55 @@
                 this.couponSuccess = '';
             }
         },
-        applyCoupon() {
+        loadingCoupon: false,
+        async applyCoupon() {
             const code = this.couponInput.trim().toUpperCase();
             this.couponError = '';
             this.couponSuccess = '';
 
             if (!code) {
-                this.couponError = 'Digite um cupom válido.';
+                this.couponError = 'Digite um código de cupom.';
                 return;
             }
 
-            if (code === 'VIP10' || code === 'KL10') {
-                this.appliedCoupon = { code: code, percent: 10 };
-                this.couponSuccess = 'Cupom de 10% de desconto aplicado com sucesso!';
+            this.loadingCoupon = true;
+
+            try {
+                const payload = {
+                    code: code,
+                    items: this.items.map(i => i.id)
+                };
+
+                const response = await fetch('{{ route('coupons.validate') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await response.json();
+
+                if (!response.ok || !data.valid) {
+                    this.couponError = data.message || 'Cupom inválido ou expirado.';
+                    this.appliedCoupon = null;
+                    return;
+                }
+
+                this.appliedCoupon = {
+                    code: data.code,
+                    type: data.discount_type,
+                    value: data.discount_value,
+                    amount: data.discount_amount
+                };
+                this.couponSuccess = data.message;
                 this.couponInput = '';
-            } else if (code === 'KL2026' || code === 'PROMO15') {
-                this.appliedCoupon = { code: code, percent: 15 };
-                this.couponSuccess = 'Cupom VIP de 15% de desconto aplicado!';
-                this.couponInput = '';
-            } else if (code === 'FREE100' || code === 'GRATIS100') {
-                this.appliedCoupon = { code: code, percent: 100 };
-                this.couponSuccess = 'Cupom 100% OFF aplicado! Seu pedido sairá totalmente gratuito.';
-                this.couponInput = '';
-            } else {
-                this.couponError = 'Cupom inválido ou expirado. Tente VIP10 ou KL2026.';
+            } catch (e) {
+                this.couponError = 'Não foi possível validar o cupom no momento. Tente novamente.';
+            } finally {
+                this.loadingCoupon = false;
             }
         },
         removeCoupon() {
@@ -80,7 +105,10 @@
         },
         getDiscount() {
             if (!this.appliedCoupon) return 0;
-            return this.getSubtotal() * (this.appliedCoupon.percent / 100);
+            if (this.appliedCoupon.type === 'percentage') {
+                return Math.min(this.getSubtotal(), this.getSubtotal() * (this.appliedCoupon.value / 100));
+            }
+            return Math.min(this.getSubtotal(), parseFloat(this.appliedCoupon.amount) || 0);
         },
         getTotal() {
             return Math.max(0, this.getSubtotal() - this.getDiscount());
@@ -348,9 +376,16 @@
                                 <button 
                                     type="button" 
                                     @click="applyCoupon()" 
-                                    class="rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 px-4 py-2.5 text-xs font-bold text-white transition shrink-0 cursor-pointer"
+                                    :disabled="loadingCoupon"
+                                    class="rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 px-4 py-2.5 text-xs font-bold text-white transition shrink-0 cursor-pointer disabled:opacity-50"
                                 >
-                                    Aplicar
+                                    <span x-show="!loadingCoupon">Aplicar</span>
+                                    <span x-show="loadingCoupon" x-cloak class="flex items-center gap-1">
+                                        <svg class="animate-spin h-3.5 w-3.5 text-teal-400" fill="none" viewBox="0 0 24 24">
+                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                                        </svg>
+                                    </span>
                                 </button>
                             </div>
                             <p x-show="couponError" x-text="couponError" x-cloak class="mt-2 text-xs text-rose-400"></p>
