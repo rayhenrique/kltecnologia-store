@@ -1,4 +1,4 @@
-<x-app-layout>
+<x-admin-layout>
     <x-slot:title>Painel administrativo</x-slot:title>
 
     <x-slot name="header">
@@ -194,4 +194,4 @@
             </div>
         </section>
     </div>
-</x-app-layout>
+</x-admin-layout>

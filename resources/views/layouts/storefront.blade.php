@@ -57,6 +57,12 @@
                         </svg>
                         Catálogo
                     </a>
+                    <a href="{{ route('blog.index') }}" class="inline-flex items-center gap-1.5 hover:text-teal-400 transition group {{ request()->routeIs('blog.*') ? 'text-teal-400 font-semibold' : '' }}">
+                        <svg class="h-4 w-4 text-purple-400 group-hover:scale-110 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+                        </svg>
+                        Blog
+                    </a>
                     <a href="{{ route('storefront.index') }}#atualizacoes" class="inline-flex items-center gap-1.5 hover:text-teal-400 transition group">
                         <svg class="h-4 w-4 text-emerald-400 group-hover:scale-110 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
@@ -171,6 +177,7 @@
                 <ul class="mt-4 space-y-2.5 text-sm">
                     <li><a href="{{ route('storefront.index') }}#destaques" class="hover:text-teal-400 transition">Produtos em Destaque</a></li>
                     <li><a href="{{ route('catalog.index') }}" class="hover:text-teal-400 transition">Catálogo Completo</a></li>
+                    <li><a href="{{ route('blog.index') }}" class="hover:text-teal-400 transition">Blog & Artigos</a></li>
                     <li><a href="{{ route('storefront.index') }}#atualizacoes" class="hover:text-teal-400 transition">Últimas Atualizações</a></li>
                     <li><a href="{{ route('storefront.index') }}#vantagens" class="hover:text-teal-400 transition">Vantagens & Garantias</a></li>
                 </ul>

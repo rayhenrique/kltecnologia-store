@@ -13,10 +13,10 @@ use Throwable;
 
 class ProductStorageService
 {
-    public function create(array $attributes, ?UploadedFile $cover, UploadedFile $file): Product
+    public function create(array $attributes, ?UploadedFile $cover, ?UploadedFile $file = null): Product
     {
         $coverPath = $cover ? $this->storeCover($cover) : null;
-        $filePath = Storage::disk('digital_products')->putFile('', $file);
+        $filePath = $file ? Storage::disk('digital_products')->putFile('', $file) : null;
 
         try {
             return DB::transaction(fn (): Product => Product::create([
@@ -26,7 +26,9 @@ class ProductStorageService
             ]));
         } catch (Throwable $exception) {
             $this->deleteCover($coverPath);
-            Storage::disk('digital_products')->delete($filePath);
+            if ($filePath) {
+                Storage::disk('digital_products')->delete($filePath);
+            }
             throw $exception;
         }
     }

@@ -1,4 +1,4 @@
-<x-app-layout>
+<x-admin-layout>
     <x-slot:title>Produtos</x-slot:title>
 
     <x-slot name="header">
@@ -209,4 +209,4 @@
             {{ $products->links() }}
         </div>
     </div>
-</x-app-layout>
+</x-admin-layout>

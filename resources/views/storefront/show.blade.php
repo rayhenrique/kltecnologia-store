@@ -383,7 +383,7 @@
                     <dl class="mt-4 divide-y divide-slate-100 text-xs sm:text-sm">
                         <div class="flex justify-between py-2.5">
                             <dt class="text-slate-500 font-medium">Categoria</dt>
-                            <dd class="font-semibold text-slate-900">Scripts PHP / SaaS</dd>
+                            <dd class="font-semibold text-slate-900">{{ $product->category ?? 'Scripts & SaaS' }}</dd>
                         </div>
                         <div class="flex justify-between py-2.5">
                             <dt class="text-slate-500 font-medium">Atualizado</dt>
@@ -403,7 +403,7 @@
                         </div>
                         <div class="flex justify-between py-2.5">
                             <dt class="text-slate-500 font-medium">Versão</dt>
-                            <dd class="font-semibold text-slate-900">1.0 (Produção)</dd>
+                            <dd class="font-semibold text-slate-900">{{ $product->version ?? '1.0' }}</dd>
                         </div>
                     </dl>
                 </div>

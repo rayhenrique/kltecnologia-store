@@ -65,4 +65,16 @@
   - [x] Desenvolver seção de Guias & Blog e Accordion interativo de Dúvidas Frequentes (FAQ).
   - [x] Escrever teste automatizado para página de detalhes do produto e validar 100% de aprovação na suíte PHPUnit e Pint.
 
+- [x] **Fase 11: Módulo Blog, Web Scraper & Sidebar Admin**
+  - [x] Criar migration para tabela `posts` (título, slug, categoria, resumo, conteúdo HTML, capa, status publicado, contador de views e data de publicação).
+  - [x] Criar migration adicionando `category` e `version` na tabela `products`.
+  - [x] Desenvolver comando Artisan `app:scrape-plw-blog` para web scraping de artigos do blog PLW Design com download local de capas em `public/blog_covers/`.
+  - [x] Executar web scraper e importar 18 artigos completos para o banco de dados.
+  - [x] Criar layout do Painel Administrativo com Sidebar lateral fixa escura (`x-admin-layout`), contadores dinâmicos e menu responsivo mobile.
+  - [x] Criar CRUD completo de Artigos do Blog no Admin (`PostController`, `StorePostRequest`, `UpdatePostRequest`, `PostPolicy`, views `index`, `create`, `edit` e `_form`).
+  - [x] Atualizar CRUD de Produtos do Admin alinhando campos de Categoria (datalist) e Versão do Sistema com a vitrine.
+  - [x] Criar rotas públicas `/blog` e `/blog/{post:slug}` e views da loja (`blog.index` e `blog.show`) com compartilhamento social, sidebar sticky e artigos recomendados.
+  - [x] Adicionar link "Blog" no navbar superior da vitrine e no rodapé.
+  - [x] Escrever testes automatizados Feature para Blog público (`BlogTest`) e Admin (`AdminPostCrudTest`) com 100% de aprovação na suíte PHPUnit e conformidade Pint.
+
 

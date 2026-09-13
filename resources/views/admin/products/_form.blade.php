@@ -43,18 +43,62 @@
             <x-input-error id="title-error" :messages="$errors->get('title')" class="mt-1.5 text-xs text-red-500" />
         </div>
 
+        <div class="grid gap-5 sm:grid-cols-2">
+            <div>
+                <x-input-label for="category" value="Categoria" class="text-xs font-bold uppercase text-slate-700 mb-1" />
+                <input 
+                    id="category" 
+                    name="category" 
+                    list="categories-list"
+                    type="text" 
+                    class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 shadow-2xs" 
+                    placeholder="Ex: Scripts PHP"
+                    value="{{ old('category', $product->category ?? 'Scripts & SaaS') }}" 
+                />
+                <datalist id="categories-list">
+                    <option value="Scripts PHP">
+                    <option value="Sistemas SaaS">
+                    <option value="Automação WhatsApp">
+                    <option value="Sistemas CRM">
+                    <option value="Sistemas para Cobranças">
+                    <option value="Templates & Landing Pages">
+                    <option value="Softwares & Utilitários">
+                </datalist>
+                <x-input-error id="category-error" :messages="$errors->get('category')" class="mt-1.5 text-xs text-red-500" />
+            </div>
+
+            <div>
+                <x-input-label for="version" value="Versão do Sistema" class="text-xs font-bold uppercase text-slate-700 mb-1" />
+                <x-text-input 
+                    id="version" 
+                    name="version" 
+                    type="text" 
+                    class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 shadow-2xs" 
+                    placeholder="Ex: 1.0 ou 2.1.0"
+                    :value="old('version', $product->version ?? '1.0')" 
+                />
+                <x-input-error id="version-error" :messages="$errors->get('version')" class="mt-1.5 text-xs text-red-500" />
+            </div>
+        </div>
+
         <div>
-            <x-input-label for="description" value="Descrição Completa" class="text-xs font-bold uppercase text-slate-700 mb-1" />
+            <div class="flex items-center justify-between mb-1">
+                <x-input-label for="description" value="Descrição Completa" class="text-xs font-bold uppercase text-slate-700" />
+                <span class="text-[11px] text-teal-700 font-medium">Suporta Markdown & Listas</span>
+            </div>
             <textarea 
                 id="description" 
                 name="description" 
-                rows="6" 
+                rows="7" 
                 required 
                 placeholder="Descreva as funcionalidades, requisitos técnicos, versão e o que está incluso no pacote..."
-                aria-describedby="description-error" 
+                aria-describedby="description-hint description-error" 
                 aria-invalid="{{ $errors->has('description') ? 'true' : 'false' }}" 
                 class="field w-full rounded-xl border border-slate-300 p-3.5 text-sm text-slate-900 placeholder-slate-400 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 shadow-2xs resize-y leading-relaxed"
             >{{ old('description', $product->description ?? '') }}</textarea>
+            <p id="description-hint" class="mt-1 text-[11px] text-slate-500">
+                Dica de formatação: Linhas iniciadas com <code class="text-teal-700 font-mono font-semibold">###</code> viram títulos de seção e linhas com <code class="text-teal-700 font-mono font-semibold">•</code> ou <code class="text-teal-700 font-mono font-semibold">-</code> viram tópicos destacados com checkmark.
+            </p>
             <x-input-error id="description-error" :messages="$errors->get('description')" class="mt-1.5 text-xs text-red-500" />
         </div>
     </div>

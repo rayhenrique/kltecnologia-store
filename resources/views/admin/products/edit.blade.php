@@ -1,4 +1,4 @@
-<x-app-layout>
+<x-admin-layout>
     <x-slot:title>Editar {{ $product->title }}</x-slot:title>
 
     <x-slot name="header">
@@ -24,9 +24,9 @@
         </div>
     </x-slot>
 
-    <div class="page-container py-8">
-        <div class="mx-auto max-w-3xl rounded-2xl border border-slate-200/80 bg-white p-6 sm:p-8 shadow-xs">
+    <div class="py-2">
+        <div class="rounded-2xl border border-slate-200/80 bg-white p-6 sm:p-8 shadow-xs">
             @include('admin.products._form')
         </div>
     </div>
-</x-app-layout>
+</x-admin-layout>

@@ -1,4 +1,4 @@
-<x-app-layout>
+<x-admin-layout>
     <x-slot:title>Pedidos</x-slot:title>
 
     <x-slot name="header">
@@ -110,4 +110,4 @@
             {{ $orders->links() }}
         </div>
     </div>
-</x-app-layout>
+</x-admin-layout>
