@@ -20,6 +20,7 @@
             couponError: '',
             couponSuccess: '',
             submitting: false,
+            acceptedTerms: {{ old('terms') ? 'true' : 'false' }},
             showPassword: false,
             showPasswordConfirm: false,
             init() {
@@ -646,11 +647,56 @@
                                     <p x-show="couponSuccess" x-text="couponSuccess" x-cloak class="mt-1.5 text-xs text-emerald-400"></p>
                                 </div>
 
+                                {{-- Aceite dos Termos de Uso e Política de Privacidade --}}
+                                <div class="mt-6 pt-5 border-t border-slate-800">
+                                    <label class="relative flex items-start gap-3 cursor-pointer select-none group">
+                                        <div class="flex items-center h-5 mt-0.5">
+                                            <input 
+                                                id="checkout-terms"
+                                                type="checkbox" 
+                                                name="terms" 
+                                                value="1" 
+                                                required 
+                                                x-model="acceptedTerms"
+                                                {{ old('terms') ? 'checked' : '' }}
+                                                class="h-4 w-4 rounded border-slate-700 bg-slate-950 text-teal-500 focus:ring-teal-500 focus:ring-offset-slate-900 transition cursor-pointer"
+                                            />
+                                        </div>
+                                        <div class="text-xs text-slate-300 leading-relaxed">
+                                            <span>Declaro que li e concordo com os </span>
+                                            <a 
+                                                href="{{ route('terms.index') }}" 
+                                                target="_blank" 
+                                                rel="noopener noreferrer" 
+                                                class="font-semibold text-teal-400 hover:text-teal-300 underline underline-offset-2 transition inline-flex items-center gap-0.5"
+                                            >
+                                                Termos de Uso
+                                                <svg class="h-3 w-3 inline opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                                </svg>
+                                            </a>
+                                            <span> e a </span>
+                                            <a 
+                                                href="{{ route('privacy.index') }}" 
+                                                target="_blank" 
+                                                rel="noopener noreferrer" 
+                                                class="font-semibold text-teal-400 hover:text-teal-300 underline underline-offset-2 transition inline-flex items-center gap-0.5"
+                                            >
+                                                Política de Privacidade
+                                                <svg class="h-3 w-3 inline opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                                </svg>
+                                            </a>.
+                                        </div>
+                                    </label>
+                                    <x-input-error :messages="$errors->get('terms')" class="mt-1.5 text-xs text-rose-400" />
+                                </div>
+
                                 {{-- Botão Principal de Finalizar Compra --}}
-                                <div class="mt-6 pt-6 border-t border-slate-800">
+                                <div class="mt-5">
                                     <button 
                                         type="submit" 
-                                        :disabled="submitting || items.length === 0" 
+                                        :disabled="submitting || items.length === 0 || !acceptedTerms" 
                                         class="w-full inline-flex items-center justify-center gap-2 rounded-2xl bg-teal-500 hover:bg-teal-400 px-6 py-4 text-sm font-extrabold text-slate-950 shadow-xl shadow-teal-500/25 transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed group"
                                     >
                                         <span x-show="!submitting" class="flex items-center gap-2">

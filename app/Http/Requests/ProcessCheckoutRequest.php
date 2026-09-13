@@ -28,6 +28,7 @@ class ProcessCheckoutRequest extends FormRequest
             'items' => ['nullable', 'array'],
             'items.*' => ['integer', 'exists:products,id'],
             'coupon' => ['nullable', 'string', 'max:30'],
+            'terms' => ['accepted'],
         ];
 
         if ($isGuest) {
@@ -60,6 +61,7 @@ class ProcessCheckoutRequest extends FormRequest
             'phone.required' => 'O telefone/WhatsApp é obrigatório para suporte.',
             'password.required' => 'A senha é obrigatória para criar sua conta de acesso aos downloads.',
             'password.confirmed' => 'A confirmação de senha não confere.',
+            'terms.accepted' => 'Você precisa ler e concordar com os Termos de Uso e a Política de Privacidade para finalizar o pedido.',
         ];
     }
 

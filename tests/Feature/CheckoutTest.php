@@ -72,6 +72,7 @@ class CheckoutTest extends TestCase
             'password' => 'SenhaSegura123!',
             'password_confirmation' => 'SenhaSegura123!',
             'product_id' => $product->id,
+            'terms' => '1',
         ]);
 
         $response->assertRedirect('https://mercadopago.test/pay/guest');
@@ -112,6 +113,7 @@ class CheckoutTest extends TestCase
         $response = $this->actingAs($customer)->post(route('checkout.process'), [
             'items' => [$productA->id, $productB->id],
             'coupon' => 'VIP10',
+            'terms' => '1',
         ]);
 
         $response->assertRedirect('https://mercadopago.test/pay/multi');
@@ -140,7 +142,7 @@ class CheckoutTest extends TestCase
             'password' => '123',
         ]);
 
-        $response->assertSessionHasErrors(['name', 'email', 'cpf', 'phone', 'password', 'product_id']);
+        $response->assertSessionHasErrors(['name', 'email', 'cpf', 'phone', 'password', 'product_id', 'terms']);
     }
 
     public function test_checkout_return_redirects_to_customer_downloads_with_message(): void
@@ -168,6 +170,7 @@ class CheckoutTest extends TestCase
             'password' => 'SenhaForte123!',
             'password_confirmation' => 'SenhaForte123!',
             'product_id' => $product->id,
+            'terms' => '1',
             // Notice: cpf and phone are omitted, as they are nullable for free orders
         ]);
 
@@ -233,6 +236,7 @@ class CheckoutTest extends TestCase
         $response = $this->actingAs($customer)->post(route('checkout.process'), [
             'product_id' => $product->id,
             'coupon' => 'FREE100',
+            'terms' => '1',
         ]);
 
         Http::assertNothingSent();
@@ -247,5 +251,39 @@ class CheckoutTest extends TestCase
             'amount' => '0.00',
             'payment_method' => 'free',
         ]);
+    }
+
+    public function test_checkout_validation_requires_terms_acceptance(): void
+    {
+        $product = Product::factory()->create(['price' => '49.90', 'is_active' => true]);
+
+        $response = $this->post(route('checkout.process'), [
+            'name' => 'Marcos Paulo',
+            'email' => 'marcos.paulo@exemplo.com',
+            'cpf' => '123.456.789-00',
+            'phone' => '(11) 98888-7777',
+            'password' => 'SenhaSegura123!',
+            'password_confirmation' => 'SenhaSegura123!',
+            'product_id' => $product->id,
+            // 'terms' is omitted
+        ]);
+
+        $response->assertSessionHasErrors([
+            'terms' => 'Você precisa ler e concordar com os Termos de Uso e a Política de Privacidade para finalizar o pedido.',
+        ]);
+    }
+
+    public function test_checkout_page_renders_terms_and_privacy_links(): void
+    {
+        $product = Product::factory()->create(['is_active' => true]);
+
+        $response = $this->get(route('checkout.index', ['product' => $product->slug]));
+
+        $response->assertOk()
+            ->assertSee(route('terms.index'))
+            ->assertSee(route('privacy.index'))
+            ->assertSee('Termos de Uso')
+            ->assertSee('Política de Privacidade')
+            ->assertSee('name="terms"', false);
     }
 }

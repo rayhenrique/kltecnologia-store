@@ -219,4 +219,20 @@
   - [x] Suportar dinamicamente tanto `<x-storefront-layout>` quanto `@extends('layouts.storefront')` com fallback seguro `$slot ?? ''` e `@yield('content')`.
   - [x] Criar suíte de testes `LegalAndCookieConsentTest` com 100% de aprovação (4 testes, 25 asserções), elevando a suíte total para 127 testes aprovados (525 asserções).
 
+- [x] **Fase 25: Aceite de Termos de Uso & Política de Privacidade no Checkout**
+  - [x] Atualizar o formulário de checkout (`resources/views/checkout/index.blade.php`):
+    - Checkbox estilizado com links clicáveis que abrem os Termos de Uso (`terms.index`) e a Política de Privacidade (`privacy.index`) em nova aba (`target="_blank"`).
+    - Integração bidirecional com Alpine.js (`acceptedTerms`) e suporte a re-preenchimento via `old('terms')`.
+    - Bloqueio reativo do botão de submissão enquanto os termos não forem aceitos.
+    - Exibição de mensagens de erro de validação sob o campo.
+  - [x] Adicionar regra de validação obrigatória no backend (`app/Http/Requests/ProcessCheckoutRequest.php`):
+    - Regra `'terms' => ['accepted']` para garantir que o cliente concorde ativamente antes de gerar o pedido.
+    - Mensagem em português amigável: *"Você precisa ler e concordar com os Termos de Uso e a Política de Privacidade para finalizar o pedido."*
+  - [x] Expandir suíte de testes automatizados (`tests/Feature/CheckoutTest.php`):
+    - Teste de obrigatoriedade do aceite dos termos (`test_checkout_validation_requires_terms_acceptance`).
+    - Teste de renderização dos links legais no checkout (`test_checkout_page_renders_terms_and_privacy_links`).
+    - Atualização dos fluxos de compras de visitantes, clientes e cupons com aceite de termos, totalizando 129 testes aprovados (534 asserções).
+  - [x] 100% de conformidade com o Laravel Pint.
+
+
 
