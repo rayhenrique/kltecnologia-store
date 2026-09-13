@@ -10,6 +10,7 @@ use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use RuntimeException;
 use Throwable;
@@ -18,7 +19,8 @@ class CheckoutService
 {
     public function __construct(
         private readonly MercadoPagoService $mercadoPago,
-        private readonly OrderMailService $mailService
+        private readonly OrderMailService $mailService,
+        private readonly CouponUsageService $couponUsage,
     ) {}
 
     /**
@@ -26,7 +28,11 @@ class CheckoutService
      */
     public function start(User $user, Product $product): array
     {
-        $isFirstPurchase = ($user->orders()->count() === 0);
+        if (! $product->is_active || blank($product->file_path)) {
+            throw new RuntimeException('Este produto ainda não está disponível para compra.');
+        }
+
+        $isFirstPurchase = ! $user->orders()->exists();
 
         if ((float) $product->price <= 0.0) {
             $order = $user->orders()->create([
@@ -34,7 +40,7 @@ class CheckoutService
                 'status' => OrderStatus::Paid,
                 'amount' => '0.00',
                 'payment_method' => 'free',
-                'gateway_reference' => 'FREE-'.uniqid(),
+                'gateway_reference' => 'FREE-'.str()->uuid(),
             ]);
 
             if ($isFirstPurchase) {
@@ -42,10 +48,7 @@ class CheckoutService
             }
             $this->mailService->sendOrderPaidEmail($user, $order);
 
-            return [
-                'url' => route('customer.downloads'),
-                'is_free' => true,
-            ];
+            return ['url' => route('customer.downloads'), 'is_free' => true];
         }
 
         $order = $user->orders()->create([
@@ -63,12 +66,10 @@ class CheckoutService
             }
             $this->mailService->sendOrderPendingEmail($user, $order);
 
-            return [
-                'url' => (string) $preference['init_point'],
-                'is_free' => false,
-            ];
+            return ['url' => (string) $preference['init_point'], 'is_free' => false];
         } catch (Throwable $exception) {
             $order->update(['status' => OrderStatus::Failed]);
+
             throw $exception;
         }
     }
@@ -79,11 +80,27 @@ class CheckoutService
      */
     public function process(array $data, ?User $currentUser): array
     {
-        $user = $currentUser;
-        $isFirstPurchase = ($user === null) || ($user->orders()->count() === 0);
+        $productIds = $this->productIdsFromData($data);
+        if ($productIds === []) {
+            throw new RuntimeException('Nenhum produto válido encontrado para compra.');
+        }
 
-        if ($user === null) {
-            $user = User::create([
+        /**
+         * @var array{user: User, user_created: bool, first_purchase: bool, products: Collection<int, Product>, orders: Collection<int, Order>, has_paid_order: bool} $checkout
+         */
+        $checkout = DB::transaction(function () use ($data, $currentUser, $productIds): array {
+            $products = Product::query()
+                ->whereIn('id', $productIds)
+                ->availableForSale()
+                ->lockForUpdate()
+                ->get();
+
+            if ($products->count() !== count($productIds)) {
+                throw new RuntimeException('Um ou mais produtos não estão disponíveis para compra.');
+            }
+
+            $userCreated = $currentUser === null;
+            $user = $currentUser ?? User::create([
                 'name' => (string) $data['name'],
                 'email' => (string) $data['email'],
                 'cpf' => $data['cpf'] ?? null,
@@ -91,127 +108,51 @@ class CheckoutService
                 'password' => Hash::make((string) $data['password']),
             ]);
 
+            $isFirstPurchase = ! $user->orders()->exists();
+            $this->updateCustomerContact($user, $data);
+
+            $coupon = $this->resolveCoupon($data, $products);
+            [$orders, $hasPaidOrder] = $this->createOrders($user, $products, $coupon);
+
+            if ($coupon) {
+                $couponAnchor = $orders->first(fn (Order $order): bool => $order->status === OrderStatus::Pending)
+                    ?? $orders->firstOrFail();
+                $this->couponUsage->reserve($coupon, $couponAnchor);
+            }
+
+            return [
+                'user' => $user,
+                'user_created' => $userCreated,
+                'first_purchase' => $isFirstPurchase,
+                'products' => $products,
+                'orders' => $orders,
+                'has_paid_order' => $hasPaidOrder,
+            ];
+        }, 3);
+
+        $user = $checkout['user'];
+        $orders = $checkout['orders'];
+        $products = $checkout['products'];
+
+        if ($checkout['user_created']) {
             event(new Registered($user));
             Auth::login($user);
-        } else {
-            $updates = [];
-            if (filled($data['cpf'] ?? null) && $data['cpf'] !== $user->cpf) {
-                $updates['cpf'] = $data['cpf'];
-            }
-            if (filled($data['phone'] ?? null) && $data['phone'] !== $user->phone) {
-                $updates['phone'] = $data['phone'];
-            }
-            if (! empty($updates)) {
-                $user->update($updates);
-            }
         }
 
-        $products = $this->resolveProducts($data);
-        if ($products->isEmpty()) {
-            throw new RuntimeException('Nenhum produto válido encontrado para compra.');
-        }
-
-        $subtotal = (float) $products->sum('price');
-        $couponCode = strtoupper(trim((string) ($data['coupon'] ?? '')));
-        $couponModel = null;
-        $legacyDiscountPercent = 0;
-
-        if ($couponCode !== '') {
-            $foundCoupon = Coupon::where('code', $couponCode)->first();
-            if ($foundCoupon) {
-                $eval = $foundCoupon->evaluate($products, $subtotal);
-                if ($eval['valid']) {
-                    $couponModel = $foundCoupon;
-                }
-            } else {
-                $legacyDiscountPercent = $this->resolveDiscountPercent($couponCode);
-            }
-        }
-
-        $remainingFixedDiscount = 0.0;
-        if ($couponModel && $couponModel->discount_type === 'fixed' && $couponModel->isApplicableToStorewide()) {
-            $remainingFixedDiscount = (float) $couponModel->discount_value;
-        }
-
-        /** @var list<Order> $orders */
-        $orders = [];
-        $hasPaidOrder = false;
-
-        foreach ($products as $product) {
-            $isProductFree = (float) $product->price <= 0.0;
-            $amount = 0.0;
-
-            if (! $isProductFree) {
-                if ($couponModel) {
-                    if ($couponModel->product_id !== null) {
-                        if ($couponModel->product_id === $product->id) {
-                            if ($couponModel->discount_type === 'percentage') {
-                                $discountMultiplier = (100 - (float) $couponModel->discount_value) / 100;
-                                $amount = max(0.00, round(((float) $product->price) * $discountMultiplier, 2));
-                            } else {
-                                $amount = max(0.00, round(((float) $product->price) - (float) $couponModel->discount_value, 2));
-                            }
-                        } else {
-                            $amount = (float) $product->price;
-                        }
-                    } else {
-                        if ($couponModel->discount_type === 'percentage') {
-                            $discountMultiplier = (100 - (float) $couponModel->discount_value) / 100;
-                            $amount = max(0.00, round(((float) $product->price) * $discountMultiplier, 2));
-                        } else {
-                            $deduct = min((float) $product->price, $remainingFixedDiscount);
-                            $amount = max(0.00, round(((float) $product->price) - $deduct, 2));
-                            $remainingFixedDiscount = max(0.00, $remainingFixedDiscount - $deduct);
-                        }
-                    }
-                } elseif ($legacyDiscountPercent > 0) {
-                    $discountMultiplier = (100 - $legacyDiscountPercent) / 100;
-                    $amount = max(0.00, round(((float) $product->price) * $discountMultiplier, 2));
-                } else {
-                    $amount = (float) $product->price;
-                }
-            }
-
-            if ($amount > 0.0) {
-                $hasPaidOrder = true;
-                $orders[] = $user->orders()->create([
-                    'product_id' => $product->id,
-                    'status' => OrderStatus::Pending,
-                    'amount' => $amount,
-                ]);
-            } else {
-                $orders[] = $user->orders()->create([
-                    'product_id' => $product->id,
-                    'status' => OrderStatus::Paid,
-                    'amount' => '0.00',
-                    'payment_method' => 'free',
-                    'gateway_reference' => 'FREE-'.uniqid(),
-                ]);
-            }
-        }
-
-        if ($couponModel) {
-            $couponModel->incrementUsage();
-        }
-
-        if ($isFirstPurchase) {
+        if ($checkout['first_purchase']) {
             $this->mailService->sendWelcomeEmail($user);
         }
 
-        // Se nenhum item gerar cobrança (total R$ 0,00), libera imediatamente sem chamar o Mercado Pago
-        if (! $hasPaidOrder) {
+        if (! $checkout['has_paid_order']) {
             $this->mailService->sendOrderPaidEmail($user, $orders);
 
-            return [
-                'url' => route('customer.downloads'),
-                'is_free' => true,
-            ];
+            return ['url' => route('customer.downloads'), 'is_free' => true];
         }
 
-        // Caso haja itens pagos, envia somente os pedidos pendentes para o Mercado Pago
-        $paidOrders = array_values(array_filter($orders, fn ($o) => $o->status === OrderStatus::Pending));
-        $freeOrders = array_values(array_filter($orders, fn ($o) => $o->status === OrderStatus::Paid));
-        if (! empty($freeOrders)) {
+        $paidOrders = $orders->filter(fn (Order $order): bool => $order->status === OrderStatus::Pending)->values();
+        $freeOrders = $orders->filter(fn (Order $order): bool => $order->status === OrderStatus::Paid)->values();
+
+        if ($freeOrders->isNotEmpty()) {
             $this->mailService->sendOrderPaidEmail($user, $freeOrders);
         }
 
@@ -221,23 +162,28 @@ class CheckoutService
                 $order->setRelation('user', $user);
             }
 
-            $preference = $this->mercadoPago->createPreferenceForOrders($paidOrders, $user);
+            $preference = $this->mercadoPago->createPreferenceForOrders($paidOrders->all(), $user);
             $gatewayReference = (string) $preference['id'];
 
-            foreach ($paidOrders as $order) {
-                $order->update(['gateway_reference' => $gatewayReference]);
-            }
+            DB::transaction(function () use ($paidOrders, $gatewayReference): void {
+                Order::query()
+                    ->whereKey($paidOrders->pluck('id'))
+                    ->update(['gateway_reference' => $gatewayReference]);
+            });
 
             $this->mailService->sendOrderPendingEmail($user, $paidOrders);
 
-            return [
-                'url' => (string) $preference['init_point'],
-                'is_free' => false,
-            ];
+            return ['url' => (string) $preference['init_point'], 'is_free' => false];
         } catch (Throwable $exception) {
-            foreach ($paidOrders as $order) {
-                $order->update(['status' => OrderStatus::Failed]);
-            }
+            DB::transaction(function () use ($paidOrders): void {
+                $lockedOrders = Order::query()
+                    ->whereKey($paidOrders->pluck('id'))
+                    ->lockForUpdate()
+                    ->get();
+
+                Order::query()->whereKey($lockedOrders->pluck('id'))->update(['status' => OrderStatus::Failed]);
+                $this->couponUsage->release($lockedOrders);
+            }, 3);
 
             throw $exception;
         }
@@ -245,45 +191,111 @@ class CheckoutService
 
     /**
      * @param  array<string, mixed>  $data
-     * @return Collection<int, Product>
      */
-    private function resolveProducts(array $data): Collection
+    private function updateCustomerContact(User $user, array $data): void
     {
-        $productIds = [];
-
-        if (filled($data['product_id'] ?? null)) {
-            $productIds[] = (int) $data['product_id'];
+        $updates = [];
+        if (filled($data['cpf'] ?? null) && $data['cpf'] !== $user->cpf) {
+            $updates['cpf'] = $data['cpf'];
+        }
+        if (filled($data['phone'] ?? null) && $data['phone'] !== $user->phone) {
+            $updates['phone'] = $data['phone'];
         }
 
-        if (isset($data['items']) && is_array($data['items'])) {
-            foreach ($data['items'] as $item) {
-                if (is_numeric($item)) {
-                    $productIds[] = (int) $item;
+        if ($updates !== []) {
+            $user->update($updates);
+        }
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     * @param  Collection<int, Product>  $products
+     */
+    private function resolveCoupon(array $data, Collection $products): ?Coupon
+    {
+        $code = strtoupper(trim((string) ($data['coupon'] ?? '')));
+        if ($code === '') {
+            return null;
+        }
+
+        $coupon = Coupon::query()->where('code', $code)->lockForUpdate()->first();
+        if (! $coupon) {
+            throw new RuntimeException('Cupom inválido ou expirado.');
+        }
+
+        $evaluation = $coupon->evaluate($products, (float) $products->sum('price'));
+        if (! $evaluation['valid']) {
+            throw new RuntimeException($evaluation['message']);
+        }
+
+        return $coupon;
+    }
+
+    /**
+     * @param  Collection<int, Product>  $products
+     * @return array{Collection<int, Order>, bool}
+     */
+    private function createOrders(User $user, Collection $products, ?Coupon $coupon): array
+    {
+        $remainingFixedDiscount = $coupon
+            && $coupon->discount_type === 'fixed'
+            && $coupon->isApplicableToStorewide()
+                ? (float) $coupon->discount_value
+                : 0.0;
+
+        $orders = collect();
+        $hasPaidOrder = false;
+
+        foreach ($products as $product) {
+            $amount = (float) $product->price;
+
+            if ($coupon && $amount > 0.0) {
+                if ($coupon->product_id !== null && $coupon->product_id !== $product->id) {
+                    // O produto não participa deste cupom específico.
+                } elseif ($coupon->discount_type === 'percentage') {
+                    $amount = max(0.0, round($amount * ((100 - (float) $coupon->discount_value) / 100), 2));
+                } else {
+                    $deduction = $coupon->isApplicableToStorewide()
+                        ? min($amount, $remainingFixedDiscount)
+                        : min($amount, (float) $coupon->discount_value);
+                    $amount = max(0.0, round($amount - $deduction, 2));
+                    $remainingFixedDiscount = max(0.0, $remainingFixedDiscount - $deduction);
                 }
+            }
+
+            $isPaid = $amount <= 0.0;
+            $hasPaidOrder = $hasPaidOrder || ! $isPaid;
+
+            $orders->push($user->orders()->create([
+                'product_id' => $product->id,
+                'status' => $isPaid ? OrderStatus::Paid : OrderStatus::Pending,
+                'amount' => number_format($amount, 2, '.', ''),
+                'payment_method' => $isPaid ? 'free' : null,
+                'gateway_reference' => $isPaid ? 'FREE-'.str()->uuid() : null,
+            ]));
+        }
+
+        return [$orders, $hasPaidOrder];
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     * @return list<int>
+     */
+    private function productIdsFromData(array $data): array
+    {
+        $ids = [];
+
+        if (filled($data['product_id'] ?? null)) {
+            $ids[] = (int) $data['product_id'];
+        }
+
+        foreach ((array) ($data['items'] ?? []) as $item) {
+            if (is_numeric($item)) {
+                $ids[] = (int) $item;
             }
         }
 
-        $productIds = array_values(array_unique($productIds));
-        if (empty($productIds)) {
-            return collect();
-        }
-
-        return Product::whereIn('id', $productIds)->where('is_active', true)->get();
-    }
-
-    private function resolveDiscountPercent(?string $coupon): int
-    {
-        $code = strtoupper(trim((string) $coupon));
-        if ($code === 'FREE100' || $code === 'GRATIS100') {
-            return 100;
-        }
-        if ($code === 'VIP10' || $code === 'KL10') {
-            return 10;
-        }
-        if ($code === 'KL2026' || $code === 'PROMO15') {
-            return 15;
-        }
-
-        return 0;
+        return array_values(array_unique(array_filter($ids)));
     }
 }

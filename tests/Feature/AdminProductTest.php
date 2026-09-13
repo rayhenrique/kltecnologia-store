@@ -77,6 +77,21 @@ class AdminProductTest extends TestCase
         $this->assertEquals(0.00, (float) $product->price);
     }
 
+    public function test_admin_cannot_activate_product_without_digital_file(): void
+    {
+        $admin = User::factory()->admin()->create();
+
+        $response = $this->actingAs($admin)->post(route('admin.products.store'), [
+            'title' => 'Produto sem Entrega',
+            'description' => 'Este produto ainda não possui arquivo.',
+            'price' => '49.90',
+            'is_active' => '1',
+        ]);
+
+        $response->assertSessionHasErrors('file');
+        $this->assertDatabaseMissing('products', ['title' => 'Produto sem Entrega']);
+    }
+
     public function test_admin_can_create_featured_product(): void
     {
         Storage::fake('digital_products');

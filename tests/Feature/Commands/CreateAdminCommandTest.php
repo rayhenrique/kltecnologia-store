@@ -12,27 +12,40 @@ class CreateAdminCommandTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_it_creates_default_admin_user_when_no_arguments_given(): void
+    public function test_it_creates_an_admin_with_password_from_environment(): void
     {
-        $this->artisan('app:create-admin')
-            ->assertSuccessful()
-            ->expectsOutput('Administrador [admin@example.com] configurado com sucesso com perfil Admin!');
+        putenv('TEST_ADMIN_PASSWORD=SenhaForte123!');
+
+        try {
+            $this->artisan('app:create-admin', [
+                'email' => 'admin@example.com',
+                '--name' => 'Administrador de Teste',
+                '--password-env' => 'TEST_ADMIN_PASSWORD',
+            ])->assertSuccessful();
+        } finally {
+            putenv('TEST_ADMIN_PASSWORD');
+        }
 
         $admin = User::where('email', 'admin@example.com')->first();
         $this->assertNotNull($admin);
+        $this->assertSame('Administrador de Teste', $admin->name);
         $this->assertSame(UserRole::Admin, $admin->role);
-        $this->assertTrue(Hash::check('[REMOVED-ADMIN-PASSWORD]', $admin->password));
+        $this->assertTrue(Hash::check('SenhaForte123!', $admin->password));
     }
 
-    public function test_it_creates_custom_admin_user_with_arguments(): void
+    public function test_it_rejects_a_weak_admin_password(): void
     {
-        $this->artisan('app:create-admin custom@example.com custompass --name="Custom Admin"')
-            ->assertSuccessful();
+        putenv('TEST_ADMIN_PASSWORD=fraca');
 
-        $admin = User::where('email', 'custom@example.com')->first();
-        $this->assertNotNull($admin);
-        $this->assertSame('Custom Admin', $admin->name);
-        $this->assertSame(UserRole::Admin, $admin->role);
-        $this->assertTrue(Hash::check('custompass', $admin->password));
+        try {
+            $this->artisan('app:create-admin', [
+                'email' => 'admin@example.com',
+                '--password-env' => 'TEST_ADMIN_PASSWORD',
+            ])->assertFailed();
+        } finally {
+            putenv('TEST_ADMIN_PASSWORD');
+        }
+
+        $this->assertDatabaseMissing('users', ['email' => 'admin@example.com']);
     }
 }

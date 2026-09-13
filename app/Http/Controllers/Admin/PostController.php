@@ -5,10 +5,11 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StorePostRequest;
 use App\Http\Requests\Admin\UpdatePostRequest;
+use App\Http\Requests\ListFilterRequest;
 use App\Models\BlogCategory;
 use App\Models\Post;
+use App\Services\HtmlSanitizerService;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Gate;
@@ -17,12 +18,14 @@ use Illuminate\View\View;
 
 class PostController extends Controller
 {
-    public function index(Request $request): View
+    public function __construct(private readonly HtmlSanitizerService $sanitizer) {}
+
+    public function index(ListFilterRequest $request): View
     {
         Gate::authorize('viewAny', Post::class);
 
-        $search = trim((string) $request->query('q', ''));
-        $category = trim((string) $request->query('categoria', ''));
+        $search = trim((string) $request->validated('q', ''));
+        $category = trim((string) $request->validated('categoria', ''));
 
         $query = Post::query()->with('blogCategory');
 
@@ -78,12 +81,14 @@ class PostController extends Controller
 
         $categoryName = $blogCategory?->name ?? ($validated['category'] ?? 'Geral');
 
+        $content = $this->sanitizer->sanitize($validated['content']);
+
         Post::create([
             'title' => $validated['title'],
             'category' => $categoryName,
             'blog_category_id' => $blogCategory?->id,
-            'excerpt' => $validated['excerpt'] ?? Str::limit(strip_tags($validated['content']), 180),
-            'content' => $validated['content'],
+            'excerpt' => $validated['excerpt'] ?? Str::limit(strip_tags($content), 180),
+            'content' => $content,
             'cover_path' => $coverPath,
             'is_published' => $validated['is_published'] ?? true,
             'published_at' => ($validated['is_published'] ?? true) ? now() : null,
@@ -124,8 +129,9 @@ class PostController extends Controller
         $post->title = $validated['title'];
         $post->category = $categoryName;
         $post->blog_category_id = $blogCategory?->id ?? $post->blog_category_id;
-        $post->excerpt = $validated['excerpt'] ?? Str::limit(strip_tags($validated['content']), 180);
-        $post->content = $validated['content'];
+        $content = $this->sanitizer->sanitize($validated['content']);
+        $post->excerpt = $validated['excerpt'] ?? Str::limit(strip_tags($content), 180);
+        $post->content = $content;
         $post->is_published = $validated['is_published'] ?? true;
 
         if ($post->is_published && ! $post->published_at) {

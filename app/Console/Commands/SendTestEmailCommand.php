@@ -27,7 +27,13 @@ class SendTestEmailCommand extends Command
      */
     public function handle(): int
     {
-        $recipient = (string) ($this->argument('email') ?: config('mail.from.address') ?: 'admin@example.com');
+        $recipient = (string) ($this->argument('email') ?: config('mail.from.address'));
+        if ($recipient === '') {
+            $this->error('Informe o destinatário ou configure MAIL_FROM_ADDRESS.');
+
+            return self::FAILURE;
+        }
+
         $mailer = config('mail.default');
         $host = config('mail.mailers.smtp.host');
         $port = config('mail.mailers.smtp.port');

@@ -211,7 +211,7 @@ class CouponValidationTest extends TestCase
             ]);
     }
 
-    public function test_validate_legacy_test_coupons_work(): void
+    public function test_legacy_test_coupons_are_rejected_when_not_registered(): void
     {
         $product = Product::factory()->create(['price' => '100.00', 'is_active' => true]);
 
@@ -220,14 +220,8 @@ class CouponValidationTest extends TestCase
             'items' => [$product->id],
         ]);
 
-        $response->assertOk()
-            ->assertJson([
-                'valid' => true,
-                'code' => 'VIP10',
-                'discount_type' => 'percentage',
-                'discount_value' => 10.0,
-                'discount_amount' => 10.0,
-            ]);
+        $response->assertUnprocessable()
+            ->assertJson(['valid' => false]);
     }
 
     public function test_checkout_applies_dynamic_coupon_and_increments_usage(): void

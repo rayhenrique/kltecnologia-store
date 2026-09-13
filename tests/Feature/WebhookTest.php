@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Enums\OrderStatus;
+use App\Models\Coupon;
 use App\Models\Order;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
@@ -57,6 +58,44 @@ class WebhookTest extends TestCase
 
         $response->assertOk();
         $response->assertJson(['status' => 'ok']);
+    }
+
+    public function test_rejected_payment_releases_coupon_usage_once(): void
+    {
+        config(['services.mercado_pago.access_token' => 'TEST-TOKEN', 'services.mercado_pago.webhook_secret' => 'webhook-secret']);
+        $coupon = Coupon::create([
+            'code' => 'LIMITE1',
+            'discount_type' => 'percentage',
+            'discount_value' => 10,
+            'times_used' => 1,
+            'max_uses' => 1,
+            'is_active' => true,
+        ]);
+        $order = Order::factory()->create([
+            'status' => OrderStatus::Pending,
+            'amount' => '89.90',
+            'coupon_id' => $coupon->id,
+            'coupon_usage_counted_at' => now(),
+        ]);
+        Http::fake(['api.mercadopago.com/v1/payments/PAY-REJECTED' => Http::response([
+            'status' => 'rejected',
+            'external_reference' => 'order:'.$order->id,
+            'transaction_amount' => 89.90,
+            'payment_type_id' => 'credit_card',
+        ])]);
+
+        $payload = ['type' => 'payment', 'data' => ['id' => 'PAY-REJECTED']];
+        $headers = $this->signedHeaders('PAY-REJECTED');
+
+        $this->withHeaders($headers)
+            ->postJson('/webhooks/mercado-pago?data.id=PAY-REJECTED&type=payment', $payload)
+            ->assertOk();
+        $this->withHeaders($headers)
+            ->postJson('/webhooks/mercado-pago?data.id=PAY-REJECTED&type=payment', $payload)
+            ->assertOk();
+
+        $this->assertSame(0, $coupon->fresh()->times_used);
+        $this->assertNotNull($order->fresh()->coupon_usage_released_at);
     }
 
     private function signedHeaders(string $dataId): array

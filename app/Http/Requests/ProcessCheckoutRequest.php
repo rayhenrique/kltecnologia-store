@@ -6,6 +6,8 @@ use App\Models\Coupon;
 use App\Models\Product;
 use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Exists;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\Validator;
 
@@ -25,9 +27,9 @@ class ProcessCheckoutRequest extends FormRequest
         $isFree = $this->isFreeOrder();
 
         $rules = [
-            'product_id' => ['nullable', 'integer', 'exists:products,id'],
+            'product_id' => ['nullable', 'integer', $this->availableProductRule()],
             'items' => ['nullable', 'array'],
-            'items.*' => ['integer', 'exists:products,id'],
+            'items.*' => ['integer', $this->availableProductRule()],
             'coupon' => ['nullable', 'string', 'max:30'],
             'terms' => ['accepted'],
         ];
@@ -76,28 +78,41 @@ class ProcessCheckoutRequest extends FormRequest
             if (! $hasProductId && ! $hasItems) {
                 $validator->errors()->add('product_id', 'Nenhum produto foi selecionado para compra. Adicione um item ao carrinho ou selecione um produto.');
             }
+
+            if ($validator->errors()->hasAny(['product_id', 'items', 'items.*'])) {
+                return;
+            }
+
+            $couponCode = strtoupper(trim((string) $this->input('coupon')));
+            if ($couponCode === '') {
+                return;
+            }
+
+            $ids = $this->selectedProductIds();
+            $products = Product::query()->whereIn('id', $ids)->availableForSale()->get();
+            $coupon = Coupon::query()->where('code', $couponCode)->first();
+            $evaluation = $coupon?->evaluate($products, (float) $products->sum('price'));
+
+            if (! $coupon || ! $evaluation['valid']) {
+                $validator->errors()->add('coupon', $evaluation['message'] ?? 'Cupom inválido ou expirado.');
+            }
         });
     }
 
     private function isFreeOrder(): bool
     {
-        $productId = $this->input('product_id');
-        $itemIds = (array) $this->input('items', []);
-        $ids = array_filter(array_unique(array_merge($productId ? [(int) $productId] : [], array_map('intval', $itemIds))));
+        $ids = $this->selectedProductIds();
         if (empty($ids)) {
             return false;
         }
 
-        $total = (float) Product::whereIn('id', $ids)->where('is_active', true)->sum('price');
+        $products = Product::query()->whereIn('id', $ids)->availableForSale()->get();
+        $total = (float) $products->sum('price');
         $coupon = strtoupper(trim((string) $this->input('coupon')));
-        if ($coupon === 'FREE100' || $coupon === 'GRATIS100') {
-            return true;
-        }
 
         if ($coupon !== '') {
             $couponModel = Coupon::where('code', $coupon)->first();
             if ($couponModel) {
-                $products = Product::whereIn('id', $ids)->where('is_active', true)->get();
                 $eval = $couponModel->evaluate($products, $total);
                 if ($eval['valid'] && $eval['discount_amount'] >= $total) {
                     return true;
@@ -106,5 +121,27 @@ class ProcessCheckoutRequest extends FormRequest
         }
 
         return $total <= 0.0;
+    }
+
+    private function availableProductRule(): Exists
+    {
+        return Rule::exists('products', 'id')->where(fn ($query) => $query
+            ->where('is_active', true)
+            ->whereNotNull('file_path')
+            ->where('file_path', '!=', ''));
+    }
+
+    /**
+     * @return list<int>
+     */
+    private function selectedProductIds(): array
+    {
+        $productId = $this->input('product_id');
+        $itemIds = (array) $this->input('items', []);
+
+        return array_values(array_filter(array_unique(array_merge(
+            $productId ? [(int) $productId] : [],
+            array_map('intval', $itemIds),
+        ))));
     }
 }

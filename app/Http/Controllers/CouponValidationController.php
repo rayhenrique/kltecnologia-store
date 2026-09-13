@@ -2,21 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ValidateCouponRequest;
 use App\Models\Coupon;
 use App\Models\Product;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 
 class CouponValidationController extends Controller
 {
-    public function validateCoupon(Request $request): JsonResponse
+    public function validateCoupon(ValidateCouponRequest $request): JsonResponse
     {
-        $data = $request->validate([
-            'code' => ['required', 'string', 'max:50'],
-            'product_id' => ['nullable', 'integer'],
-            'items' => ['nullable', 'array'],
-            'items.*' => ['integer'],
-        ]);
+        $data = $request->validated();
 
         $code = strtoupper(trim((string) $data['code']));
 
@@ -35,7 +30,7 @@ class CouponValidationController extends Controller
 
         $products = Product::query()
             ->whereIn('id', array_values(array_unique($productIds)))
-            ->where('is_active', true)
+            ->availableForSale()
             ->get();
 
         $subtotal = (float) $products->sum('price');
@@ -64,47 +59,6 @@ class CouponValidationController extends Controller
                 'discount_amount' => $evaluation['discount_amount'],
                 'is_free' => $isFree,
                 'message' => $evaluation['message'],
-            ]);
-        }
-
-        // 3. Fallback para cupons promocionais legados de teste
-        if ($code === 'FREE100' || $code === 'GRATIS100') {
-            return response()->json([
-                'valid' => true,
-                'code' => $code,
-                'discount_type' => 'percentage',
-                'discount_value' => 100.0,
-                'discount_amount' => $subtotal,
-                'is_free' => true,
-                'message' => 'Cupom especial de 100% de desconto aplicado!',
-            ]);
-        }
-
-        if ($code === 'VIP10' || $code === 'KL10') {
-            $discount = round($subtotal * 0.10, 2);
-
-            return response()->json([
-                'valid' => true,
-                'code' => $code,
-                'discount_type' => 'percentage',
-                'discount_value' => 10.0,
-                'discount_amount' => $discount,
-                'is_free' => false,
-                'message' => 'Cupom de 10% de desconto aplicado com sucesso!',
-            ]);
-        }
-
-        if ($code === 'KL2026' || $code === 'PROMO15') {
-            $discount = round($subtotal * 0.15, 2);
-
-            return response()->json([
-                'valid' => true,
-                'code' => $code,
-                'discount_type' => 'percentage',
-                'discount_value' => 15.0,
-                'discount_amount' => $discount,
-                'is_free' => false,
-                'message' => 'Cupom VIP de 15% de desconto aplicado com sucesso!',
             ]);
         }
 

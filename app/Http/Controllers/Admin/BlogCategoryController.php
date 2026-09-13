@@ -5,19 +5,19 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreBlogCategoryRequest;
 use App\Http\Requests\Admin\UpdateBlogCategoryRequest;
+use App\Http\Requests\ListFilterRequest;
 use App\Models\BlogCategory;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 
 class BlogCategoryController extends Controller
 {
-    public function index(Request $request): View
+    public function index(ListFilterRequest $request): View
     {
         Gate::authorize('viewAny', BlogCategory::class);
 
-        $search = trim((string) $request->query('q', ''));
+        $search = trim((string) $request->validated('q', ''));
 
         $query = BlogCategory::query()->withCount('posts');
 

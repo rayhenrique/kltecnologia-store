@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ListFilterRequest;
 use App\Models\Post;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -9,10 +10,10 @@ use Illuminate\View\View;
 
 class BlogController extends Controller
 {
-    public function index(Request $request): View
+    public function index(ListFilterRequest $request): View
     {
-        $search = trim((string) $request->query('q', ''));
-        $category = trim((string) $request->query('categoria', ''));
+        $search = trim((string) $request->validated('q', ''));
+        $category = trim((string) $request->validated('categoria', ''));
 
         $query = Post::query()->published();
 

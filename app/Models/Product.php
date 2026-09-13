@@ -78,6 +78,18 @@ class Product extends Model
      * @param  Builder<Product>  $query
      * @return Builder<Product>
      */
+    public function scopeAvailableForSale($query)
+    {
+        return $query
+            ->where('is_active', true)
+            ->whereNotNull('file_path')
+            ->where('file_path', '!=', '');
+    }
+
+    /**
+     * @param  Builder<Product>  $query
+     * @return Builder<Product>
+     */
     public function scopeSearch($query, ?string $term)
     {
         if (! $term) {

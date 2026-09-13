@@ -2,17 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ListFilterRequest;
 use App\Models\Product;
-use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class StorefrontController extends Controller
 {
-    public function index(Request $request): View
+    public function index(ListFilterRequest $request): View
     {
-        $search = trim((string) $request->query('q', ''));
+        $search = trim((string) $request->validated('q', ''));
 
-        $query = Product::query()->where('is_active', true);
+        $query = Product::query()->availableForSale();
 
         if ($search !== '') {
             $query->where(function ($q) use ($search): void {
@@ -63,8 +63,10 @@ class StorefrontController extends Controller
     {
         abort_unless($product->is_active, 404);
 
+        abort_unless($product->file_path, 404);
+
         $relatedProducts = Product::query()
-            ->where('is_active', true)
+            ->availableForSale()
             ->where('id', '!=', $product->id)
             ->inRandomOrder()
             ->take(4)

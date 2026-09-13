@@ -5,10 +5,10 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreProductRequest;
 use App\Http\Requests\Admin\UpdateProductRequest;
+use App\Http\Requests\ListFilterRequest;
 use App\Models\Product;
 use App\Services\ProductStorageService;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 
@@ -16,13 +16,13 @@ class ProductController extends Controller
 {
     public function __construct(private readonly ProductStorageService $storage) {}
 
-    public function index(Request $request): View
+    public function index(ListFilterRequest $request): View
     {
         Gate::authorize('viewAny', Product::class);
 
-        $search = trim((string) ($request->query('q') ?? $request->query('search', '')));
-        $status = trim((string) $request->query('status', 'all'));
-        $featured = trim((string) $request->query('featured', 'all'));
+        $search = trim((string) ($request->validated('q') ?? $request->validated('search', '')));
+        $status = trim((string) $request->validated('status', 'all'));
+        $featured = trim((string) $request->validated('featured', 'all'));
 
         $query = Product::query()->with('categoryGroup');
 
@@ -86,7 +86,7 @@ class ProductController extends Controller
         return redirect()->route('admin.products.index')->with('success', 'Produto atualizado com sucesso.');
     }
 
-    public function destroy(Request $request, Product $product): RedirectResponse
+    public function destroy(Product $product): RedirectResponse
     {
         Gate::authorize('delete', $product);
         $this->storage->archive($product);

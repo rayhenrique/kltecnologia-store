@@ -10,7 +10,7 @@ class CartController extends Controller
     public function index(): View
     {
         $featuredProducts = Product::query()
-            ->where('is_active', true)
+            ->availableForSale()
             ->where('is_featured', true)
             ->with('categoryGroup')
             ->orderByDesc('updated_at')
@@ -19,7 +19,7 @@ class CartController extends Controller
 
         if ($featuredProducts->isEmpty()) {
             $featuredProducts = Product::query()
-                ->where('is_active', true)
+                ->availableForSale()
                 ->with('categoryGroup')
                 ->orderByDesc('updated_at')
                 ->take(4)

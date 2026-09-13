@@ -20,10 +20,13 @@ class Order extends Model
     protected $fillable = [
         'user_id',
         'product_id',
+        'coupon_id',
         'gateway_reference',
         'status',
         'amount',
         'payment_method',
+        'coupon_usage_counted_at',
+        'coupon_usage_released_at',
     ];
 
     /**
@@ -47,6 +50,14 @@ class Order extends Model
     public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class)->withTrashed();
+    }
+
+    /**
+     * @return BelongsTo<Coupon, $this>
+     */
+    public function coupon(): BelongsTo
+    {
+        return $this->belongsTo(Coupon::class)->withTrashed();
     }
 
     /**
@@ -94,6 +105,8 @@ class Order extends Model
         return [
             'status' => OrderStatus::class,
             'amount' => 'decimal:2',
+            'coupon_usage_counted_at' => 'datetime',
+            'coupon_usage_released_at' => 'datetime',
         ];
     }
 }

@@ -5,22 +5,22 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreCouponRequest;
 use App\Http\Requests\Admin\UpdateCouponRequest;
+use App\Http\Requests\ListFilterRequest;
 use App\Models\Coupon;
 use App\Models\Product;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 
 class CouponController extends Controller
 {
-    public function index(Request $request): View
+    public function index(ListFilterRequest $request): View
     {
         Gate::authorize('viewAny', Coupon::class);
 
-        $search = trim((string) $request->query('q', ''));
-        $status = (string) $request->query('status', '');
+        $search = trim((string) $request->validated('q', ''));
+        $status = (string) $request->validated('status', '');
 
         $query = Coupon::query()->with('product')->latest('id');
 

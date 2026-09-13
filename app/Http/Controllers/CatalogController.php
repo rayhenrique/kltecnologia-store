@@ -11,7 +11,7 @@ class CatalogController extends Controller
     public function index(CatalogFilterRequest $request): View
     {
         $validated = $request->validated();
-        $query = Product::query()->where('is_active', true);
+        $query = Product::query()->availableForSale();
 
         if (! empty($validated['q'])) {
             $search = trim((string) $validated['q']);

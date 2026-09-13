@@ -49,7 +49,7 @@
   - [x] Criar e executar testes automatizados cobrindo o novo fluxo de cadastro.
 
 - [x] **Fase 9: Web Scraper & Importação do Catálogo PLW Design**
-  - [x] Criar migration tornando `file_path` nullable na tabela `products` para suporte a upload posterior.
+  - [x] Criar migration tornando `file_path` nullable na tabela `products` para suporte a upload posterior, mantendo o produto inativo até o envio do arquivo.
   - [x] Criar comando Artisan `app:scrape-plw` para varredura e importação paginada com parser DOM.
   - [x] Extrair títulos, descrições detalhadas, capas em alta resolução e preços comerciais de tabela (`<del>`).
   - [x] Baixar e salvar capas localmente em `public/covers/`.
@@ -156,7 +156,7 @@
   - [x] Criar rota pública e página de checkout dedicada `GET /checkout` (`checkout.index`) com suporte a compra direta (`?product=slug`) e carrinho do navegador.
   - [x] Desenvolver formulário de checkout dark SaaS com identificação e criação de conta automática para visitantes (Nome, E-mail, CPF, WhatsApp, Senha com confirmação e alternância de visibilidade).
   - [x] Suportar atualização e confirmação de dados para clientes já autenticados sem fricção.
-  - [x] Criar `ProcessCheckoutRequest` com validações robustas de conta, produtos ativos e cupons de desconto (`VIP10`, `KL2026`).
+  - [x] Criar `ProcessCheckoutRequest` com validações robustas de conta, produtos disponíveis e cupons cadastrados no painel.
   - [x] Aprimorar `CheckoutService::process` para cadastrar visitante, efetuar login automático com evento `Registered`, instanciar pedidos e gerar preferência no Mercado Pago.
   - [x] Expandir `MercadoPagoService` e `WebhookService` para suportar pedidos individuais e múltiplos com conciliação idempotente de pagamentos.
   - [x] Atualizar botão "Comprar" na página do produto (`storefront.show`) e na barra fixa mobile para direcionar diretamente ao checkout sem barreiras de login prévio.
@@ -167,7 +167,7 @@
 - [x] **Fase 22: Produtos Gratuitos (Lead Magnet) & Liberação Direta sem Mercado Pago**
   - [x] Ajustar validação de criação e edição de produtos no painel Admin (`StoreProductRequest` e `UpdateProductRequest`) permitindo preço zero (`min:0`).
   - [x] Ajustar validação do formulário de checkout (`ProcessCheckoutRequest`) com detecção de pedido gratuito (`isFreeOrder()`), tornando CPF e telefone opcionais e preservando cadastro simples de leads (Nome, E-mail, Senha).
-  - [x] Atualizar `CheckoutService::start` e `CheckoutService::process` para pedidos com valor zero (`$totalAmount <= 0`) ou cupons de 100% (`FREE100` / `GRATIS100`):
+  - [x] Atualizar `CheckoutService::start` e `CheckoutService::process` para pedidos com valor zero (`$totalAmount <= 0`) ou cupons cadastrados com 100% de desconto:
     - Cria pedidos com status imediato `OrderStatus::Paid`.
     - Registra método de pagamento como `free` (`payment_method = 'free'`).
     - Ignora completamente a chamada ao Mercado Pago (evita erro de valor mínimo do gateway).
@@ -257,7 +257,7 @@
   - [x] Integrar link de Cupons no menu lateral administrativo (`resources/views/layouts/partials/admin-sidebar.blade.php`) com badge de contagem em tempo real.
   - [x] Desenvolver endpoint de validação em tempo real `POST /cupons/validar` (`CouponValidationController`):
     - Validação de código contra o banco com checagem de regras em tempo real (data, limite, produto e valor mínimo).
-    - Fallback legado compatível para códigos promocionais de testes (`FREE100`, `VIP10`, `KL2026`).
+    - Validação exclusiva de cupons persistidos no banco, sem códigos promocionais embutidos no código.
   - [x] Integrar validação e cálculo dinâmico de desconto:
     - `app/Services/CheckoutService.php`: Avaliação e aplicação de cupons dinâmicos aos itens do pedido, suporte a cupons de produto ou gerais (% ou fixo) e incremento automático de `times_used`.
     - `resources/views/checkout/index.blade.php`: Validação assíncrona via `fetch('/cupons/validar')` com feedback visual de carregamento, cálculo automático de desconto e submissão com o pedido.
@@ -352,7 +352,7 @@
   - [x] Atualizar Model `Product` (`app/Models/Product.php`):
     - Implementar query scope `scopeSearch($query, ?string $term)` pesquisando por ID exato, título, slug, categoria, descrição e versão.
   - [x] Aprimorar `Admin\ProductController` (`app/Http/Controllers/Admin/ProductController.php`):
-    - Receber `Request $request` no método `index()`.
+    - Receber `ListFilterRequest $request` no método `index()`.
     - Suportar termos de busca enviados via parâmetros `search` ou `q`.
     - Suportar filtro por status de ativação (`all`, `active`, `inactive`).
     - Suportar filtro por produtos em destaque na vitrine (`all`, `featured`).
@@ -372,3 +372,17 @@
     - Teste de filtro por produtos em destaque (`featured`).
   - [x] Suíte de testes geral elevada para **178 testes aprovados (723 asserções)** com 100% de conformidade no Laravel Pint.
 
+- [x] **Fase 31: Hardening de Segurança, Checkout e Governança**
+  - [x] Remover credenciais administrativas padrão do código e da documentação.
+  - [x] Exigir senha forte por prompt oculto ou variável de ambiente no comando de administrador.
+  - [x] Bloquear catálogo e checkout de produtos sem arquivo digital.
+  - [x] Desativar registros sem arquivo por migration e manter novos imports inativos.
+  - [x] Remover cupons promocionais embutidos no código.
+  - [x] Tornar reserva e liberação de uso de cupom transacionais e idempotentes.
+  - [x] Sanitizar HTML de artigos administrativos, importados e já armazenados.
+  - [x] Impedir senha de checkout na sessão e evitar cadastro parcial para produto indisponível.
+  - [x] Migrar validações diretas identificadas para Form Requests.
+  - [x] Atualizar README, esquema relacional e guia de deploy.
+  - [x] Adicionar CI com testes, Pint, build, auditorias e validação MySQL.
+  - [x] Adicionar cobertura automatizada para as correções de segurança.
+  - [x] Suíte geral elevada para **184 testes aprovados (747 asserções)**.

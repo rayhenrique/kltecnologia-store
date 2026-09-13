@@ -182,10 +182,10 @@ QUEUE_CONNECTION=database
 MAIL_MAILER=smtp
 MAIL_HOST=smtp.gmail.com
 MAIL_PORT=587
-MAIL_USERNAME=admin@example.com
+MAIL_USERNAME=contato@seu-dominio.com
 MAIL_PASSWORD=SUA_SENHA_DE_APP_AQUI # (Senha de App de 16 caracteres gerada no Google)
 MAIL_ENCRYPTION=tls
-MAIL_FROM_ADDRESS="admin@example.com"
+MAIL_FROM_ADDRESS="contato@seu-dominio.com"
 MAIL_FROM_NAME="KL Tecnologia"
 
 # Mercado Pago (Produção)
@@ -208,17 +208,24 @@ php8.4 artisan migrate --force
 ```
 
 ### 7.2. Usuário Administrador em Produção
-A migration do projeto já provisiona automaticamente o administrador principal ao rodar o `migrate`:
-- **E-mail:** `admin@example.com`
-- **Senha:** `[REMOVED-ADMIN-PASSWORD]`
 
-Se desejar alterar a senha ou recriar o usuário administrador a qualquer momento no servidor, basta rodar o comando seguro:
+As migrations não criam contas administrativas. Crie o primeiro administrador informando o e-mail e digitando a senha forte no prompt oculto:
+
 ```bash
-php8.4 artisan app:create-admin admin@example.com [REMOVED-ADMIN-PASSWORD]
+php8.4 artisan app:create-admin admin@seu-dominio.com --name="Administrador"
 ```
 
-### 7.3. Configurar Storage de Arquivos
-Crie o link simbólico do storage público:
+Para automação, injete a senha pelo gerenciador de segredos do servidor na variável `ADMIN_PASSWORD`. Não passe senhas como argumentos, não as grave no repositório e remova a variável do processo depois da execução.
+
+Depois de atualizar uma instalação que já possua artigos, sanitize o conteúdo armazenado:
+
+```bash
+php8.4 artisan app:sanitize-blog-content
+```
+
+As migrations também desativam automaticamente produtos que não tenham arquivo digital. Revise-os no painel e só os reative depois do upload.
+
+### 7.3. Configurar Storage de ArquivosCrie o link simbólico do storage público:
 ```bash
 php8.4 artisan storage:link
 ```

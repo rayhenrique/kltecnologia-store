@@ -4,9 +4,11 @@ namespace App\Http\Requests\Admin;
 
 use App\Enums\OrderStatus;
 use App\Models\Order;
+use App\Models\Product;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\Enum;
+use Illuminate\Validation\Validator;
 
 class StoreOrderRequest extends FormRequest
 {
@@ -62,5 +64,15 @@ class StoreOrderRequest extends FormRequest
                 $this->merge(['amount' => $raw]);
             }
         }
+    }
+
+    public function withValidator(Validator $validator): void
+    {
+        $validator->after(function (Validator $validator): void {
+            if ($this->input('status') === OrderStatus::Paid->value
+                && ! Product::query()->whereKey($this->input('product_id'))->availableForSale()->exists()) {
+                $validator->errors()->add('product_id', 'Um pedido pago exige um produto ativo com arquivo digital.');
+            }
+        });
     }
 }

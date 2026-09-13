@@ -3,28 +3,28 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ListFilterRequest;
 use App\Models\NewsletterSubscriber;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class NewsletterSubscriberController extends Controller
 {
-    public function index(Request $request): View
+    public function index(ListFilterRequest $request): View
     {
         Gate::authorize('viewAny', NewsletterSubscriber::class);
 
         $query = NewsletterSubscriber::query();
 
-        $search = trim((string) ($request->query('q') ?? $request->query('search', '')));
+        $search = trim((string) ($request->validated('q') ?? $request->validated('search', '')));
         if ($search !== '') {
             $query->where('email', 'like', "%{$search}%");
         }
 
-        $status = (string) $request->query('status', 'all');
+        $status = (string) $request->validated('status', 'all');
         if ($status === 'active') {
             $query->where('is_active', true);
         } elseif ($status === 'inactive') {
@@ -50,12 +50,12 @@ class NewsletterSubscriberController extends Controller
         ]);
     }
 
-    public function export(Request $request): StreamedResponse
+    public function export(ListFilterRequest $request): StreamedResponse
     {
         Gate::authorize('export', NewsletterSubscriber::class);
 
-        $status = (string) $request->query('status', 'all');
-        $search = trim((string) ($request->query('q') ?? $request->query('search', '')));
+        $status = (string) $request->validated('status', 'all');
+        $search = trim((string) ($request->validated('q') ?? $request->validated('search', '')));
         $filename = 'newsletter-inscritos-'.Carbon::now()->format('Y-m-d').'.csv';
 
         $query = NewsletterSubscriber::query()->latest('subscribed_at');

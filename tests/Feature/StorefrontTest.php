@@ -10,6 +10,18 @@ class StorefrontTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_active_product_without_file_is_not_offered(): void
+    {
+        $product = Product::factory()->create([
+            'title' => 'Produto ainda sem arquivo',
+            'is_active' => true,
+            'file_path' => null,
+        ]);
+
+        $this->get(route('storefront.index'))->assertOk()->assertDontSee($product->title);
+        $this->get(route('storefront.show', $product))->assertNotFound();
+    }
+
     public function test_storefront_lists_only_active_products(): void
     {
         $active = Product::factory()->create(['title' => 'Produto disponível', 'is_active' => true]);

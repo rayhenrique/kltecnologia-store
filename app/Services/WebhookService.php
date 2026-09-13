@@ -11,7 +11,8 @@ class WebhookService
 {
     public function __construct(
         private readonly MercadoPagoService $mercadoPago,
-        private readonly OrderMailService $mailService
+        private readonly OrderMailService $mailService,
+        private readonly CouponUsageService $couponUsage,
     ) {}
 
     public function handlePayment(string $paymentId): void
@@ -50,6 +51,12 @@ class WebhookService
             };
 
             $paymentMethod = $payment['payment_type_id'] ?? null;
+
+            if ($status === OrderStatus::Paid) {
+                $this->couponUsage->restore($orders);
+            } elseif (in_array($status, [OrderStatus::Failed, OrderStatus::Canceled], true)) {
+                $this->couponUsage->release($orders);
+            }
 
             foreach ($orders as $order) {
                 if ($order->status === $status

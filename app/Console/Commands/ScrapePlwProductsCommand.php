@@ -293,7 +293,7 @@ class ScrapePlwProductsCommand extends Command
                 'description' => $data['description'],
                 'price' => $data['price'],
                 'cover_path' => $coverPath ?? $existing->cover_path,
-                'is_active' => true,
+                'is_active' => filled($existing->file_path),
             ]);
 
             return;
@@ -305,7 +305,7 @@ class ScrapePlwProductsCommand extends Command
             'price' => $data['price'],
             'cover_path' => $coverPath,
             'file_path' => null,
-            'is_active' => true,
+            'is_active' => false,
         ]);
     }
 }

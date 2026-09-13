@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\Post;
+use App\Services\HtmlSanitizerService;
 use Carbon\Carbon;
 use DOMDocument;
 use DOMNode;
@@ -15,6 +16,11 @@ use Throwable;
 
 class ScrapePlwBlogCommand extends Command
 {
+    public function __construct(private readonly HtmlSanitizerService $sanitizer)
+    {
+        parent::__construct();
+    }
+
     /**
      * The name and signature of the console command.
      *
@@ -252,7 +258,9 @@ class ScrapePlwBlogCommand extends Command
         // Remove CTAs externos ou botões com links da PLW se houver
         $html = preg_replace('/href="[^"]*plwdesign[^"]*"/i', 'href="/loja"', $html);
 
-        return trim($html) ?: "<p>Artigo sobre {$title}.</p>";
+        $sanitized = $this->sanitizer->sanitize($html);
+
+        return $sanitized !== '' ? $sanitized : '<p>Artigo indisponível.</p>';
     }
 
     private function parsePtDate(?string $dateStr): Carbon

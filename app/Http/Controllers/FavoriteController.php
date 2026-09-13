@@ -2,17 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\FavoriteItemsRequest;
 use App\Models\Product;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 
 class FavoriteController extends Controller
 {
     public function index(): View
     {
         $recommendedProducts = Product::query()
-            ->where('is_active', true)
+            ->availableForSale()
             ->with('categoryGroup')
             ->latest('id')
             ->take(4)
@@ -23,12 +23,9 @@ class FavoriteController extends Controller
         ]);
     }
 
-    public function items(Request $request): JsonResponse
+    public function items(FavoriteItemsRequest $request): JsonResponse
     {
-        $data = $request->validate([
-            'ids' => ['nullable', 'array'],
-            'ids.*' => ['integer'],
-        ]);
+        $data = $request->validated();
 
         $ids = $data['ids'] ?? [];
 
@@ -38,7 +35,7 @@ class FavoriteController extends Controller
 
         $products = Product::query()
             ->whereIn('id', $ids)
-            ->where('is_active', true)
+            ->availableForSale()
             ->with('categoryGroup')
             ->get()
             ->map(fn (Product $product) => [

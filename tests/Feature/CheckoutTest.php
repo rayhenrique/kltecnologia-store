@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Enums\OrderStatus;
+use App\Models\Coupon;
 use App\Models\Product;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -109,6 +110,12 @@ class CheckoutTest extends TestCase
 
         $productA = Product::factory()->create(['price' => '100.00', 'is_active' => true]);
         $productB = Product::factory()->create(['price' => '100.00', 'is_active' => true]);
+        Coupon::create([
+            'code' => 'VIP10',
+            'discount_type' => 'percentage',
+            'discount_value' => 10,
+            'is_active' => true,
+        ]);
 
         $response = $this->actingAs($customer)->post(route('checkout.process'), [
             'items' => [$productA->id, $productB->id],
@@ -223,7 +230,7 @@ class CheckoutTest extends TestCase
         ]);
     }
 
-    public function test_checkout_with_100_percent_coupon_marks_orders_as_free_and_bypasses_mercado_pago(): void
+    public function test_checkout_with_database_100_percent_coupon_marks_orders_as_free_and_bypasses_mercado_pago(): void
     {
         Http::fake();
 
@@ -232,10 +239,16 @@ class CheckoutTest extends TestCase
             'price' => '89.90',
             'is_active' => true,
         ]);
+        Coupon::create([
+            'code' => 'TOTAL100',
+            'discount_type' => 'percentage',
+            'discount_value' => 100,
+            'is_active' => true,
+        ]);
 
         $response = $this->actingAs($customer)->post(route('checkout.process'), [
             'product_id' => $product->id,
-            'coupon' => 'FREE100',
+            'coupon' => 'TOTAL100',
             'terms' => '1',
         ]);
 
@@ -250,6 +263,66 @@ class CheckoutTest extends TestCase
             'status' => OrderStatus::Paid->value,
             'amount' => '0.00',
             'payment_method' => 'free',
+        ]);
+    }
+
+    public function test_unavailable_product_does_not_create_or_authenticate_guest(): void
+    {
+        $product = Product::factory()->create([
+            'is_active' => true,
+            'file_path' => null,
+        ]);
+
+        $response = $this->post(route('checkout.process'), [
+            'name' => 'Cliente Indisponível',
+            'email' => 'indisponivel@example.com',
+            'cpf' => '123.456.789-00',
+            'phone' => '(11) 99999-9999',
+            'password' => 'SenhaSegura123!',
+            'password_confirmation' => 'SenhaSegura123!',
+            'product_id' => $product->id,
+            'terms' => '1',
+        ]);
+
+        $response->assertSessionHasErrors('product_id');
+        $this->assertGuest();
+        $this->assertDatabaseMissing('users', ['email' => 'indisponivel@example.com']);
+        $this->assertDatabaseCount('orders', 0);
+    }
+
+    public function test_checkout_failure_does_not_flash_password_and_releases_coupon_usage(): void
+    {
+        config(['services.mercado_pago.access_token' => 'TEST-TOKEN']);
+        Http::fake(['api.mercadopago.com/*' => Http::response(['message' => 'failure'], 500)]);
+
+        $product = Product::factory()->create(['price' => '100.00']);
+        $coupon = Coupon::create([
+            'code' => 'UNICO10',
+            'discount_type' => 'percentage',
+            'discount_value' => 10,
+            'max_uses' => 1,
+            'is_active' => true,
+        ]);
+
+        $response = $this->post(route('checkout.process'), [
+            'name' => 'Cliente Seguro',
+            'email' => 'seguro@example.com',
+            'cpf' => '123.456.789-00',
+            'phone' => '(11) 99999-9999',
+            'password' => 'SenhaSegura123!',
+            'password_confirmation' => 'SenhaSegura123!',
+            'product_id' => $product->id,
+            'coupon' => 'UNICO10',
+            'terms' => '1',
+        ]);
+
+        $response->assertRedirect()->assertSessionHas('error');
+        $response->assertSessionMissing('_old_input.password');
+        $response->assertSessionMissing('_old_input.password_confirmation');
+        $this->assertSame(0, $coupon->fresh()->times_used);
+        $this->assertDatabaseHas('orders', [
+            'product_id' => $product->id,
+            'status' => OrderStatus::Failed->value,
         ]);
     }
 

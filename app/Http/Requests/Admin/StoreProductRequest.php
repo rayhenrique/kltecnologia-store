@@ -4,6 +4,7 @@ namespace App\Http\Requests\Admin;
 
 use App\Models\Product;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Validator;
 
 class StoreProductRequest extends FormRequest
 {
@@ -34,5 +35,14 @@ class StoreProductRequest extends FormRequest
             'is_active' => $this->boolean('is_active'),
             'is_featured' => $this->boolean('is_featured'),
         ]);
+    }
+
+    public function withValidator(Validator $validator): void
+    {
+        $validator->after(function (Validator $validator): void {
+            if ($this->boolean('is_active') && ! $this->hasFile('file')) {
+                $validator->errors()->add('file', 'Envie o arquivo digital antes de ativar o produto.');
+            }
+        });
     }
 }

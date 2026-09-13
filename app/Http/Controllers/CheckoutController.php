@@ -3,12 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\CheckoutRequest;
+use App\Http\Requests\ListFilterRequest;
 use App\Http\Requests\PaymentReturnRequest;
 use App\Http\Requests\ProcessCheckoutRequest;
 use App\Models\Product;
 use App\Services\CheckoutService;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Throwable;
 
@@ -16,12 +16,12 @@ class CheckoutController extends Controller
 {
     public function __construct(private readonly CheckoutService $checkout) {}
 
-    public function index(Request $request): View
+    public function index(ListFilterRequest $request): View
     {
         $product = null;
         if ($request->filled('product')) {
-            $product = Product::where('slug', (string) $request->query('product'))
-                ->where('is_active', true)
+            $product = Product::where('slug', (string) $request->validated('product'))
+                ->availableForSale()
                 ->first();
         }
 
@@ -46,14 +46,14 @@ class CheckoutController extends Controller
             report($exception);
 
             return back()
-                ->withInput()
+                ->withInput($request->safe()->except(['password', 'password_confirmation']))
                 ->with('error', 'Não foi possível processar seu pedido. Por favor, verifique seus dados ou tente novamente em instantes.');
         }
     }
 
     public function store(CheckoutRequest $request, Product $product): RedirectResponse
     {
-        abort_unless($product->is_active, 404);
+        abort_unless($product->is_active && $product->file_path, 404);
 
         try {
             $result = $this->checkout->start($request->user(), $product);
