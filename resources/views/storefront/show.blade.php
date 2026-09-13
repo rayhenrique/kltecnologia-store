@@ -64,6 +64,39 @@
                                 ★ Licença Comercial Definitiva
                             </span>
                         </div>
+
+                        <div class="absolute top-4 right-4">
+                            <button 
+                                type="button" 
+                                x-data="{ isFav: false }"
+                                x-init="
+                                    isFav = window.isFavorite ? window.isFavorite({{ $product->id }}) : false;
+                                    window.addEventListener('favorites-updated', () => { 
+                                        if (window.isFavorite) isFav = window.isFavorite({{ $product->id }});
+                                    });
+                                "
+                                aria-label="Favoritar {{ $product->title }}"
+                                @click="
+                                    if (window.toggleFavorite) {
+                                        isFav = window.toggleFavorite({
+                                            id: {{ $product->id }},
+                                            title: {{ json_encode($product->title) }},
+                                            slug: {{ json_encode($product->slug) }},
+                                            price: {{ (float) $product->price }},
+                                            cover_image: {{ json_encode($product->cover_path ? asset($product->cover_path) : null) }},
+                                            category: {{ json_encode($product->categoryGroup?->name ?? $product->category ?? 'Sistema Web') }}
+                                        });
+                                    }
+                                "
+                                :class="isFav ? 'text-pink-500 bg-white' : 'text-slate-300 hover:text-pink-500 bg-slate-950/80 hover:bg-slate-900'"
+                                class="grid h-10 w-10 place-items-center rounded-xl backdrop-blur-md border border-slate-700/60 shadow-lg transition cursor-pointer group/fav"
+                                title="Salvar nos Favoritos"
+                            >
+                                <svg class="h-5 w-5 fill-current group-hover/fav:scale-110 transition-transform" viewBox="0 0 24 24">
+                                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                                </svg>
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -339,7 +372,7 @@
                                     title: {{ json_encode($product->title) }},
                                     slug: {{ json_encode($product->slug) }},
                                     price: {{ (float) $product->price }},
-                                    cover_image: {{ json_encode($product->cover_image) }},
+                                    cover_image: {{ json_encode($product->cover_path ? asset($product->cover_path) : null) }},
                                     category: {{ json_encode($product->categoryGroup?->name ?? $product->category ?? 'Sistema Web') }}
                                 })"
                                 class="inline-flex h-[52px] w-[52px] items-center justify-center rounded-2xl border border-teal-500/40 bg-teal-500/10 hover:bg-teal-500/20 text-teal-400 hover:text-teal-300 transition shadow-sm cursor-pointer shrink-0 group"
@@ -348,6 +381,38 @@
                             >
                                 <svg class="h-6 w-6 group-hover:scale-110 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
+                                </svg>
+                            </button>
+
+                            {{-- Botão Favoritar --}}
+                            <button 
+                                type="button"
+                                x-data="{ isFav: false }"
+                                x-init="
+                                    isFav = window.isFavorite ? window.isFavorite({{ $product->id }}) : false;
+                                    window.addEventListener('favorites-updated', () => { 
+                                        if (window.isFavorite) isFav = window.isFavorite({{ $product->id }});
+                                    });
+                                "
+                                @click="
+                                    if (window.toggleFavorite) {
+                                        isFav = window.toggleFavorite({
+                                            id: {{ $product->id }},
+                                            title: {{ json_encode($product->title) }},
+                                            slug: {{ json_encode($product->slug) }},
+                                            price: {{ (float) $product->price }},
+                                            cover_image: {{ json_encode($product->cover_path ? asset($product->cover_path) : null) }},
+                                            category: {{ json_encode($product->categoryGroup?->name ?? $product->category ?? 'Sistema Web') }}
+                                        });
+                                    }
+                                "
+                                :class="isFav ? 'text-pink-500 bg-pink-50 border-pink-200' : 'text-slate-500 hover:text-pink-500 bg-slate-50 hover:bg-pink-50/50 border-slate-200'"
+                                class="inline-flex h-[52px] w-[52px] items-center justify-center rounded-2xl border transition shadow-sm cursor-pointer shrink-0 group"
+                                :title="isFav ? 'Remover dos Favoritos' : 'Salvar nos Favoritos'"
+                                aria-label="Favoritar produto"
+                            >
+                                <svg class="h-6 w-6 fill-current group-hover:scale-110 transition" viewBox="0 0 24 24">
+                                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
                                 </svg>
                             </button>
 

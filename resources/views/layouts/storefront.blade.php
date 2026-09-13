@@ -118,10 +118,10 @@
 
                     {{-- Ícone Favoritos --}}
                     <a 
-                        href="{{ route('catalog.index') }}" 
+                        href="{{ route('favorites.index') }}" 
                         id="topbar-favorites-link"
-                        class="relative inline-flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-xl border border-slate-800 bg-slate-900/80 text-slate-300 hover:border-pink-500/50 hover:bg-pink-500/10 hover:text-pink-400 transition-all duration-200 group shadow-xs"
-                        title="Favoritos"
+                        class="relative inline-flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-xl border {{ request()->routeIs('favorites.index') ? 'border-pink-500 bg-pink-500/10 text-pink-400' : 'border-slate-800 bg-slate-900/80 text-slate-300' }} hover:border-pink-500/50 hover:bg-pink-500/10 hover:text-pink-400 transition-all duration-200 group shadow-xs"
+                        title="Meus Favoritos"
                         aria-label="Ver produtos favoritos"
                     >
                         <svg class="h-4 w-4 sm:h-5 sm:w-5 group-hover:scale-110 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -419,6 +419,20 @@
                             </a>
 
                             <a 
+                                href="{{ route('favorites.index') }}" 
+                                @click="mobileMenuOpen = false"
+                                class="flex items-center justify-between rounded-xl px-3.5 py-2.5 text-sm font-semibold {{ request()->routeIs('favorites.index') ? 'bg-pink-600/20 text-pink-300 border border-pink-500/30' : 'text-slate-300 hover:bg-slate-900 hover:text-pink-400' }} transition"
+                            >
+                                <span class="flex items-center gap-3">
+                                    <svg class="h-4 w-4 text-pink-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                                    </svg>
+                                    <span>Meus Favoritos</span>
+                                </span>
+                                <span x-show="favoritesCount > 0" x-text="favoritesCount" class="rounded-full bg-pink-500 px-2 py-0.5 text-[10px] text-white font-bold"></span>
+                            </a>
+
+                            <a 
                                 href="{{ route('blog.index') }}" 
                                 @click="mobileMenuOpen = false"
                                 class="flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-semibold {{ request()->routeIs('blog.*') ? 'bg-teal-600/20 text-teal-300 border border-teal-500/30' : 'text-slate-300 hover:bg-slate-900 hover:text-teal-400' }} transition"
@@ -704,6 +718,72 @@
                 }));
             } catch (e) {
                 console.error('Erro ao manipular o carrinho:', e);
+            }
+        };
+
+        window.toggleFavorite = function(product, btn) {
+            try {
+                let favs = JSON.parse(localStorage.getItem('kl_favorites') || '[]');
+                if (!Array.isArray(favs)) favs = [];
+
+                const productId = typeof product === 'object' ? product.id : product;
+                const existingIndex = favs.findIndex(item => (typeof item === 'object' ? item.id === productId : item === productId));
+                let isAdded = false;
+
+                if (existingIndex > -1) {
+                    favs.splice(existingIndex, 1);
+                    isAdded = false;
+                } else {
+                    if (typeof product === 'object') {
+                        favs.push({
+                            id: product.id,
+                            title: product.title,
+                            slug: product.slug,
+                            price: parseFloat(product.price) || 0,
+                            formatted_price: product.formatted_price || (parseFloat(product.price) <= 0 ? 'GRÁTIS' : ('R$ ' + parseFloat(product.price).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }))),
+                            cover_image: product.cover_image || null,
+                            category: product.category || 'Sistema Web'
+                        });
+                    } else {
+                        favs.push(product);
+                    }
+                    isAdded = true;
+                }
+
+                localStorage.setItem('kl_favorites', JSON.stringify(favs));
+                window.dispatchEvent(new CustomEvent('favorites-updated', { detail: { count: favs.length, favorites: favs } }));
+
+                if (btn) {
+                    if (isAdded) {
+                        btn.classList.add('text-pink-500');
+                        btn.classList.remove('text-slate-400');
+                    } else {
+                        btn.classList.remove('text-pink-500');
+                        btn.classList.add('text-slate-400');
+                    }
+                }
+
+                window.dispatchEvent(new CustomEvent('toast-message', {
+                    detail: {
+                        message: isAdded ? 'Item salvo nos seus Favoritos! ❤️' : 'Item removido dos Favoritos.',
+                        type: isAdded ? 'success' : 'info',
+                        cartUrl: '{{ route("favorites.index") }}'
+                    }
+                }));
+
+                return isAdded;
+            } catch (e) {
+                console.error('Erro ao manipular favoritos:', e);
+            }
+        };
+
+        window.isFavorite = function(productId) {
+            try {
+                const favs = JSON.parse(localStorage.getItem('kl_favorites') || '[]');
+                if (!Array.isArray(favs)) return false;
+                return favs.some(item => (typeof item === 'object' ? item.id === productId : item === productId));
+            } catch (e) {
+                return false;
             }
         };
     </script>

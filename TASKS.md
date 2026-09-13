@@ -182,3 +182,24 @@
     - Trocar botão de "Comprar Agora" para "Baixar Grátis" nos produtos com preço zero.
     - Adaptar barra de compra sticky no mobile para itens gratuitos.
   - [x] Criar testes automatizados para visitantes, clientes autenticados e cupons de 100% sem acionar o Mercado Pago (`CheckoutTest` e `AdminProductTest`), alcançando 118 testes aprovados (477 asserções) e 100% de conformidade no Laravel Pint.
+
+- [x] **Fase 23: Página de Favoritos (`/favoritos`) & Gestão Reativa no E-Commerce**
+  - [x] Criar `FavoriteController` com métodos `index()` (vitrine e recomendados) e `items()` (sincronização de produtos salvos no navegador com dados frescos do banco).
+  - [x] Criar rotas web `GET /favoritos` (`favorites.index`) e `POST /favoritos/items` (`favorites.items`).
+  - [x] Desenvolver a página completa de Favoritos `resources/views/favorites/index.blade.php`:
+    - Layout SaaS escuro com visualização em grid responsivo de produtos favoritados.
+    - Sincronização automática entre `localStorage` e banco de dados via Alpine.js.
+    - Estado vazio estilizado com ícone ilustrativo e CTA para explorar catálogo.
+    - Ações rápidas em cada card: remover favorito, adicionar ao carrinho `[+]`, compra direta e download gratuito.
+    - Botão "Limpar Lista" com confirmação.
+    - Carrossel / grid de "Mais Produtos em Destaque" recomendados.
+  - [x] Integrar botões de coração (favoritar) em todo o ecossistema:
+    - Navbar superior desktop (`topbar-favorites-link`) com link direto e badge dinâmico de contagem.
+    - Menu drawer mobile com atalho "Meus Favoritos" e contador reativo.
+    - Vitrine inicial (`storefront.index` em Destaques e Lançamentos).
+    - Catálogo de produtos (`catalog.index`).
+    - Página de detalhes do produto (`storefront.show` tanto na imagem de capa quanto na caixa de compra).
+  - [x] Fornecer helpers globais `window.toggleFavorite(product)` e `window.isFavorite(id)` com despacho de eventos reativos (`favorites-updated`, `toast-message`).
+  - [x] Criar suíte de testes `FavoriteTest` com 100% de aprovação (5 testes, 23 asserções) cobrindo renderização, recomendados, listagem por IDs, tratamento de IDs vazios e links de navegação.
+  - [x] Validar conformidade total do Laravel Pint e execução dos 123 testes da aplicação.
+

@@ -175,26 +175,30 @@
                         {{-- Botão de Favorito --}}
                         <button 
                             type="button" 
-                            aria-label="Favoritar {{ $item->title }}"
-                            onclick="
-                                let favs = JSON.parse(localStorage.getItem('kl_favorites') || '[]');
-                                const id = {{ $item->id }};
-                                const idx = favs.indexOf(id);
-                                if (idx > -1) {
-                                    favs.splice(idx, 1);
-                                    this.classList.remove('text-pink-500');
-                                    this.classList.add('text-slate-400');
-                                } else {
-                                    favs.push(id);
-                                    this.classList.add('text-pink-500');
-                                    this.classList.remove('text-slate-400');
-                                }
-                                localStorage.setItem('kl_favorites', JSON.stringify(favs));
-                                window.dispatchEvent(new CustomEvent('favorites-updated', { detail: { count: favs.length } }));
+                            x-data="{ isFav: false }"
+                            x-init="
+                                isFav = window.isFavorite ? window.isFavorite({{ $item->id }}) : false;
+                                window.addEventListener('favorites-updated', () => { 
+                                    if (window.isFavorite) isFav = window.isFavorite({{ $item->id }});
+                                });
                             "
-                            class="absolute top-3 right-3 grid h-8 w-8 place-items-center rounded-full bg-slate-900/80 hover:bg-slate-900 text-slate-400 hover:text-pink-500 shadow-sm transition backdrop-blur-sm z-10"
+                            aria-label="Favoritar {{ $item->title }}"
+                            @click.prevent="
+                                if (window.toggleFavorite) {
+                                    isFav = window.toggleFavorite({
+                                        id: {{ $item->id }},
+                                        title: {{ json_encode($item->title) }},
+                                        slug: {{ json_encode($item->slug) }},
+                                        price: {{ (float) $item->price }},
+                                        cover_image: {{ json_encode($item->cover_path ? asset($item->cover_path) : null) }},
+                                        category: {{ json_encode($item->categoryRelation?->name ?? 'Sistema Web') }}
+                                    });
+                                }
+                            "
+                            :class="isFav ? 'text-pink-500' : 'text-slate-400 hover:text-pink-500'"
+                            class="absolute top-3 right-3 grid h-8 w-8 place-items-center rounded-full bg-slate-900/80 hover:bg-slate-900 shadow-sm transition backdrop-blur-sm z-10 cursor-pointer"
                         >
-                            <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+                            <svg class="h-4 w-4 fill-current" viewBox="0 0 24 24">
                                 <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
                             </svg>
                         </button>
@@ -292,26 +296,30 @@
                         {{-- Botão de Favorito --}}
                         <button 
                             type="button" 
-                            aria-label="Favoritar {{ $product->title }}"
-                            onclick="
-                                let favs = JSON.parse(localStorage.getItem('kl_favorites') || '[]');
-                                const id = {{ $product->id }};
-                                const idx = favs.indexOf(id);
-                                if (idx > -1) {
-                                    favs.splice(idx, 1);
-                                    this.classList.remove('text-pink-500');
-                                    this.classList.add('text-slate-400');
-                                } else {
-                                    favs.push(id);
-                                    this.classList.add('text-pink-500');
-                                    this.classList.remove('text-slate-400');
-                                }
-                                localStorage.setItem('kl_favorites', JSON.stringify(favs));
-                                window.dispatchEvent(new CustomEvent('favorites-updated', { detail: { count: favs.length } }));
+                            x-data="{ isFav: false }"
+                            x-init="
+                                isFav = window.isFavorite ? window.isFavorite({{ $product->id }}) : false;
+                                window.addEventListener('favorites-updated', () => { 
+                                    if (window.isFavorite) isFav = window.isFavorite({{ $product->id }});
+                                });
                             "
-                            class="absolute top-3 right-3 grid h-8 w-8 place-items-center rounded-full bg-slate-900/80 hover:bg-slate-900 text-slate-400 hover:text-pink-500 shadow-sm transition backdrop-blur-sm z-10"
+                            aria-label="Favoritar {{ $product->title }}"
+                            @click.prevent="
+                                if (window.toggleFavorite) {
+                                    isFav = window.toggleFavorite({
+                                        id: {{ $product->id }},
+                                        title: {{ json_encode($product->title) }},
+                                        slug: {{ json_encode($product->slug) }},
+                                        price: {{ (float) $product->price }},
+                                        cover_image: {{ json_encode($product->cover_image) }},
+                                        category: {{ json_encode($product->categoryRelation?->name ?? 'Sistema Web') }}
+                                    });
+                                }
+                            "
+                            :class="isFav ? 'text-pink-500' : 'text-slate-400 hover:text-pink-500'"
+                            class="absolute top-3 right-3 grid h-8 w-8 place-items-center rounded-full bg-slate-900/80 hover:bg-slate-900 shadow-sm transition backdrop-blur-sm z-10 cursor-pointer"
                         >
-                            <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+                            <svg class="h-4 w-4 fill-current" viewBox="0 0 24 24">
                                 <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
                             </svg>
                         </button>
