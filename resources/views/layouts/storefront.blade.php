@@ -9,7 +9,31 @@
     <link href="https://fonts.bunny.net/css?family=dm-sans:400,500,600,700&family=ibm-plex-mono:500,600&family=sora:600,700,800&display=swap" rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="font-sans antialiased text-slate-900 bg-slate-50">
+<body 
+    class="font-sans antialiased text-slate-900 bg-slate-50"
+    x-data="{
+        searchOpen: false,
+        favoritesCount: 0,
+        cartCount: 0,
+        init() {
+            try {
+                const favs = JSON.parse(localStorage.getItem('kl_favorites') || '[]');
+                this.favoritesCount = Array.isArray(favs) ? favs.length : 0;
+                const cart = JSON.parse(localStorage.getItem('kl_cart') || '[]');
+                this.cartCount = Array.isArray(cart) ? cart.length : 0;
+            } catch(e) {}
+            window.addEventListener('favorites-updated', (e) => {
+                this.favoritesCount = e.detail?.count ?? 0;
+            });
+            window.addEventListener('cart-updated', (e) => {
+                this.cartCount = e.detail?.count ?? 0;
+            });
+        }
+    }"
+    x-on:keydown.window.prevent.cmd.k="searchOpen = true; $nextTick(() => $refs.modalSearchInput?.focus())"
+    x-on:keydown.window.prevent.ctrl.k="searchOpen = true; $nextTick(() => $refs.modalSearchInput?.focus())"
+    x-on:keydown.window.escape="searchOpen = false"
+>
     <a href="#conteudo" class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-white focus:px-4 focus:py-2">Ir para o conteúdo</a>
     
     {{-- Header --}}
@@ -24,22 +48,6 @@
                     KL<span class="text-teal-400">Tecnologia</span>
                 </span>
             </a>
-
-            {{-- Header Search Bar (Desktop) --}}
-            <form action="{{ route('catalog.index') }}" method="GET" class="hidden md:flex flex-1 max-w-md mx-4">
-                <div class="relative w-full">
-                    <input 
-                        type="search" 
-                        name="q" 
-                        value="{{ request('q') }}"
-                        placeholder="Buscar templates, scripts, sistemas..." 
-                        class="w-full rounded-xl border-slate-800 bg-slate-900/90 pl-10 pr-4 py-2 text-sm text-slate-200 placeholder-slate-500 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/30 transition shadow-inner"
-                    />
-                    <svg class="pointer-events-none absolute left-3.5 top-2.5 h-4 w-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                    </svg>
-                </div>
-            </form>
 
             {{-- Navigation & Auth --}}
             <nav aria-label="Navegação principal" class="flex items-center gap-3 sm:gap-6">
@@ -77,24 +85,21 @@
                     </a>
                 </div>
 
-                <div class="flex items-center gap-2 sm:gap-3" x-data="{
-                    favoritesCount: 0,
-                    cartCount: 0,
-                    init() {
-                        try {
-                            const favs = JSON.parse(localStorage.getItem('kl_favorites') || '[]');
-                            this.favoritesCount = Array.isArray(favs) ? favs.length : 0;
-                            const cart = JSON.parse(localStorage.getItem('kl_cart') || '[]');
-                            this.cartCount = Array.isArray(cart) ? cart.length : 0;
-                        } catch(e) {}
-                        window.addEventListener('favorites-updated', (e) => {
-                            this.favoritesCount = e.detail?.count ?? 0;
-                        });
-                        window.addEventListener('cart-updated', (e) => {
-                            this.cartCount = e.detail?.count ?? 0;
-                        });
-                    }
-                }">
+                <div class="flex items-center gap-2 sm:gap-3">
+                    {{-- Botão de Busca (Lupa) --}}
+                    <button 
+                        type="button" 
+                        @click="searchOpen = true; $nextTick(() => $refs.modalSearchInput?.focus())"
+                        id="topbar-search-btn"
+                        class="relative inline-flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-xl border border-slate-800 bg-slate-900/80 text-slate-300 hover:border-teal-500/50 hover:bg-teal-500/10 hover:text-teal-400 transition-all duration-200 group shadow-xs cursor-pointer"
+                        title="Buscar produtos (Ctrl+K)"
+                        aria-label="Abrir pesquisa"
+                    >
+                        <svg class="h-4 w-4 sm:h-5 sm:w-5 group-hover:scale-110 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                    </button>
+
                     {{-- Ícone Favoritos --}}
                     <a 
                         href="{{ route('catalog.index') }}" 
@@ -169,6 +174,102 @@
             </nav>
         </div>
     </header>
+
+    {{-- Modal de Busca Global (Command Palette) --}}
+    <div 
+        x-show="searchOpen" 
+        x-cloak
+        x-transition:enter="transition ease-out duration-200"
+        x-transition:enter-start="opacity-0"
+        x-transition:enter-end="opacity-100"
+        x-transition:leave="transition ease-in duration-150"
+        x-transition:leave-start="opacity-100"
+        x-transition:leave-end="opacity-0"
+        class="fixed inset-0 z-50 overflow-y-auto bg-slate-950/80 backdrop-blur-md flex items-start justify-center p-4 pt-16 sm:pt-24"
+        role="dialog" 
+        aria-modal="true" 
+        aria-labelledby="modal-search-title"
+    >
+        {{-- Backdrop click to close --}}
+        <div class="fixed inset-0" @click="searchOpen = false"></div>
+
+        {{-- Modal Content Card --}}
+        <div 
+            x-show="searchOpen"
+            x-transition:enter="transition ease-out duration-200"
+            x-transition:enter-start="opacity-0 scale-95 -translate-y-4"
+            x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+            x-transition:leave="transition ease-in duration-150"
+            x-transition:leave-start="opacity-100 scale-100 translate-y-0"
+            x-transition:leave-end="opacity-0 scale-95 -translate-y-4"
+            class="relative w-full max-w-2xl rounded-2xl border border-slate-800 bg-slate-900 p-6 shadow-2xl shadow-teal-500/10 z-10"
+            @click.stop
+        >
+            <form action="{{ route('catalog.index') }}" method="GET" class="space-y-4">
+                <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                    <div class="flex items-center gap-2">
+                        <span class="rounded bg-teal-500/10 border border-teal-500/30 px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wider text-teal-400">
+                            Buscar na Loja
+                        </span>
+                        <span class="text-xs text-slate-400 font-medium">
+                            Encontre templates, scripts, sistemas e infoprodutos
+                        </span>
+                    </div>
+                    <button 
+                        type="button" 
+                        @click="searchOpen = false"
+                        class="rounded-lg p-1.5 text-slate-400 hover:bg-slate-800 hover:text-white transition cursor-pointer"
+                        title="Fechar (ESC)"
+                    >
+                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+
+                    <div class="relative flex items-center">
+                        <input 
+                            x-ref="modalSearchInput"
+                            type="search" 
+                            name="q" 
+                            value="{{ request('q') }}"
+                            placeholder="Digite o que procura... (Ex: Delivery, WhatsApp, PHP, SaaS)" 
+                            class="w-full rounded-xl border border-slate-700 bg-slate-950 pl-11 pr-24 py-3.5 text-sm sm:text-base text-white placeholder-slate-500 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/25 shadow-inner"
+                            autocomplete="off"
+                        />
+                        <svg class="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-teal-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                        <button 
+                            type="submit" 
+                            class="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg bg-teal-600 hover:bg-teal-500 px-4 py-2 text-xs font-bold text-white transition shadow-sm cursor-pointer"
+                        >
+                            Buscar
+                        </button>
+                    </div>
+
+                {{-- Sugestões de busca rápida --}}
+                <div class="pt-2">
+                    <p class="text-xs font-semibold text-slate-400 mb-2">🔥 Mais buscados:</p>
+                    <div class="flex flex-wrap gap-2">
+                        @foreach(['WhatsApp', 'Delivery', 'Streaming', 'Laravel', 'SaaS', 'Automação', 'Mercado Pago'] as $term)
+                            <a 
+                                href="{{ route('catalog.index', ['q' => $term]) }}" 
+                                class="rounded-lg bg-slate-800/90 hover:bg-teal-500/20 border border-slate-700 hover:border-teal-500/40 px-2.5 py-1 text-xs text-slate-300 hover:text-teal-300 transition"
+                            >
+                                {{ $term }}
+                            </a>
+                        @endforeach
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between pt-3 border-t border-slate-800/80 text-[11px] text-slate-500">
+                    <span>Pressione <kbd class="rounded bg-slate-800 px-1.5 py-0.5 text-slate-300 font-mono">Enter</kbd> para pesquisar</span>
+                    <span><kbd class="rounded bg-slate-800 px-1.5 py-0.5 text-slate-300 font-mono">ESC</kbd> para fechar</span>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <x-flash />
 
