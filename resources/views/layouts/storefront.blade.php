@@ -18,6 +18,12 @@
         mobileMenuOpen: false,
         favoritesCount: 0,
         cartCount: 0,
+        toast: {
+            show: false,
+            message: '',
+            cartUrl: '',
+            timeout: null
+        },
         init() {
             try {
                 const favs = JSON.parse(localStorage.getItem('kl_favorites') || '[]');
@@ -30,6 +36,15 @@
             });
             window.addEventListener('cart-updated', (e) => {
                 this.cartCount = e.detail?.count ?? 0;
+            });
+            window.addEventListener('toast-message', (e) => {
+                clearTimeout(this.toast.timeout);
+                this.toast.show = true;
+                this.toast.message = e.detail?.message || '';
+                this.toast.cartUrl = e.detail?.cartUrl || '';
+                this.toast.timeout = setTimeout(() => {
+                    this.toast.show = false;
+                }, 4000);
             });
         }
     }"
@@ -122,9 +137,9 @@
 
                     {{-- Ícone Carrinho --}}
                     <a 
-                        href="{{ route('catalog.index') }}" 
+                        href="{{ route('cart.index') }}" 
                         id="topbar-cart-link"
-                        class="relative inline-flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-xl border border-slate-800 bg-slate-900/80 text-slate-300 hover:border-teal-500/50 hover:bg-teal-500/10 hover:text-teal-400 transition-all duration-200 group shadow-xs"
+                        class="relative inline-flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-xl border {{ request()->routeIs('cart.index') ? 'border-teal-500 bg-teal-500/10 text-teal-400' : 'border-slate-800 bg-slate-900/80 text-slate-300' }} hover:border-teal-500/50 hover:bg-teal-500/10 hover:text-teal-400 transition-all duration-200 group shadow-xs"
                         title="Meu Carrinho"
                         aria-label="Ver carrinho de compras"
                     >
@@ -390,6 +405,20 @@
                             </a>
 
                             <a 
+                                href="{{ route('cart.index') }}" 
+                                @click="mobileMenuOpen = false"
+                                class="flex items-center justify-between rounded-xl px-3.5 py-2.5 text-sm font-semibold {{ request()->routeIs('cart.index') ? 'bg-teal-600/20 text-teal-300 border border-teal-500/30' : 'text-slate-300 hover:bg-slate-900 hover:text-teal-400' }} transition"
+                            >
+                                <span class="flex items-center gap-3">
+                                    <svg class="h-4 w-4 text-teal-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                                    </svg>
+                                    <span>Meu Carrinho</span>
+                                </span>
+                                <span x-show="cartCount > 0" x-text="cartCount" class="rounded-full bg-teal-500 px-2 py-0.5 text-[10px] text-white font-bold"></span>
+                            </a>
+
+                            <a 
                                 href="{{ route('blog.index') }}" 
                                 @click="mobileMenuOpen = false"
                                 class="flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-semibold {{ request()->routeIs('blog.*') ? 'bg-teal-600/20 text-teal-300 border border-teal-500/30' : 'text-slate-300 hover:bg-slate-900 hover:text-teal-400' }} transition"
@@ -600,6 +629,84 @@
             <p>Vendas unitárias de infoprodutos com entrega segura e imediata.</p>
         </div>
     </footer>
+
+    {{-- Toast Notification --}}
+    <div 
+        x-show="toast.show" 
+        x-cloak
+        x-transition:enter="transition ease-out duration-300 transform"
+        x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:translate-x-4"
+        x-transition:enter-end="opacity-100 translate-y-0 sm:translate-x-0"
+        x-transition:leave="transition ease-in duration-200 transform"
+        x-transition:leave-start="opacity-100 translate-y-0 sm:translate-x-0"
+        x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:translate-x-4"
+        class="fixed bottom-5 right-5 z-50 max-w-sm w-full mx-auto sm:mx-0 p-4 rounded-2xl bg-slate-900/95 border border-teal-500/40 text-white shadow-2xl shadow-teal-950/50 backdrop-blur-md flex items-center justify-between gap-3"
+        role="alert"
+    >
+        <div class="flex items-center gap-3">
+            <div class="h-9 w-9 rounded-xl bg-teal-500/20 border border-teal-500/40 flex items-center justify-center text-teal-400 shrink-0">
+                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+            </div>
+            <div class="text-xs sm:text-sm">
+                <p class="font-bold text-white" x-text="toast.message"></p>
+                <p class="text-[11px] text-slate-400">Item disponível no seu pedido</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-2 shrink-0">
+            <template x-if="toast.cartUrl">
+                <a 
+                    :href="toast.cartUrl" 
+                    class="rounded-lg bg-teal-600 hover:bg-teal-500 px-3 py-1.5 text-xs font-bold text-white transition shadow-xs whitespace-nowrap"
+                >
+                    Ver Carrinho →
+                </a>
+            </template>
+            <button 
+                type="button" 
+                @click="toast.show = false" 
+                class="rounded-lg p-1 text-slate-400 hover:text-white hover:bg-slate-800 transition cursor-pointer"
+                aria-label="Fechar notificação"
+            >
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        window.addToCart = function(product) {
+            try {
+                let cart = JSON.parse(localStorage.getItem('kl_cart') || '[]');
+                if (!Array.isArray(cart)) cart = [];
+                const index = cart.findIndex(item => item.id === product.id);
+                if (index === -1) {
+                    cart.push({
+                        id: product.id,
+                        title: product.title,
+                        slug: product.slug,
+                        price: parseFloat(product.price),
+                        formatted_price: product.formatted_price || ('R$ ' + parseFloat(product.price).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })),
+                        cover_image: product.cover_image || null,
+                        category: product.category || 'Sistema Web'
+                    });
+                    localStorage.setItem('kl_cart', JSON.stringify(cart));
+                    window.dispatchEvent(new CustomEvent('cart-updated', { detail: { count: cart.length } }));
+                }
+                window.dispatchEvent(new CustomEvent('toast-message', {
+                    detail: {
+                        message: index !== -1 ? 'Item já está no carrinho!' : 'Adicionado ao carrinho!',
+                        type: 'success',
+                        cartUrl: '{{ route("cart.index") }}'
+                    }
+                }));
+            } catch (e) {
+                console.error('Erro ao manipular o carrinho:', e);
+            }
+        };
+    </script>
 </body>
 </html>
 

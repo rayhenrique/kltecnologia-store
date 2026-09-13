@@ -337,6 +337,25 @@
                             </a>
                         @endauth
 
+                        {{-- Botão Adicionar ao Carrinho --}}
+                        <button 
+                            type="button"
+                            @click="window.addToCart({
+                                id: {{ $product->id }},
+                                title: {{ json_encode($product->title) }},
+                                slug: {{ json_encode($product->slug) }},
+                                price: {{ (float) $product->price }},
+                                cover_image: {{ json_encode($product->cover_image) }},
+                                category: {{ json_encode($product->categoryRelation?->name ?? 'Sistema Web') }}
+                            })"
+                            class="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-teal-500/40 bg-teal-500/10 hover:bg-teal-500/20 py-3 px-4 text-sm font-bold text-teal-300 transition cursor-pointer group"
+                        >
+                            <svg class="h-4 w-4 text-teal-400 group-hover:scale-110 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                            </svg>
+                            <span>Adicionar ao Carrinho</span>
+                        </button>
+
                         {{-- Botão de WhatsApp --}}
                         <a 
                             href="https://wa.me/5541998608485?text={{ urlencode('Olá! Gostaria de tirar dúvidas sobre o produto: ' . $product->title) }}" 
@@ -731,11 +750,31 @@
                 Pix / Download Imediato
             </span>
         </div>
-        <a 
-            href="#card-compra" 
-            class="btn-teal !min-h-10 px-5 py-2 text-xs font-bold shadow-md shadow-teal-500/20"
-        >
-            Comprar Agora &darr;
-        </a>
+        <div class="flex items-center gap-2">
+            <button 
+                type="button"
+                @click="window.addToCart({
+                    id: {{ $product->id }},
+                    title: {{ json_encode($product->title) }},
+                    slug: {{ json_encode($product->slug) }},
+                    price: {{ (float) $product->price }},
+                    cover_image: {{ json_encode($product->cover_image) }},
+                    category: {{ json_encode($product->categoryRelation?->name ?? 'Sistema Web') }}
+                })"
+                class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-slate-900 border border-slate-700 text-teal-400 hover:bg-slate-800 transition cursor-pointer"
+                title="Adicionar ao Carrinho"
+                aria-label="Adicionar ao carrinho"
+            >
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                </svg>
+            </button>
+            <a 
+                href="#card-compra" 
+                class="btn-teal !min-h-10 px-4 py-2 text-xs font-bold shadow-md shadow-teal-500/20"
+            >
+                Comprar Agora &darr;
+            </a>
+        </div>
     </div>
 </x-storefront-layout>

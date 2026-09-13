@@ -212,16 +212,36 @@
                             {{ $item->description }}
                         </p>
 
-                        <div class="mt-auto pt-5 border-t border-slate-100 flex items-center justify-between">
+                        <div class="mt-auto pt-5 border-t border-slate-100 flex items-center justify-between gap-2">
                             <div>
                                 <span class="text-[10px] uppercase font-mono text-slate-400">Preço</span>
                                 <p class="font-display text-lg font-extrabold text-slate-900">
                                     R$ {{ number_format((float) $item->price, 2, ',', '.') }}
                                 </p>
                             </div>
-                            <a href="{{ route('storefront.show', $item) }}" class="inline-flex items-center justify-center rounded-lg bg-teal-600 hover:bg-teal-500 px-3.5 py-2 text-xs font-bold text-white transition shadow-sm">
-                                Comprar
-                            </a>
+                            <div class="flex items-center gap-1.5">
+                                <button 
+                                    type="button" 
+                                    @click.prevent="window.addToCart({
+                                        id: {{ $item->id }},
+                                        title: {{ json_encode($item->title) }},
+                                        slug: {{ json_encode($item->slug) }},
+                                        price: {{ (float) $item->price }},
+                                        cover_image: {{ json_encode($item->cover_image) }},
+                                        category: {{ json_encode($item->categoryRelation?->name ?? 'Sistema Web') }}
+                                    })"
+                                    class="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-teal-200 bg-teal-50 text-teal-700 hover:bg-teal-600 hover:text-white transition cursor-pointer"
+                                    title="Adicionar ao Carrinho"
+                                    aria-label="Adicionar ao carrinho"
+                                >
+                                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                                    </svg>
+                                </button>
+                                <a href="{{ route('storefront.show', $item) }}" class="inline-flex items-center justify-center rounded-lg bg-teal-600 hover:bg-teal-500 px-3.5 py-2 text-xs font-bold text-white transition shadow-sm">
+                                    Comprar
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </article>
@@ -314,9 +334,29 @@
                                     R$ {{ number_format((float) $product->price, 2, ',', '.') }}
                                 </p>
                             </div>
-                            <a href="{{ route('storefront.show', $product) }}" class="btn-primary">
-                                Ver Detalhes &rarr;
-                            </a>
+                            <div class="flex items-center gap-2">
+                                <button 
+                                    type="button" 
+                                    @click.prevent="window.addToCart({
+                                        id: {{ $product->id }},
+                                        title: {{ json_encode($product->title) }},
+                                        slug: {{ json_encode($product->slug) }},
+                                        price: {{ (float) $product->price }},
+                                        cover_image: {{ json_encode($product->cover_image) }},
+                                        category: {{ json_encode($product->categoryRelation?->name ?? 'Sistema Web') }}
+                                    })"
+                                    class="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-teal-200 bg-teal-50 text-teal-700 hover:bg-teal-600 hover:text-white transition cursor-pointer"
+                                    title="Adicionar ao Carrinho"
+                                    aria-label="Adicionar ao carrinho"
+                                >
+                                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                                    </svg>
+                                </button>
+                                <a href="{{ route('storefront.show', $product) }}" class="btn-primary">
+                                    Ver Detalhes &rarr;
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </article>

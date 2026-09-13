@@ -104,4 +104,11 @@
   - [x] Implementar barra inferior fixa (sticky purchase bar) na página de detalhes do produto (`storefront/show.blade.php`) com âncora direta de checkout.
   - [x] Otimizar formulários de autenticação (`login.blade.php`, `register.blade.php`) com padding dinâmico para telas estreitas (360px–390px).
   - [x] Compactar header e botões de ação do Painel Administrativo (`layouts/admin.blade.php`, `categories/_form.blade.php`, `posts/_form.blade.php`) garantindo layout sem quebras em visualização mobile.
-  - [x] Executar testes visuais automatizados via navegador em viewport 390x844 e validar 100% da suíte PHPUnit.
+- [x] **Fase 16: Página de Carrinho de Compras (`/carrinho`)**
+  - [x] Criar `CartController` e registrar rota pública `cart.index` (`/carrinho`).
+  - [x] Desenvolver view `resources/views/cart/index.blade.php` com suporte reativo (`localStorage` + Alpine.js), cálculo em tempo real de subtotal, descontos, total e produtos recomendados.
+  - [x] Implementar sistema de cupons promocionais com feedback instantâneo (ex: `VIP10`, `KL2026`).
+  - [x] Adicionar botões de "Adicionar ao Carrinho" com notificação toast interativa na vitrine, catálogo e página de detalhes do produto.
+  - [x] Atualizar links de carrinho na navbar (topbar) e drawer mobile para a nova rota oficial.
+  - [x] Criar testes automatizados Feature (`CartTest`) com 100% de aprovação na suíte PHPUnit (92 testes, 323 asserções) e Pint.
+

@@ -240,10 +240,28 @@
                                     </div>
 
                                     {{-- Botão de ação --}}
-                                    <div class="mt-3">
+                                    <div class="mt-3 flex items-center gap-2">
+                                        <button 
+                                            type="button" 
+                                            @click="window.addToCart({
+                                                id: {{ $product->id }},
+                                                title: {{ json_encode($product->title) }},
+                                                slug: {{ json_encode($product->slug) }},
+                                                price: {{ (float) $product->price }},
+                                                cover_image: {{ json_encode($product->cover_image) }},
+                                                category: {{ json_encode($product->categoryRelation?->name ?? 'Sistema Web') }}
+                                            })"
+                                            class="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-teal-200 bg-teal-50 text-teal-700 hover:bg-teal-600 hover:text-white transition shrink-0 cursor-pointer"
+                                            title="Adicionar ao Carrinho"
+                                            aria-label="Adicionar ao carrinho"
+                                        >
+                                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                                            </svg>
+                                        </button>
                                         <a 
                                             href="{{ route('storefront.show', $product) }}" 
-                                            class="inline-flex w-full items-center justify-center rounded-lg bg-teal-600 hover:bg-teal-500 py-2 text-xs font-bold text-white transition shadow-sm"
+                                            class="inline-flex flex-1 items-center justify-center rounded-lg bg-teal-600 hover:bg-teal-500 py-2 text-xs font-bold text-white transition shadow-sm"
                                         >
                                             Ver Detalhes &rarr;
                                         </a>
