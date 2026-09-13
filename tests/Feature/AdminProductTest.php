@@ -116,4 +116,79 @@ class AdminProductTest extends TestCase
         $response->assertRedirect(route('admin.products.index'))->assertSessionHas('success');
         $this->assertTrue($product->fresh()->is_featured);
     }
+
+    public function test_admin_can_view_products_list_with_metrics(): void
+    {
+        $admin = User::factory()->admin()->create();
+
+        Product::factory()->create(['title' => 'Produto Ativo 1', 'is_active' => true, 'is_featured' => true]);
+        Product::factory()->create(['title' => 'Produto Ativo 2', 'is_active' => true, 'is_featured' => false]);
+        Product::factory()->create(['title' => 'Produto Inativo', 'is_active' => false, 'is_featured' => false]);
+
+        $response = $this->actingAs($admin)->get(route('admin.products.index'));
+
+        $response->assertOk();
+        $response->assertViewHas('metrics', function (array $metrics) {
+            return $metrics['total'] === 3
+                && $metrics['active'] === 2
+                && $metrics['inactive'] === 1
+                && $metrics['featured'] === 1;
+        });
+        $response->assertSee('Produto Ativo 1');
+        $response->assertSee('Produto Ativo 2');
+        $response->assertSee('Produto Inativo');
+    }
+
+    public function test_admin_can_search_products_by_title_or_slug(): void
+    {
+        $admin = User::factory()->admin()->create();
+
+        Product::factory()->create(['title' => 'Script Laravel Multi-Tenancy', 'slug' => 'script-laravel-multi-tenancy']);
+        Product::factory()->create(['title' => 'Template Vue Dashboard', 'slug' => 'template-vue-dashboard']);
+
+        // Test with parameter 'search'
+        $response1 = $this->actingAs($admin)->get(route('admin.products.index', ['search' => 'Laravel']));
+        $response1->assertOk();
+        $response1->assertSee('Script Laravel Multi-Tenancy');
+        $response1->assertDontSee('Template Vue Dashboard');
+
+        // Test with parameter 'q'
+        $response2 = $this->actingAs($admin)->get(route('admin.products.index', ['q' => 'Vue']));
+        $response2->assertOk();
+        $response2->assertSee('Template Vue Dashboard');
+        $response2->assertDontSee('Script Laravel Multi-Tenancy');
+    }
+
+    public function test_admin_can_filter_products_by_status(): void
+    {
+        $admin = User::factory()->admin()->create();
+
+        Product::factory()->create(['title' => 'Produto Apenas Ativo', 'is_active' => true]);
+        Product::factory()->create(['title' => 'Produto Apenas Desativado', 'is_active' => false]);
+
+        // Filter active
+        $responseActive = $this->actingAs($admin)->get(route('admin.products.index', ['status' => 'active']));
+        $responseActive->assertOk();
+        $responseActive->assertSee('Produto Apenas Ativo');
+        $responseActive->assertDontSee('Produto Apenas Desativado');
+
+        // Filter inactive
+        $responseInactive = $this->actingAs($admin)->get(route('admin.products.index', ['status' => 'inactive']));
+        $responseInactive->assertOk();
+        $responseInactive->assertSee('Produto Apenas Desativado');
+        $responseInactive->assertDontSee('Produto Apenas Ativo');
+    }
+
+    public function test_admin_can_filter_products_by_featured(): void
+    {
+        $admin = User::factory()->admin()->create();
+
+        Product::factory()->create(['title' => 'Produto Destaque Especial', 'is_featured' => true]);
+        Product::factory()->create(['title' => 'Produto Comum Padrão', 'is_featured' => false]);
+
+        $response = $this->actingAs($admin)->get(route('admin.products.index', ['featured' => 'featured']));
+        $response->assertOk();
+        $response->assertSee('Produto Destaque Especial');
+        $response->assertDontSee('Produto Comum Padrão');
+    }
 }

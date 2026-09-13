@@ -347,3 +347,28 @@
     - Confirmação manual de pedido no painel administrativo.
     - Renderização sem erros de todos os templates HTML de e-mail.
   - [x] Suíte de testes geral elevada para **174 testes aprovados (703 asserções)** com 100% de conformidade no Laravel Pint.
+
+- [x] **Fase 30: Campo de Busca e Filtros no Módulo de Produtos do Painel Administrativo**
+  - [x] Atualizar Model `Product` (`app/Models/Product.php`):
+    - Implementar query scope `scopeSearch($query, ?string $term)` pesquisando por ID exato, título, slug, categoria, descrição e versão.
+  - [x] Aprimorar `Admin\ProductController` (`app/Http/Controllers/Admin/ProductController.php`):
+    - Receber `Request $request` no método `index()`.
+    - Suportar termos de busca enviados via parâmetros `search` ou `q`.
+    - Suportar filtro por status de ativação (`all`, `active`, `inactive`).
+    - Suportar filtro por produtos em destaque na vitrine (`all`, `featured`).
+    - Calcular estatísticas em tempo real (`metrics`): total de produtos, ativos, ocultos/inativos e destaques da home.
+    - Preservar parâmetros de busca na paginação através de `withQueryString()`.
+    - Enviar parâmetros de filtro e métricas para a view.
+  - [x] Modernizar a view administrativa de produtos (`resources/views/admin/products/index.blade.php`):
+    - Adicionar 4 cards de métricas no padrão SaaS dark/light (Total de Produtos, Produtos Ativos, Ocultos/Inativos e Destaques na Home).
+    - Adicionar barra de busca estilizada com ícone de lupa, dropdown de status e dropdown de destaque com submissão automática e botão Filtrar.
+    - Adicionar botão "Limpar" quando qualquer filtro ou termo de busca estiver ativo.
+    - Aprimorar listagem exibindo badge de categoria quando preenchido e indicador de integridade do arquivo digital.
+    - Criar empty state contextual e acolhedor diferenciando catálogo vazio de busca sem resultados com botão "Limpar Busca e Filtros".
+  - [x] Expandir suíte de testes de produtos administrativos (`tests/Feature/AdminProductTest.php`):
+    - Teste de visualização da listagem com métricas corretas.
+    - Teste de busca por título e por slug (`search` e `q`).
+    - Teste de filtro por status (`active` e `inactive`).
+    - Teste de filtro por produtos em destaque (`featured`).
+  - [x] Suíte de testes geral elevada para **178 testes aprovados (723 asserções)** com 100% de conformidade no Laravel Pint.
+

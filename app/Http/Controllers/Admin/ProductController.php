@@ -16,11 +16,46 @@ class ProductController extends Controller
 {
     public function __construct(private readonly ProductStorageService $storage) {}
 
-    public function index(): View
+    public function index(Request $request): View
     {
         Gate::authorize('viewAny', Product::class);
 
-        return view('admin.products.index', ['products' => Product::query()->latest()->paginate(10)]);
+        $search = trim((string) ($request->query('q') ?? $request->query('search', '')));
+        $status = trim((string) $request->query('status', 'all'));
+        $featured = trim((string) $request->query('featured', 'all'));
+
+        $query = Product::query()->with('categoryGroup');
+
+        if ($search !== '') {
+            $query->search($search);
+        }
+
+        if ($status === 'active') {
+            $query->where('is_active', true);
+        } elseif ($status === 'inactive') {
+            $query->where('is_active', false);
+        }
+
+        if ($featured === '1' || $featured === 'featured') {
+            $query->where('is_featured', true);
+        }
+
+        $metrics = [
+            'total' => Product::count(),
+            'active' => Product::where('is_active', true)->count(),
+            'inactive' => Product::where('is_active', false)->count(),
+            'featured' => Product::where('is_featured', true)->count(),
+        ];
+
+        $products = $query->latest('id')->paginate(10)->withQueryString();
+
+        return view('admin.products.index', [
+            'products' => $products,
+            'search' => $search,
+            'currentStatus' => $status,
+            'currentFeatured' => $featured,
+            'metrics' => $metrics,
+        ]);
     }
 
     public function create(): View

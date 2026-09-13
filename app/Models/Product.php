@@ -78,6 +78,26 @@ class Product extends Model
      * @param  Builder<Product>  $query
      * @return Builder<Product>
      */
+    public function scopeSearch($query, ?string $term)
+    {
+        if (! $term) {
+            return $query;
+        }
+
+        return $query->where(function ($q) use ($term): void {
+            $q->where('id', 'like', "%{$term}%")
+                ->orWhere('title', 'like', "%{$term}%")
+                ->orWhere('slug', 'like', "%{$term}%")
+                ->orWhere('category', 'like', "%{$term}%")
+                ->orWhere('description', 'like', "%{$term}%")
+                ->orWhere('version', 'like', "%{$term}%");
+        });
+    }
+
+    /**
+     * @param  Builder<Product>  $query
+     * @return Builder<Product>
+     */
     public function scopeFeatured($query)
     {
         return $query->where('is_featured', true);
