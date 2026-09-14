@@ -68,6 +68,12 @@ jobs:
           DB_PASSWORD: test-root-password
         run: php artisan migrate:fresh --force
 
+      - name: Install frontend dependencies
+        run: npm ci
+
+      - name: Build frontend
+        run: npm run build
+
       - name: Test
         run: php artisan test --compact
 
@@ -76,12 +82,6 @@ jobs:
 
       - name: Audit PHP dependencies
         run: composer audit --locked
-
-      - name: Install frontend dependencies
-        run: npm ci
-
-      - name: Build frontend
-        run: npm run build
 
       - name: Audit frontend dependencies
         run: npm audit --audit-level=moderate
