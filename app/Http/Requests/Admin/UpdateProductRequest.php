@@ -24,7 +24,7 @@ class UpdateProductRequest extends FormRequest
             'is_active' => ['nullable', 'boolean'],
             'is_featured' => ['nullable', 'boolean'],
             'cover' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
-            'file' => ['nullable', 'file', 'mimes:zip,pdf,doc,docx,xls,xlsx,ppt,pptx,rar,7z', 'max:102400'],
+            'file' => ['nullable', 'file', 'mimes:zip,pdf,doc,docx,xls,xlsx,ppt,pptx,rar,7z,tar,gz', 'max:524288'],
         ];
     }
 
