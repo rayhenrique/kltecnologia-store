@@ -132,6 +132,30 @@ class AdminProductTest extends TestCase
         $this->assertTrue($product->fresh()->is_featured);
     }
 
+    public function test_admin_can_update_product_without_previous_file_and_attach_file_with_spaces(): void
+    {
+        Storage::fake('digital_products');
+        $admin = User::factory()->admin()->create();
+        $product = Product::factory()->create([
+            'file_path' => null,
+            'is_active' => false,
+        ]);
+
+        $response = $this->actingAs($admin)->put(route('admin.products.update', $product), [
+            'title' => $product->title,
+            'description' => $product->description,
+            'price' => (string) $product->price,
+            'is_active' => '1',
+            'file' => UploadedFile::fake()->create('manual do produto 2026 versao final.pdf', 100, 'application/pdf'),
+        ]);
+
+        $response->assertRedirect(route('admin.products.index'))->assertSessionHas('success');
+        $freshProduct = $product->fresh();
+        $this->assertTrue($freshProduct->is_active);
+        $this->assertNotNull($freshProduct->file_path);
+        Storage::disk('digital_products')->assertExists($freshProduct->file_path);
+    }
+
     public function test_admin_can_view_products_list_with_metrics(): void
     {
         $admin = User::factory()->admin()->create();

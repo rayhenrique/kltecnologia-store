@@ -60,7 +60,7 @@ class ProductStorageService
             $this->deleteCover($oldCover);
         }
         if ($newFile) {
-            Storage::disk('digital_products')->delete($oldFile);
+            $this->deleteDigitalFile($oldFile);
         }
 
         return $product->refresh();
@@ -84,6 +84,13 @@ class ProductStorageService
     {
         if ($path && str_starts_with($path, 'covers/')) {
             File::delete(public_path($path));
+        }
+    }
+
+    private function deleteDigitalFile(?string $path): void
+    {
+        if (filled($path)) {
+            Storage::disk('digital_products')->delete($path);
         }
     }
 }
