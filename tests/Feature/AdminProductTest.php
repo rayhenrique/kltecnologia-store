@@ -156,6 +156,31 @@ class AdminProductTest extends TestCase
         Storage::disk('digital_products')->assertExists($freshProduct->file_path);
     }
 
+    public function test_admin_can_update_product_via_ajax_json_request(): void
+    {
+        Storage::fake('digital_products');
+        $admin = User::factory()->admin()->create();
+        $product = Product::factory()->create([
+            'file_path' => null,
+            'is_active' => false,
+        ]);
+
+        $response = $this->actingAs($admin)->putJson(route('admin.products.update', $product), [
+            'title' => $product->title,
+            'description' => $product->description,
+            'price' => (string) $product->price,
+            'is_active' => '1',
+            'file' => UploadedFile::fake()->create('sistema-completo.zip', 200, 'application/zip'),
+        ]);
+
+        $response->assertOk();
+        $response->assertJson([
+            'success' => true,
+            'redirect' => route('admin.products.index'),
+        ]);
+        $this->assertTrue($product->fresh()->is_active);
+    }
+
     public function test_admin_can_view_products_list_with_metrics(): void
     {
         $admin = User::factory()->admin()->create();

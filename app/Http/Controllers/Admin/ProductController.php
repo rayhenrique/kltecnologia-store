@@ -65,9 +65,19 @@ class ProductController extends Controller
         return view('admin.products.create');
     }
 
-    public function store(StoreProductRequest $request): RedirectResponse
+    public function store(StoreProductRequest $request): RedirectResponse|\Illuminate\Http\JsonResponse
     {
         $this->storage->create($request->validated(), $request->file('cover'), $request->file('file'));
+
+        if ($request->wantsJson()) {
+            session()->flash('success', 'Produto criado com sucesso.');
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Produto criado com sucesso.',
+                'redirect' => route('admin.products.index'),
+            ]);
+        }
 
         return redirect()->route('admin.products.index')->with('success', 'Produto criado com sucesso.');
     }
@@ -79,9 +89,19 @@ class ProductController extends Controller
         return view('admin.products.edit', compact('product'));
     }
 
-    public function update(UpdateProductRequest $request, Product $product): RedirectResponse
+    public function update(UpdateProductRequest $request, Product $product): RedirectResponse|\Illuminate\Http\JsonResponse
     {
         $this->storage->update($product, $request->validated(), $request->file('cover'), $request->file('file'));
+
+        if ($request->wantsJson()) {
+            session()->flash('success', 'Produto atualizado com sucesso.');
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Produto atualizado com sucesso.',
+                'redirect' => route('admin.products.index'),
+            ]);
+        }
 
         return redirect()->route('admin.products.index')->with('success', 'Produto atualizado com sucesso.');
     }

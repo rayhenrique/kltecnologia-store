@@ -6,10 +6,11 @@
     enctype="multipart/form-data" 
     novalidate 
     class="space-y-8" 
-    x-data="{ submitting: false, dirty: false, coverName: '', fileName: '' }" 
+    x-ref="form"
+    x-data="productFormHandler()" 
     x-on:change="dirty = true" 
-    x-on:submit="submitting = true; dirty = false" 
-    x-on:beforeunload.window="if (dirty) $event.preventDefault()"
+    x-on:submit="submitForm($event)" 
+    x-on:beforeunload.window="if (dirty && !submitting) $event.preventDefault()"
 >
     @csrf 
     @if($editing) 
@@ -221,11 +222,12 @@
                     type="file" 
                     accept="image/jpeg,image/png,image/webp" 
                     class="block w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-teal-50 file:text-teal-700 hover:file:bg-teal-100 cursor-pointer" 
-                    x-on:change="coverName = $event.target.files[0]?.name || ''" 
+                    x-on:change="onCoverChange($event)" 
                     aria-describedby="cover-hint cover-error" 
                     aria-invalid="{{ $errors->has('cover') ? 'true' : 'false' }}"
                 >
                 <p id="cover-hint" class="mt-2 text-[11px] text-slate-500" x-text="coverName || 'Formatos: JPG, PNG ou WebP • máx 4 MB'"></p>
+                <div x-show="coverError" x-cloak class="mt-2 text-xs font-semibold text-red-500" x-text="coverError"></div>
                 <x-input-error id="cover-error" :messages="$errors->get('cover')" class="mt-1 text-xs text-red-500" />
             </div>
 
@@ -256,13 +258,39 @@
                     name="file" 
                     type="file" 
                     @required(!$editing) 
-                    accept=".zip,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx" 
+                    accept=".zip,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.rar,.7z,.tar,.gz" 
                     class="block w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-teal-600 file:text-white hover:file:bg-teal-700 cursor-pointer" 
-                    x-on:change="fileName = $event.target.files[0]?.name || ''" 
+                    x-on:change="onFileChange($event)" 
                     aria-describedby="file-hint file-error" 
                     aria-invalid="{{ $errors->has('file') ? 'true' : 'false' }}"
                 >
-                <p id="file-hint" class="mt-2 text-[11px] text-slate-500" x-text="fileName || '{{ $editing ? 'Envie somente se desejar substituir • ' : '' }}ZIP, PDF ou Docs • máx 100 MB'"></p>
+                <div class="mt-2 flex items-center justify-between text-[11px] text-slate-500">
+                    <span x-text="fileName ? 'Arquivo selecionado: ' + fileName : '{{ $editing ? 'Envie somente se desejar substituir • ' : '' }}ZIP, PDF, RAR ou Docs • máx 512 MB'"></span>
+                    <span x-show="fileSizeFormatted" class="font-bold text-teal-700" x-text="fileSizeFormatted"></span>
+                </div>
+
+                {{-- Alerta Instantâneo: Arquivo excede 512MB --}}
+                <div x-show="fileError" x-cloak class="mt-3 rounded-xl border border-red-200 bg-red-50 p-3 text-xs text-red-800 flex items-start gap-2">
+                    <svg class="h-4 w-4 shrink-0 text-red-500 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <div>
+                        <strong class="block font-semibold">Tamanho Excedido:</strong>
+                        <span x-text="fileError"></span>
+                    </div>
+                </div>
+
+                {{-- Alerta Instantâneo: Aviso de arquivo sem extensão --}}
+                <div x-show="fileWarning" x-cloak class="mt-3 rounded-xl border border-amber-300 bg-amber-50 p-3 text-xs text-amber-900 flex items-start gap-2">
+                    <svg class="h-4 w-4 shrink-0 text-amber-600 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                    <div>
+                        <strong class="block font-semibold">Aviso de formato de arquivo:</strong>
+                        <span x-text="fileWarning"></span>
+                    </div>
+                </div>
+
                 <x-input-error id="file-error" :messages="$errors->get('file')" class="mt-1 text-xs text-red-500" />
             </div>
         </div>
@@ -277,6 +305,42 @@
         </div>
     </div>
 
+    {{-- CARD DE PROGRESSO DE UPLOAD EM TEMPO REAL --}}
+    <div x-show="submitting && uploadProgress > 0" x-cloak class="rounded-2xl border border-teal-200 bg-gradient-to-br from-teal-50/90 to-emerald-50/70 p-5 shadow-sm space-y-3 transition">
+        <div class="flex items-center justify-between text-xs font-bold text-teal-950">
+            <span class="flex items-center gap-2">
+                <svg class="h-4 w-4 animate-spin text-teal-600 shrink-0" viewBox="0 0 24 24" fill="none">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span x-text="uploadStatus"></span>
+            </span>
+            <span class="font-mono text-sm font-black text-teal-700" x-text="uploadProgress + '%'"></span>
+        </div>
+
+        {{-- Barra de Progresso --}}
+        <div class="h-3 w-full overflow-hidden rounded-full bg-slate-200/90 p-0.5">
+            <div 
+                class="h-full rounded-full bg-gradient-to-r from-teal-500 via-emerald-500 to-teal-600 transition-all duration-200 ease-out shadow-xs" 
+                :style="'width: ' + uploadProgress + '%'"
+            ></div>
+        </div>
+
+        <div class="flex items-center justify-between text-[11px] text-slate-600">
+            <span>Enviado: <strong class="text-slate-800" x-text="uploadedMb"></strong> de <strong class="text-slate-800" x-text="totalMb"></strong></span>
+            <span x-show="uploadProgress < 100" class="text-teal-700 font-medium">Não feche esta página até o término</span>
+            <span x-show="uploadProgress >= 100" class="text-emerald-700 font-bold">Processando no servidor...</span>
+        </div>
+    </div>
+
+    {{-- MENSAGEM DE ERRO DO SERVIDOR / INTERCEPTADA --}}
+    <div x-show="formError" x-cloak class="rounded-2xl border border-red-200 bg-red-50 p-4 text-xs text-red-900 flex items-start gap-3 shadow-xs">
+        <svg class="h-5 w-5 shrink-0 text-red-600 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <div class="space-y-1 leading-relaxed" x-html="formError"></div>
+    </div>
+
     {{-- BARRA DE AÇÕES --}}
     <div class="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-end gap-3 border-t border-slate-200 pt-6">
         <a 
@@ -288,8 +352,8 @@
 
         <button 
             type="submit" 
-            class="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-400 hover:to-emerald-400 px-6 py-2.5 text-xs font-bold text-white shadow-sm shadow-teal-500/20 transition transform active:scale-95 disabled:opacity-60" 
-            :disabled="submitting"
+            class="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-400 hover:to-emerald-400 px-6 py-2.5 text-xs font-bold text-white shadow-sm shadow-teal-500/20 transition transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed" 
+            :disabled="submitting || !!fileError || !!coverError"
         >
             <span x-show="!submitting">{{ $editing ? 'Salvar Alterações' : 'Cadastrar Produto' }}</span>
             <span x-show="submitting" x-cloak class="flex items-center gap-1.5">
@@ -297,8 +361,167 @@
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
-                <span>Enviando dados...</span>
+                <span x-text="uploadProgress > 0 ? (uploadProgress + '%') : 'Enviando...'"></span>
             </span>
         </button>
     </div>
 </form>
+
+<script>
+function productFormHandler() {
+    return {
+        submitting: false,
+        dirty: false,
+        coverName: '',
+        coverError: '',
+        fileName: '',
+        fileSize: 0,
+        fileSizeFormatted: '',
+        fileError: '',
+        fileWarning: '',
+        uploadProgress: 0,
+        uploadedMb: '0 MB',
+        totalMb: '0 MB',
+        uploadStatus: '',
+        formError: '',
+
+        onCoverChange(event) {
+            this.dirty = true;
+            this.coverError = '';
+            const file = event.target.files[0];
+            if (!file) {
+                this.coverName = '';
+                return;
+            }
+            this.coverName = file.name;
+            if (file.size > 4 * 1024 * 1024) {
+                this.coverError = 'A imagem de capa não pode ultrapassar 4 MB.';
+            }
+        },
+
+        onFileChange(event) {
+            this.dirty = true;
+            this.fileError = '';
+            this.fileWarning = '';
+            this.formError = '';
+            const file = event.target.files[0];
+            if (!file) {
+                this.fileName = '';
+                this.fileSize = 0;
+                this.fileSizeFormatted = '';
+                return;
+            }
+
+            this.fileName = file.name;
+            this.fileSize = file.size;
+            const sizeInMb = file.size / (1024 * 1024);
+            this.fileSizeFormatted = sizeInMb < 1 
+                ? (file.size / 1024).toFixed(1) + ' KB' 
+                : sizeInMb.toFixed(1) + ' MB';
+
+            // 1. Limite de tamanho máximo: 512 MB
+            if (sizeInMb > 512) {
+                this.fileError = `O arquivo selecionado possui ${this.fileSizeFormatted} e excede o limite máximo permitido de 512 MB. Compacte ou divida o arquivo antes de enviar.`;
+                return;
+            }
+
+            // 2. Validação da extensão
+            const parts = file.name.split('.');
+            const hasExtension = parts.length > 1;
+            const ext = hasExtension ? parts.pop().toLowerCase() : '';
+            const allowed = ['zip', 'pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'rar', '7z', 'tar', 'gz'];
+
+            if (!hasExtension || !ext) {
+                this.fileWarning = 'Atenção: O arquivo parece estar sem extensão (ex: .zip). Se for um arquivo baixado do Google Drive, adicione ".zip" ao nome do arquivo antes de enviar.';
+            } else if (!allowed.includes(ext)) {
+                this.fileError = `A extensão ".${ext}" não é permitida. Envie arquivos nos formatos: ${allowed.join(', ')}.`;
+            }
+        },
+
+        submitForm(event) {
+            event.preventDefault();
+
+            if (this.fileError || this.coverError) {
+                return;
+            }
+
+            this.formError = '';
+            this.submitting = true;
+            this.uploadProgress = 0;
+            this.uploadedMb = '0 MB';
+            this.totalMb = this.fileSizeFormatted || '0 MB';
+            this.uploadStatus = 'Iniciando upload...';
+
+            const form = this.$refs.form;
+            const formData = new FormData(form);
+
+            const xhr = new XMLHttpRequest();
+            xhr.open(form.method, form.action, true);
+            xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+            xhr.setRequestHeader('Accept', 'application/json');
+
+            xhr.upload.onprogress = (e) => {
+                if (e.lengthComputable) {
+                    const percent = Math.min(100, Math.round((e.loaded / e.total) * 100));
+                    this.uploadProgress = percent;
+                    this.uploadedMb = (e.loaded / (1024 * 1024)).toFixed(1) + ' MB';
+                    this.totalMb = (e.total / (1024 * 1024)).toFixed(1) + ' MB';
+                    if (percent < 100) {
+                        this.uploadStatus = `Enviando arquivo: ${this.uploadedMb} de ${this.totalMb}`;
+                    } else {
+                        this.uploadStatus = 'Upload concluído! Gravando no storage do servidor...';
+                    }
+                }
+            };
+
+            xhr.onload = () => {
+                if (xhr.status >= 200 && xhr.status < 300) {
+                    this.dirty = false;
+                    this.uploadProgress = 100;
+                    this.uploadStatus = 'Produto salvo com sucesso! Redirecionando...';
+                    try {
+                        const response = JSON.parse(xhr.responseText);
+                        if (response.redirect) {
+                            window.location.href = response.redirect;
+                            return;
+                        }
+                    } catch (err) {}
+                    window.location.href = '{{ route('admin.products.index') }}';
+                } else if (xhr.status === 413) {
+                    this.submitting = false;
+                    this.uploadProgress = 0;
+                    this.formError = `<strong>⛔ Erro 413 (Request Entity Too Large):</strong> O servidor Nginx rejeitou a transmissão do arquivo (${this.totalMb}).<br><span class="text-xs">Para corrigir no servidor: certifique-se de que a diretiva <code>client_max_body_size 512M;</code> está inserida no Vhost do Nginx.</span>`;
+                } else if (xhr.status === 422) {
+                    this.submitting = false;
+                    this.uploadProgress = 0;
+                    try {
+                        const response = JSON.parse(xhr.responseText);
+                        if (response.errors) {
+                            const messages = Object.values(response.errors).flat().join('<br>• ');
+                            this.formError = `<strong>Erros de Validação:</strong><br>• ${messages}`;
+                            return;
+                        }
+                    } catch (err) {}
+                    this.formError = 'Verifique os dados preenchidos no formulário.';
+                } else if (xhr.status === 419) {
+                    this.submitting = false;
+                    this.uploadProgress = 0;
+                    this.formError = 'Sua sessão expirou (Erro 419). Por favor, recarregue a página e tente novamente.';
+                } else {
+                    this.submitting = false;
+                    this.uploadProgress = 0;
+                    this.formError = `Ocorreu um erro no servidor (Status: ${xhr.status}). Não foi possível concluir o salvamento.`;
+                }
+            };
+
+            xhr.onerror = () => {
+                this.submitting = false;
+                this.uploadProgress = 0;
+                this.formError = '<strong>⛔ Falha de Conexão:</strong> O envio foi cancelado ou interrompido pelo servidor (o Nginx pode ter encerrado a conexão por limite de tamanho <code>client_max_body_size</code>).';
+            };
+
+            xhr.send(formData);
+        }
+    };
+}
+</script>
