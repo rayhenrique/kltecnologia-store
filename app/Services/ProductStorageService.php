@@ -74,6 +74,45 @@ class ProductStorageService
     private function storeCover(UploadedFile $cover): string
     {
         File::ensureDirectoryExists(public_path('covers'));
+
+        if (function_exists('imagewebp') && in_array(strtolower($cover->getClientOriginalExtension() ?: $cover->extension()), ['jpg', 'jpeg', 'png', 'webp'])) {
+            $ext = strtolower($cover->getClientOriginalExtension() ?: $cover->extension());
+            $image = match ($ext) {
+                'jpg', 'jpeg' => @imagecreatefromjpeg($cover->getRealPath()),
+                'png' => @imagecreatefrompng($cover->getRealPath()),
+                'webp' => @imagecreatefromwebp($cover->getRealPath()),
+                default => null,
+            };
+
+            if ($image) {
+                $filename = Str::uuid().'.webp';
+                $destination = public_path('covers/'.$filename);
+                $width = imagesx($image);
+                $height = imagesy($image);
+
+                if ($width > 800) {
+                    $newWidth = 800;
+                    $newHeight = (int) ($height * (800 / $width));
+                    $resized = imagecreatetruecolor($newWidth, $newHeight);
+                    imagepalettetotruecolor($image);
+                    imagealphablending($resized, false);
+                    imagesavealpha($resized, true);
+                    imagecopyresampled($resized, $image, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);
+                    imagedestroy($image);
+                    $image = $resized;
+                } else {
+                    imagepalettetotruecolor($image);
+                    imagealphablending($image, false);
+                    imagesavealpha($image, true);
+                }
+
+                imagewebp($image, $destination, 82);
+                imagedestroy($image);
+
+                return 'covers/'.$filename;
+            }
+        }
+
         $filename = Str::uuid().'.'.$cover->extension();
         $cover->move(public_path('covers'), $filename);
 

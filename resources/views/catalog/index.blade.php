@@ -164,7 +164,15 @@
                                 <div class="relative aspect-[16/10] bg-slate-950 overflow-hidden group">
                                     <a href="{{ route('storefront.show', $product) }}" class="block w-full h-full">
                                         @if($product->cover_path)
-                                            <img src="{{ asset($product->cover_path) }}" alt="Capa de {{ $product->title }}" class="h-full w-full object-cover group-hover:scale-105 transition duration-300">
+                                            <img 
+                                                src="{{ asset($product->cover_path) }}" 
+                                                alt="Capa de {{ $product->title }}" 
+                                                width="400" 
+                                                height="250" 
+                                                loading="lazy" 
+                                                decoding="async" 
+                                                class="h-full w-full object-cover group-hover:scale-105 transition duration-300"
+                                            >
                                         @else
                                             <div class="grid h-full w-full place-items-center bg-gradient-to-br from-slate-900 via-slate-800 to-teal-900 font-display text-2xl font-bold text-teal-300">
                                                 KL

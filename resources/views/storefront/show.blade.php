@@ -51,6 +51,10 @@
                             <img 
                                 src="{{ asset($product->cover_path) }}" 
                                 alt="{{ $product->title }}" 
+                                width="800" 
+                                height="500" 
+                                fetchpriority="high" 
+                                decoding="async" 
                                 class="w-full aspect-[16/10] object-cover object-center group-hover:scale-[1.01] transition duration-300"
                             />
                         @else

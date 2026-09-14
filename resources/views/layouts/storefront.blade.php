@@ -5,10 +5,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ isset($title) ? $title.' | ' : '' }}{{ config('app.name', 'KL Tecnologia') }}</title>
+    <meta name="description" content="{{ $metaDescription ?? 'Plataforma oficial de produtos digitais, scripts, sistemas SaaS, automações e templates prontos para acelerar seu negócio na KL Tecnologia.' }}">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="{{ url()->current() }}">
+
+    {{-- Open Graph & Twitter Card --}}
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="{{ isset($title) ? $title.' | ' : '' }}{{ config('app.name', 'KL Tecnologia') }}">
+    <meta property="og:description" content="{{ $metaDescription ?? 'Plataforma oficial de produtos digitais, scripts, sistemas SaaS, automações e templates prontos para acelerar seu negócio na KL Tecnologia.' }}">
+    <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:image" content="{{ asset('images/logo-kltecnologia.png') }}">
+    <meta name="twitter:card" content="summary_large_image">
+
     <link rel="icon" type="image/png" href="{{ asset('images/logo-kltecnologia.png') }}">
     <link rel="apple-touch-icon" href="{{ asset('images/logo-kltecnologia.png') }}">
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=dm-sans:400,500,600,700&family=ibm-plex-mono:500,600&family=sora:600,700,800&display=swap" rel="stylesheet">
+
+    {{-- Non-blocking Web Fonts --}}
+    <link rel="preconnect" href="https://fonts.bunny.net" crossorigin>
+    <link rel="preload" as="style" href="https://fonts.bunny.net/css?family=dm-sans:400,500,600,700&family=ibm-plex-mono:500,600&family=sora:600,700,800&display=swap">
+    <link rel="stylesheet" href="https://fonts.bunny.net/css?family=dm-sans:400,500,600,700&family=ibm-plex-mono:500,600&family=sora:600,700,800&display=swap" media="print" onload="this.media='all'">
+    <noscript>
+        <link rel="stylesheet" href="https://fonts.bunny.net/css?family=dm-sans:400,500,600,700&family=ibm-plex-mono:500,600&family=sora:600,700,800&display=swap">
+    </noscript>
+
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body 
@@ -59,7 +78,7 @@
         <div class="page-container flex min-h-20 items-center justify-between gap-2 sm:gap-4 py-3">
             {{-- Logo --}}
             <a href="{{ route('storefront.index') }}" class="flex items-center gap-2.5 sm:gap-3 group shrink-0">
-                <img src="{{ asset('images/logo-kltecnologia.png') }}" alt="KL" class="h-9 w-9 sm:h-10 sm:w-10 rounded-xl object-cover shadow-lg shadow-teal-500/20 group-hover:scale-105 transition duration-200" />
+                <img src="{{ asset('images/logo-kltecnologia.webp') }}" alt="KL Tecnologia" width="40" height="40" fetchpriority="high" class="h-9 w-9 sm:h-10 sm:w-10 rounded-xl object-cover shadow-lg shadow-teal-500/20 group-hover:scale-105 transition duration-200" />
                 <span class="font-display text-base sm:text-lg font-bold tracking-tight text-white group-hover:text-teal-400 transition">
                     KL<span class="text-teal-400">Tecnologia</span>
                 </span>
@@ -337,7 +356,7 @@
                 {{-- Drawer Header --}}
                 <div class="flex h-20 shrink-0 items-center justify-between px-6 border-b border-slate-800/80">
                     <a href="{{ route('storefront.index') }}" @click="mobileMenuOpen = false" class="flex items-center gap-2.5">
-                        <img src="{{ asset('images/logo-kltecnologia.png') }}" alt="KL" class="h-8 w-8 rounded-lg object-cover shadow-sm shadow-teal-500/20" />
+                        <img src="{{ asset('images/logo-kltecnologia.webp') }}" alt="KL Tecnologia" width="32" height="32" class="h-8 w-8 rounded-lg object-cover shadow-sm shadow-teal-500/20" />
                         <span id="mobile-nav-title" class="font-display text-base font-bold text-white">
                             KL<span class="text-teal-400">Tecnologia</span>
                         </span>
@@ -653,7 +672,7 @@
             {{-- Col 1: About --}}
             <div>
                 <a href="{{ route('storefront.index') }}" class="flex items-center gap-3">
-                    <img src="{{ asset('images/logo-kltecnologia.png') }}" alt="KL" class="h-9 w-9 rounded-xl object-cover shadow-md shadow-teal-500/20" />
+                    <img src="{{ asset('images/logo-kltecnologia.webp') }}" alt="KL Tecnologia" width="36" height="36" loading="lazy" decoding="async" class="h-9 w-9 rounded-xl object-cover shadow-md shadow-teal-500/20" />
                     <span class="font-display text-lg font-bold text-white">
                         KL<span class="text-teal-400">Tecnologia</span>
                     </span>

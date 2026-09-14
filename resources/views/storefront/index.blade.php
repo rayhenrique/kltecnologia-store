@@ -162,7 +162,14 @@
                     {{-- Cover & Badge --}}
                     <a href="{{ route('storefront.show', $item) }}" class="relative block overflow-hidden bg-slate-950 aspect-[4/3] group">
                         @if($item->cover_path)
-                            <img src="{{ asset($item->cover_path) }}" alt="Capa de {{ $item->title }}" class="h-full w-full object-cover group-hover:scale-105 transition duration-300">
+                            <img 
+                                src="{{ asset($item->cover_path) }}" 
+                                alt="Capa de {{ $item->title }}" 
+                                width="400" 
+                                height="300" 
+                                {{ $loop->index < 2 ? 'fetchpriority="high" decoding="async"' : 'loading="lazy" decoding="async"' }}
+                                class="h-full w-full object-cover group-hover:scale-105 transition duration-300"
+                            >
                         @else
                             <div class="grid h-full w-full place-items-center bg-gradient-to-br from-slate-900 via-slate-800 to-teal-900 text-white font-display text-3xl font-bold">
                                 KL
@@ -196,7 +203,7 @@
                                 }
                             "
                             :class="isFav ? 'text-pink-500' : 'text-slate-400 hover:text-pink-500'"
-                            class="absolute top-3 right-3 grid h-8 w-8 place-items-center rounded-full bg-slate-900/80 hover:bg-slate-900 shadow-sm transition backdrop-blur-sm z-10 cursor-pointer"
+                            class="absolute top-3 right-3 grid h-8 w-8 place-items-center rounded-full bg-slate-900/80 hover:bg-slate-900 shadow-sm transition-transform duration-200 active:scale-90 backdrop-blur-sm z-10 cursor-pointer"
                         >
                             <svg class="h-4 w-4 fill-current" viewBox="0 0 24 24">
                                 <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
@@ -283,7 +290,15 @@
                 <article class="product-cut panel flex flex-col overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
                     <a href="{{ route('storefront.show', $product) }}" class="relative block overflow-hidden bg-slate-950 aspect-[4/3] group">
                         @if($product->cover_path)
-                            <img src="{{ asset($product->cover_path) }}" alt="Capa de {{ $product->title }}" class="h-full w-full object-cover group-hover:scale-105 transition duration-300">
+                            <img 
+                                src="{{ asset($product->cover_path) }}" 
+                                alt="Capa de {{ $product->title }}" 
+                                width="400" 
+                                height="300" 
+                                loading="lazy" 
+                                decoding="async" 
+                                class="h-full w-full object-cover group-hover:scale-105 transition duration-300"
+                            >
                         @else
                             <div class="grid h-full w-full place-items-center bg-gradient-to-br from-slate-100 to-blue-100 font-display text-3xl font-bold text-blue-700">
                                 KL
@@ -317,7 +332,7 @@
                                 }
                             "
                             :class="isFav ? 'text-pink-500' : 'text-slate-400 hover:text-pink-500'"
-                            class="absolute top-3 right-3 grid h-8 w-8 place-items-center rounded-full bg-slate-900/80 hover:bg-slate-900 shadow-sm transition backdrop-blur-sm z-10 cursor-pointer"
+                            class="absolute top-3 right-3 grid h-8 w-8 place-items-center rounded-full bg-slate-900/80 hover:bg-slate-900 shadow-sm transition-transform duration-200 active:scale-90 backdrop-blur-sm z-10 cursor-pointer"
                         >
                             <svg class="h-4 w-4 fill-current" viewBox="0 0 24 24">
                                 <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
