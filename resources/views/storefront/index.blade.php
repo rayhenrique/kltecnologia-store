@@ -56,7 +56,7 @@
                 </div>
                 <div>
                     <h2 class="font-display text-sm font-bold text-slate-900">Download Imediato</h2>
-                    <p class="mt-0.5 text-xs text-slate-500">Liberação automática em "Meus Downloads" após aprovação.</p>
+                    <p class="mt-0.5 text-xs text-slate-600">Liberação automática em "Meus Downloads" após aprovação.</p>
                 </div>
             </div>
 
@@ -69,7 +69,7 @@
                 </div>
                 <div>
                     <h2 class="font-display text-sm font-bold text-slate-900">Pagamento Seguro</h2>
-                    <p class="mt-0.5 text-xs text-slate-500">Pix e Cartão via Mercado Pago com proteção total.</p>
+                    <p class="mt-0.5 text-xs text-slate-600">Pix e Cartão via Mercado Pago com proteção total.</p>
                 </div>
             </div>
 
@@ -82,7 +82,7 @@
                 </div>
                 <div>
                     <h2 class="font-display text-sm font-bold text-slate-900">Arquivos Autênticos</h2>
-                    <p class="mt-0.5 text-xs text-slate-500">Projetos testados e livres de vírus ou scripts nocivos.</p>
+                    <p class="mt-0.5 text-xs text-slate-600">Projetos testados e livres de vírus ou scripts nocivos.</p>
                 </div>
             </div>
 
@@ -95,7 +95,7 @@
                 </div>
                 <div>
                     <h2 class="font-display text-sm font-bold text-slate-900">Acesso Permanente</h2>
-                    <p class="mt-0.5 text-xs text-slate-500">Baixe novamente seus arquivos sempre que precisar.</p>
+                    <p class="mt-0.5 text-xs text-slate-600">Baixe novamente seus arquivos sempre que precisar.</p>
                 </div>
             </div>
         </div>
@@ -272,14 +272,14 @@
                 <div>
                     <h2 class="font-display text-2xl font-bold text-slate-900">Catálogo Completo</h2>
                     @if($search)
-                        <p class="text-xs text-slate-500 mt-0.5">
+                        <p class="text-xs text-slate-600 mt-0.5">
                             Filtrando por: <strong class="text-slate-800">"{{ $search }}"</strong> 
                             <a href="{{ route('storefront.index') }}#produtos" class="ml-2 text-teal-600 underline font-semibold">Limpar filtro</a>
                         </p>
                     @endif
                 </div>
             </div>
-            <span class="text-xs font-mono text-slate-500">
+            <span class="text-xs font-mono text-slate-600">
                 {{ $products->total() }} {{ $products->total() === 1 ? 'item encontrado' : 'itens encontrados' }}
             </span>
         </div>
@@ -411,7 +411,7 @@
             <div class="h-6 w-1.5 rounded-full bg-emerald-500"></div>
             <div>
                 <h2 class="font-display text-2xl font-bold text-slate-900">Últimas Atualizações & Adições</h2>
-                <p class="text-xs text-slate-500">Feed cronológico de materiais e novidades inseridos no catálogo.</p>
+                <p class="text-xs text-slate-600">Feed cronológico de materiais e novidades inseridos no catálogo.</p>
             </div>
         </div>
 
@@ -431,7 +431,7 @@
                                     </a>
                                 </h3>
                             </div>
-                            <p class="text-xs text-slate-500 mt-0.5 line-clamp-1">
+                            <p class="text-xs text-slate-600 mt-0.5 line-clamp-1">
                                 {{ $update->description }}
                             </p>
                         </div>

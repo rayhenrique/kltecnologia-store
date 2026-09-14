@@ -24,7 +24,12 @@
     <link rel="preload" href="{{ asset('fonts/dm-sans-400.woff2') }}" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="{{ asset('fonts/sora-700.woff2') }}" as="font" type="font/woff2" crossorigin>
 
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @production
+        <style>{!! Vite::content('resources/css/app.css') !!}</style>
+        @vite(['resources/js/app.js'])
+    @else
+        @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @endproduction
 </head>
 <body 
     class="font-sans antialiased text-slate-900 bg-slate-50"
