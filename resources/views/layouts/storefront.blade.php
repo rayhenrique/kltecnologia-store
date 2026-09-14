@@ -1,21 +1,32 @@
+@props([
+    'title' => null,
+    'metaDescription' => 'Plataforma oficial de produtos digitais, scripts, sistemas SaaS, automações e templates prontos para acelerar seu negócio na KL Tecnologia.',
+    'ogImage' => null,
+    'ogType' => 'website',
+    'canonical' => null,
+])
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ isset($title) ? $title.' | ' : '' }}{{ config('app.name', 'KL Tecnologia') }}</title>
-    <meta name="description" content="{{ $metaDescription ?? 'Plataforma oficial de produtos digitais, scripts, sistemas SaaS, automações e templates prontos para acelerar seu negócio na KL Tecnologia.' }}">
+    <title>{{ !empty($title) ? $title.' | ' : '' }}{{ config('app.name', 'KL Tecnologia') }}</title>
+    <meta name="description" content="{{ $metaDescription }}">
     <meta name="robots" content="index, follow">
-    <link rel="canonical" href="{{ url()->current() }}">
+    <link rel="canonical" href="{{ $canonical ?? url()->current() }}">
 
     {{-- Open Graph & Twitter Card --}}
-    <meta property="og:type" content="website">
-    <meta property="og:title" content="{{ isset($title) ? $title.' | ' : '' }}{{ config('app.name', 'KL Tecnologia') }}">
-    <meta property="og:description" content="{{ $metaDescription ?? 'Plataforma oficial de produtos digitais, scripts, sistemas SaaS, automações e templates prontos para acelerar seu negócio na KL Tecnologia.' }}">
-    <meta property="og:url" content="{{ url()->current() }}">
-    <meta property="og:image" content="{{ asset('images/logo-kltecnologia.png') }}">
+    <meta property="og:type" content="{{ $ogType }}">
+    <meta property="og:title" content="{{ !empty($title) ? $title.' | ' : '' }}{{ config('app.name', 'KL Tecnologia') }}">
+    <meta property="og:description" content="{{ $metaDescription }}">
+    <meta property="og:url" content="{{ $canonical ?? url()->current() }}">
+    <meta property="og:image" content="{{ $ogImage ?? asset('images/logo-kltecnologia.png') }}">
+    <meta property="og:site_name" content="KL Tecnologia">
     <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ !empty($title) ? $title.' | ' : '' }}{{ config('app.name', 'KL Tecnologia') }}">
+    <meta name="twitter:description" content="{{ $metaDescription }}">
+    <meta name="twitter:image" content="{{ $ogImage ?? asset('images/logo-kltecnologia.png') }}">
 
     <link rel="icon" type="image/png" href="{{ asset('images/logo-kltecnologia.png') }}">
     <link rel="apple-touch-icon" href="{{ asset('images/logo-kltecnologia.png') }}">
@@ -30,6 +41,45 @@
     @else
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     @endproduction
+
+    {{-- Global Structured Data (Organization & WebSite with SearchAction) --}}
+    <script type="application/ld+json">
+    {!! json_encode([
+        '@context' => 'https://schema.org',
+        '@graph' => [
+            [
+                '@type' => 'Organization',
+                '@id' => url('/') . '#organization',
+                'name' => 'KL Tecnologia',
+                'url' => url('/'),
+                'logo' => [
+                    '@type' => 'ImageObject',
+                    '@id' => url('/') . '#logo',
+                    'url' => asset('images/logo-kltecnologia.png'),
+                    'caption' => 'KL Tecnologia',
+                ],
+            ],
+            [
+                '@type' => 'WebSite',
+                '@id' => url('/') . '#website',
+                'url' => url('/'),
+                'name' => 'KL Tecnologia',
+                'publisher' => [
+                    '@id' => url('/') . '#organization',
+                ],
+                'potentialAction' => [
+                    '@type' => 'SearchAction',
+                    'target' => [
+                        '@type' => 'EntryPoint',
+                        'urlTemplate' => route('catalog.index') . '?q={search_term_string}',
+                    ],
+                    'query-input' => 'required name=search_term_string',
+                ],
+            ],
+        ],
+    ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) !!}
+    </script>
+    @stack('schema')
 </head>
 <body 
     class="font-sans antialiased text-slate-900 bg-slate-50"

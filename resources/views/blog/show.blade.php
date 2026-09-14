@@ -1,4 +1,66 @@
-<x-storefront-layout :title="$post->title">
+<x-storefront-layout 
+    :title="$post->title . ' — Blog KL Tecnologia'"
+    :meta-description="$post->excerpt ?: Str::limit(trim(preg_replace('/\s+/', ' ', strip_tags($post->content))), 155)"
+    :og-image="asset($post->cover_path)"
+    og-type="article"
+    :canonical="route('blog.show', $post->slug)"
+>
+<script type="application/ld+json">
+{!! json_encode([
+    '@context' => 'https://schema.org',
+    '@graph' => [
+        [
+            '@type' => 'BreadcrumbList',
+            'itemListElement' => [
+                [
+                    '@type' => 'ListItem',
+                    'position' => 1,
+                    'name' => 'Início',
+                    'item' => route('storefront.index'),
+                ],
+                [
+                    '@type' => 'ListItem',
+                    'position' => 2,
+                    'name' => 'Blog',
+                    'item' => route('blog.index'),
+                ],
+                [
+                    '@type' => 'ListItem',
+                    'position' => 3,
+                    'name' => $post->title,
+                    'item' => route('blog.show', $post->slug),
+                ],
+            ],
+        ],
+        [
+            '@type' => 'Article',
+            '@id' => route('blog.show', $post->slug) . '#article',
+            'headline' => $post->title,
+            'description' => $post->excerpt ?: Str::limit(trim(preg_replace('/\s+/', ' ', strip_tags($post->content))), 200),
+            'image' => asset($post->cover_path),
+            'datePublished' => $post->published_at ? $post->published_at->toIso8601String() : $post->created_at->toIso8601String(),
+            'dateModified' => $post->updated_at->toIso8601String(),
+            'author' => [
+                '@type' => 'Organization',
+                'name' => 'KL Tecnologia',
+                'url' => url('/'),
+            ],
+            'publisher' => [
+                '@type' => 'Organization',
+                'name' => 'KL Tecnologia',
+                'logo' => [
+                    '@type' => 'ImageObject',
+                    'url' => asset('images/logo-kltecnologia.png'),
+                ],
+            ],
+            'mainEntityOfPage' => [
+                '@type' => 'WebPage',
+                '@id' => route('blog.show', $post->slug),
+            ],
+        ],
+    ],
+], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) !!}
+</script>
     <div class="bg-slate-50 min-h-screen py-8 sm:py-12">
         <div class="page-container max-w-6xl">
             {{-- Breadcrumbs --}}

@@ -404,3 +404,14 @@
   - [x] Ajustar textos de rodapé no container inferior de `text-slate-500` para `text-slate-400` (taxa de 7.87:1 no fundo `slate-950`).
   - [x] Ajustar botões do modal de consentimento de cookies e botões CTA de produtos gratuitos para `emerald-700/800`.
   - [x] Suíte de testes geral aprovada com **187 testes (757 asserções)** e 100% de conformidade com o Laravel Pint.
+
+- [x] **Fase 34: Infraestrutura Técnica de SEO, Sitemap Dinâmico e Schema.org JSON-LD**
+  - [x] Criar `SitemapController` e rota pública `GET /sitemap.xml` com header `Content-Type: application/xml`.
+  - [x] Desenvolver template `resources/views/sitemap.blade.php` com protocolo Sitemaps.org (<loc>, <lastmod>, <changefreq>, <priority>) agregando páginas institucionais, categorias ativas, produtos válidos para venda e posts publicados.
+  - [x] Atualizar `public/robots.txt` bloqueando rotas utilitárias/privadas (`/admin/`, `/checkout`, `/carrinho`, `/favoritos`, `/customer/`, `/login`, `/register`) e apontando `Sitemap: https://kltecnologia.com/sitemap.xml`.
+  - [x] Atualizar layout `resources/views/layouts/storefront.blade.php` com meta tags dinâmicas, canonical dinâmico, Twitter cards e JSON-LD global (`Organization` e `WebSite` com `SearchAction`).
+  - [x] Injetar dados estruturados Schema.org (JSON-LD) para `Product` (com offers em BRL e InStock) e `BreadcrumbList` na página de produto (`storefront/show.blade.php`).
+  - [x] Injetar dados estruturados Schema.org (JSON-LD) para `Article` e `BreadcrumbList` na página de artigo do blog (`blog/show.blade.php`).
+  - [x] Desenvolver suíte de testes Feature `SeoAndSitemapTest` cobrindo o XML do sitemap, regras do robots.txt e integridade dos schemas JSON-LD.
+  - [x] Suíte de testes geral elevada para **193 testes aprovados (798 asserções)** com 100% de conformidade com o Laravel Pint.
+

@@ -20,11 +20,13 @@ use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\LegalController;
 use App\Http\Controllers\NewsletterSubscriptionController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\StorefrontController;
 use App\Http\Controllers\WebhookController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [StorefrontController::class, 'index'])->name('storefront.index');
+Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap.index');
 Route::get('/catalogo', [CatalogController::class, 'index'])->name('catalog.index');
 Route::get('/carrinho', [CartController::class, 'index'])->name('cart.index');
 Route::get('/favoritos', [FavoriteController::class, 'index'])->name('favorites.index');

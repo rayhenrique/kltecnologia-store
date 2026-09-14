@@ -1,2 +1,13 @@
 User-agent: *
-Disallow:
+Disallow: /admin/
+Disallow: /checkout
+Disallow: /checkout/
+Disallow: /carrinho
+Disallow: /favoritos
+Disallow: /customer/
+Disallow: /login
+Disallow: /register
+Disallow: /password/
+Disallow: /cupons/validar
+
+Sitemap: https://kltecnologia.com/sitemap.xml

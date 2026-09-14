@@ -1,5 +1,66 @@
-<x-storefront-layout>
-    <x-slot:title>{{ $product->title }}</x-slot:title>
+<x-storefront-layout 
+    :title="$product->title . ' — Download Imediato com Código Fonte'"
+    :meta-description="Str::limit(trim(preg_replace('/\s+/', ' ', strip_tags($product->description))), 155, '... Compre com entrega imediata na KL Tecnologia.')"
+    :og-image="asset($product->cover_path)"
+    og-type="product"
+    :canonical="route('storefront.show', $product->slug)"
+>
+<script type="application/ld+json">
+{!! json_encode([
+    '@context' => 'https://schema.org',
+    '@graph' => [
+        [
+            '@type' => 'BreadcrumbList',
+            'itemListElement' => [
+                [
+                    '@type' => 'ListItem',
+                    'position' => 1,
+                    'name' => 'Início',
+                    'item' => route('storefront.index'),
+                ],
+                [
+                    '@type' => 'ListItem',
+                    'position' => 2,
+                    'name' => 'Catálogo',
+                    'item' => route('catalog.index'),
+                ],
+                [
+                    '@type' => 'ListItem',
+                    'position' => 3,
+                    'name' => $product->title,
+                    'item' => route('storefront.show', $product->slug),
+                ],
+            ],
+        ],
+        [
+            '@type' => 'Product',
+            '@id' => route('storefront.show', $product->slug) . '#product',
+            'name' => $product->title,
+            'description' => Str::limit(trim(preg_replace('/\s+/', ' ', strip_tags($product->description))), 250),
+            'image' => asset($product->cover_path),
+            'sku' => 'KL-' . $product->id,
+            'category' => $product->categoryGroup?->name ?? $product->category ?? 'Software & Scripts',
+            'brand' => [
+                '@type' => 'Brand',
+                'name' => 'KL Tecnologia',
+            ],
+            'offers' => [
+                '@type' => 'Offer',
+                'url' => route('storefront.show', $product->slug),
+                'priceCurrency' => 'BRL',
+                'price' => number_format((float) $product->price, 2, '.', ''),
+                'priceValidUntil' => now()->addYear()->format('Y-m-d'),
+                'availability' => 'https://schema.org/InStock',
+                'itemCondition' => 'https://schema.org/NewCondition',
+                'seller' => [
+                    '@type' => 'Organization',
+                    'name' => 'KL Tecnologia',
+                ],
+            ],
+        ],
+    ],
+], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) !!}
+</script>
 
     {{-- Page Header Banner --}}
     <section class="hero-tech-bg border-b border-slate-800 text-white py-8 lg:py-12 relative overflow-hidden">
