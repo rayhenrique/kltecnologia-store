@@ -160,11 +160,11 @@
             @forelse($featuredProducts as $item)
                 <article class="product-cut panel flex flex-col overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
                     {{-- Cover & Badge --}}
-                    <a href="{{ route('storefront.show', $item) }}" class="relative block overflow-hidden bg-slate-950 aspect-[4/3] group" tabindex="-1" aria-hidden="true">
+                    <a href="{{ route('storefront.show', $item) }}" aria-label="{{ $item->title }}" class="relative block overflow-hidden bg-slate-950 aspect-[4/3] group">
                         @if($item->cover_path)
                             <img 
                                 src="{{ asset($item->cover_path) }}" 
-                                alt="Capa de {{ $item->title }}" 
+                                alt="{{ $item->title }}" 
                                 width="400" 
                                 height="300" 
                                 {!! $loop->index < 2 ? 'fetchpriority="high" decoding="async"' : 'loading="lazy" decoding="async"' !!}
@@ -288,11 +288,11 @@
         <div class="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             @forelse($products as $product)
                 <article class="product-cut panel flex flex-col overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
-                    <a href="{{ route('storefront.show', $product) }}" class="relative block overflow-hidden bg-slate-950 aspect-[4/3] group" tabindex="-1" aria-hidden="true">
+                    <a href="{{ route('storefront.show', $product) }}" aria-label="{{ $product->title }}" class="relative block overflow-hidden bg-slate-950 aspect-[4/3] group">
                         @if($product->cover_path)
                             <img 
                                 src="{{ asset($product->cover_path) }}" 
-                                alt="Capa de {{ $product->title }}" 
+                                alt="{{ $product->title }}" 
                                 width="400" 
                                 height="300" 
                                 loading="lazy" 

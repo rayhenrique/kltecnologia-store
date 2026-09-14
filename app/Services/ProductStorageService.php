@@ -90,9 +90,9 @@ class ProductStorageService
                 $width = imagesx($image);
                 $height = imagesy($image);
 
-                if ($width > 800) {
-                    $newWidth = 800;
-                    $newHeight = (int) ($height * (800 / $width));
+                if ($width > 600) {
+                    $newWidth = 600;
+                    $newHeight = (int) ($height * (600 / $width));
                     $resized = imagecreatetruecolor($newWidth, $newHeight);
                     imagepalettetotruecolor($image);
                     imagealphablending($resized, false);
