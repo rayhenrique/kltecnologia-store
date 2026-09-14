@@ -9,13 +9,9 @@
     <link rel="icon" type="image/png" href="{{ asset('images/logo-kltecnologia.png') }}">
     <link rel="apple-touch-icon" href="{{ asset('images/logo-kltecnologia.png') }}">
 
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.bunny.net" crossorigin>
-    <link rel="preload" as="style" href="https://fonts.bunny.net/css?family=dm-sans:400,500,600,700&family=ibm-plex-mono:500,600&family=sora:600,700,800&display=swap">
-    <link rel="stylesheet" href="https://fonts.bunny.net/css?family=dm-sans:400,500,600,700&family=ibm-plex-mono:500,600&family=sora:600,700,800&display=swap" media="print" onload="this.media='all'">
-    <noscript>
-        <link rel="stylesheet" href="https://fonts.bunny.net/css?family=dm-sans:400,500,600,700&family=ibm-plex-mono:500,600&family=sora:600,700,800&display=swap">
-    </noscript>
+    <!-- Preload Self-Hosted Fonts -->
+    <link rel="preload" href="{{ asset('fonts/dm-sans-400.woff2') }}" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="{{ asset('fonts/sora-700.woff2') }}" as="font" type="font/woff2" crossorigin>
 
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -26,7 +22,7 @@
     <header class="w-full border-b border-slate-800/80 bg-slate-950/80 backdrop-blur-md sticky top-0 z-50">
         <div class="page-container flex h-16 items-center justify-between">
             <a href="{{ route('storefront.index') }}" class="flex items-center gap-3 group">
-                <img src="{{ asset('images/logo-kltecnologia.webp') }}" alt="KL Tecnologia" width="36" height="36" fetchpriority="high" class="h-9 w-9 rounded-xl object-cover shadow-lg shadow-teal-500/20 group-hover:scale-105 transition duration-200" />
+                <img src="{{ asset('images/logo-kltecnologia-80.webp') }}" alt="KL Tecnologia" width="36" height="36" fetchpriority="high" class="h-9 w-9 rounded-xl object-cover shadow-lg shadow-teal-500/20 group-hover:scale-105 transition duration-200" />
                 <span class="font-display text-base font-bold tracking-tight text-white group-hover:text-teal-400 transition">
                     KL<span class="text-teal-400">Tecnologia</span>
                 </span>

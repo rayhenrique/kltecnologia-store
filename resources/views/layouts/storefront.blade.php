@@ -20,13 +20,9 @@
     <link rel="icon" type="image/png" href="{{ asset('images/logo-kltecnologia.png') }}">
     <link rel="apple-touch-icon" href="{{ asset('images/logo-kltecnologia.png') }}">
 
-    {{-- Non-blocking Web Fonts --}}
-    <link rel="preconnect" href="https://fonts.bunny.net" crossorigin>
-    <link rel="preload" as="style" href="https://fonts.bunny.net/css?family=dm-sans:400,500,600,700&family=ibm-plex-mono:500,600&family=sora:600,700,800&display=swap">
-    <link rel="stylesheet" href="https://fonts.bunny.net/css?family=dm-sans:400,500,600,700&family=ibm-plex-mono:500,600&family=sora:600,700,800&display=swap" media="print" onload="this.media='all'">
-    <noscript>
-        <link rel="stylesheet" href="https://fonts.bunny.net/css?family=dm-sans:400,500,600,700&family=ibm-plex-mono:500,600&family=sora:600,700,800&display=swap">
-    </noscript>
+    {{-- Preload High-Priority Self-Hosted Fonts --}}
+    <link rel="preload" href="{{ asset('fonts/dm-sans-400.woff2') }}" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="{{ asset('fonts/sora-700.woff2') }}" as="font" type="font/woff2" crossorigin>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
@@ -78,7 +74,15 @@
         <div class="page-container flex min-h-20 items-center justify-between gap-2 sm:gap-4 py-3">
             {{-- Logo --}}
             <a href="{{ route('storefront.index') }}" class="flex items-center gap-2.5 sm:gap-3 group shrink-0">
-                <img src="{{ asset('images/logo-kltecnologia.webp') }}" alt="KL Tecnologia" width="40" height="40" fetchpriority="high" class="h-9 w-9 sm:h-10 sm:w-10 rounded-xl object-cover shadow-lg shadow-teal-500/20 group-hover:scale-105 transition duration-200" />
+                <img 
+                    src="{{ asset('images/logo-kltecnologia-80.webp') }}" 
+                    srcset="{{ asset('images/logo-kltecnologia-80.webp') }} 1x, {{ asset('images/logo-kltecnologia.webp') }} 2x" 
+                    alt="KL Tecnologia" 
+                    width="40" 
+                    height="40" 
+                    fetchpriority="high" 
+                    class="h-9 w-9 sm:h-10 sm:w-10 rounded-xl object-cover shadow-lg shadow-teal-500/20 group-hover:scale-105 transition duration-200" 
+                />
                 <span class="font-display text-base sm:text-lg font-bold tracking-tight text-white group-hover:text-teal-400 transition">
                     KL<span class="text-teal-400">Tecnologia</span>
                 </span>
@@ -356,7 +360,7 @@
                 {{-- Drawer Header --}}
                 <div class="flex h-20 shrink-0 items-center justify-between px-6 border-b border-slate-800/80">
                     <a href="{{ route('storefront.index') }}" @click="mobileMenuOpen = false" class="flex items-center gap-2.5">
-                        <img src="{{ asset('images/logo-kltecnologia.webp') }}" alt="KL Tecnologia" width="32" height="32" class="h-8 w-8 rounded-lg object-cover shadow-sm shadow-teal-500/20" />
+                        <img src="{{ asset('images/logo-kltecnologia-80.webp') }}" alt="KL Tecnologia" width="32" height="32" class="h-8 w-8 rounded-lg object-cover shadow-sm shadow-teal-500/20" />
                         <span id="mobile-nav-title" class="font-display text-base font-bold text-white">
                             KL<span class="text-teal-400">Tecnologia</span>
                         </span>
@@ -672,7 +676,7 @@
             {{-- Col 1: About --}}
             <div>
                 <a href="{{ route('storefront.index') }}" class="flex items-center gap-3">
-                    <img src="{{ asset('images/logo-kltecnologia.webp') }}" alt="KL Tecnologia" width="36" height="36" loading="lazy" decoding="async" class="h-9 w-9 rounded-xl object-cover shadow-md shadow-teal-500/20" />
+                    <img src="{{ asset('images/logo-kltecnologia-80.webp') }}" alt="KL Tecnologia" width="36" height="36" loading="lazy" decoding="async" class="h-9 w-9 rounded-xl object-cover shadow-md shadow-teal-500/20" />
                     <span class="font-display text-lg font-bold text-white">
                         KL<span class="text-teal-400">Tecnologia</span>
                     </span>

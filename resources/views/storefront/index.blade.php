@@ -160,7 +160,7 @@
             @forelse($featuredProducts as $item)
                 <article class="product-cut panel flex flex-col overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
                     {{-- Cover & Badge --}}
-                    <a href="{{ route('storefront.show', $item) }}" class="relative block overflow-hidden bg-slate-950 aspect-[4/3] group">
+                    <a href="{{ route('storefront.show', $item) }}" class="relative block overflow-hidden bg-slate-950 aspect-[4/3] group" tabindex="-1" aria-hidden="true">
                         @if($item->cover_path)
                             <img 
                                 src="{{ asset($item->cover_path) }}" 
@@ -225,7 +225,7 @@
 
                         <div class="mt-auto pt-5 border-t border-slate-100 flex items-center justify-between gap-2">
                             <div>
-                                <span class="text-[10px] uppercase font-mono text-slate-400">Preço</span>
+                                <span class="text-[10px] uppercase font-mono text-slate-500 font-semibold">Preço</span>
                                 <p class="font-display text-lg font-extrabold text-slate-900">
                                     R$ {{ number_format((float) $item->price, 2, ',', '.') }}
                                 </p>
@@ -288,7 +288,7 @@
         <div class="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             @forelse($products as $product)
                 <article class="product-cut panel flex flex-col overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
-                    <a href="{{ route('storefront.show', $product) }}" class="relative block overflow-hidden bg-slate-950 aspect-[4/3] group">
+                    <a href="{{ route('storefront.show', $product) }}" class="relative block overflow-hidden bg-slate-950 aspect-[4/3] group" tabindex="-1" aria-hidden="true">
                         @if($product->cover_path)
                             <img 
                                 src="{{ asset($product->cover_path) }}" 
@@ -352,7 +352,7 @@
 
                         <div class="mt-auto flex items-center justify-between gap-4 pt-6 border-t border-slate-100">
                             <div>
-                                <span class="text-[10px] uppercase font-mono text-slate-400">Valor Unitário</span>
+                                <span class="text-[10px] uppercase font-mono text-slate-500 font-semibold">Valor Unitário</span>
                                 @if((float) $product->price <= 0)
                                     <p class="font-display text-xl font-extrabold text-emerald-600">
                                         GRÁTIS
@@ -470,8 +470,8 @@
 
             <div class="mt-12 grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
                 {{-- Comparison Card 1: Mercado Geral --}}
-                <div class="rounded-3xl border border-slate-800 bg-slate-900/60 p-8 text-slate-400">
-                    <span class="text-xs font-mono uppercase tracking-wider text-slate-500 font-bold">O modo tradicional</span>
+                <div class="rounded-3xl border border-slate-800 bg-slate-900/60 p-8 text-slate-300">
+                    <span class="text-xs font-mono uppercase tracking-wider text-slate-400 font-bold">O modo tradicional</span>
                     <h3 class="mt-2 font-display text-xl font-bold text-slate-300">Links manuais ou marketplaces</h3>
                     <ul class="mt-6 space-y-3.5 text-sm">
                         <li class="flex items-start gap-3">
