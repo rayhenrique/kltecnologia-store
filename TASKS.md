@@ -386,3 +386,13 @@
   - [x] Adicionar CI com testes, Pint, build, auditorias e validação MySQL.
   - [x] Adicionar cobertura automatizada para as correções de segurança.
   - [x] Suíte geral elevada para **184 testes aprovados (747 asserções)**.
+
+- [x] **Fase 32: Otimização de Performance WebP, Barra de Upload e Resolução Automática de Capas**
+  - [x] Otimizar logos e 77 capas de produtos para formato `.webp` de alta performance.
+  - [x] Adicionar conversão automática para `.webp` e redimensionamento proporcional no upload de novas capas.
+  - [x] Aumentar limites de upload para 512MB e suporte a arquivos `.tar` e `.gz`.
+  - [x] Implementar barra de progresso em tempo real com validação prévia de tamanho no painel administrativo.
+  - [x] Implementar accessors automáticos `cover_path` em `Product` e `Post` com fallback seguro para `.webp`.
+  - [x] Criar migration de sincronização para atualizar referências de capas legadas para `.webp`.
+  - [x] Corrigir escape de atributos Blade na vitrine (`{!! ... !!}`).
+  - [x] Suíte de testes geral elevada para **186 testes aprovados (757 asserções)** com 100% de aprovação no Laravel Pint.

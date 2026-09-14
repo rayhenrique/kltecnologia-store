@@ -167,7 +167,7 @@
                                 alt="Capa de {{ $item->title }}" 
                                 width="400" 
                                 height="300" 
-                                {{ $loop->index < 2 ? 'fetchpriority="high" decoding="async"' : 'loading="lazy" decoding="async"' }}
+                                {!! $loop->index < 2 ? 'fetchpriority="high" decoding="async"' : 'loading="lazy" decoding="async"' !!}
                                 class="h-full w-full object-cover group-hover:scale-105 transition duration-300"
                             >
                         @else

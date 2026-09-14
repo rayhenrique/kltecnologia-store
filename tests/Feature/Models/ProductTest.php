@@ -32,6 +32,16 @@ class ProductTest extends TestCase
         $this->assertSame('kit-canva-3', $thirdProduct->slug);
     }
 
+    public function test_product_resolves_webp_cover_if_available(): void
+    {
+        // Pick an existing webp cover in public/covers
+        $product = Product::create(array_merge($this->attributes(), [
+            'cover_path' => 'covers/agenda-plw-sistema-de-agendamentos-codigo-fonte.png',
+        ]));
+
+        $this->assertSame('covers/agenda-plw-sistema-de-agendamentos-codigo-fonte.webp', $product->cover_path);
+    }
+
     /**
      * @return array<string, mixed>
      */

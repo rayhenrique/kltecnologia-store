@@ -8,6 +8,7 @@ use App\Http\Requests\Admin\UpdateProductRequest;
 use App\Http\Requests\ListFilterRequest;
 use App\Models\Product;
 use App\Services\ProductStorageService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
@@ -65,7 +66,7 @@ class ProductController extends Controller
         return view('admin.products.create');
     }
 
-    public function store(StoreProductRequest $request): RedirectResponse|\Illuminate\Http\JsonResponse
+    public function store(StoreProductRequest $request): RedirectResponse|JsonResponse
     {
         $this->storage->create($request->validated(), $request->file('cover'), $request->file('file'));
 
@@ -89,7 +90,7 @@ class ProductController extends Controller
         return view('admin.products.edit', compact('product'));
     }
 
-    public function update(UpdateProductRequest $request, Product $product): RedirectResponse|\Illuminate\Http\JsonResponse
+    public function update(UpdateProductRequest $request, Product $product): RedirectResponse|JsonResponse
     {
         $this->storage->update($product, $request->validated(), $request->file('cover'), $request->file('file'));
 

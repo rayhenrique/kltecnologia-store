@@ -74,6 +74,22 @@ class Product extends Model
         return ! empty($this->file_path);
     }
 
+    public function getCoverPathAttribute(?string $value): ?string
+    {
+        if (! $value) {
+            return null;
+        }
+
+        if (preg_match('/\.(png|jpe?g)$/i', $value)) {
+            $webp = preg_replace('/\.(png|jpe?g)$/i', '.webp', $value);
+            if (file_exists(public_path(ltrim($webp, '/\\')))) {
+                return $webp;
+            }
+        }
+
+        return $value;
+    }
+
     /**
      * @param  Builder<Product>  $query
      * @return Builder<Product>
