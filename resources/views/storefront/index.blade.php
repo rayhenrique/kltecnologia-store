@@ -241,7 +241,7 @@
                                         cover_image: {{ json_encode($item->cover_image) }},
                                         category: {{ json_encode($item->categoryRelation?->name ?? 'Sistema Web') }}
                                     })"
-                                    class="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-teal-200 bg-teal-50 text-teal-700 hover:bg-teal-600 hover:text-white transition cursor-pointer"
+                                    class="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-teal-200 bg-teal-50 text-teal-700 hover:bg-teal-700 hover:text-white transition cursor-pointer"
                                     title="Adicionar ao Carrinho"
                                     aria-label="Adicionar ao carrinho"
                                 >
@@ -249,7 +249,7 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                                     </svg>
                                 </button>
-                                <a href="{{ route('storefront.show', $item) }}" class="inline-flex items-center justify-center rounded-lg bg-teal-600 hover:bg-teal-500 px-3.5 py-2 text-xs font-bold text-white transition shadow-sm">
+                                <a href="{{ route('storefront.show', $item) }}" class="inline-flex items-center justify-center rounded-lg bg-teal-700 hover:bg-teal-800 px-3.5 py-2 text-xs font-bold text-white transition shadow-sm">
                                     Comprar
                                 </a>
                             </div>
@@ -274,7 +274,7 @@
                     @if($search)
                         <p class="text-xs text-slate-600 mt-0.5">
                             Filtrando por: <strong class="text-slate-800">"{{ $search }}"</strong> 
-                            <a href="{{ route('storefront.index') }}#produtos" class="ml-2 text-teal-600 underline font-semibold">Limpar filtro</a>
+                            <a href="{{ route('storefront.index') }}#produtos" class="ml-2 text-teal-700 hover:text-teal-800 underline font-semibold">Limpar filtro</a>
                         </p>
                     @endif
                 </div>

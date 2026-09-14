@@ -396,3 +396,11 @@
   - [x] Criar migration de sincronização para atualizar referências de capas legadas para `.webp`.
   - [x] Corrigir escape de atributos Blade na vitrine (`{!! ... !!}`).
   - [x] Suíte de testes geral elevada para **186 testes aprovados (757 asserções)** com 100% de aprovação no Laravel Pint.
+
+- [x] **Fase 33: Acessibilidade e Contraste de Cores WCAG AA/AAA (Lighthouse 100/100)**
+  - [x] Otimizar `.btn-teal` para `bg-teal-700` com hover em `bg-teal-800` garantindo taxa de contraste de 5.47:1 (acima do mínimo de 4.5:1 exigido pelo WCAG AA).
+  - [x] Otimizar `.badge-new` para `bg-teal-400` com texto `text-slate-950` elevando a taxa de contraste para 10.84:1 (padrão WCAG AAA).
+  - [x] Atualizar botões de compra e links de detalhes no catálogo e vitrine de `bg-teal-600` para `bg-teal-700/800`.
+  - [x] Ajustar textos de rodapé no container inferior de `text-slate-500` para `text-slate-400` (taxa de 7.87:1 no fundo `slate-950`).
+  - [x] Ajustar botões do modal de consentimento de cookies e botões CTA de produtos gratuitos para `emerald-700/800`.
+  - [x] Suíte de testes geral aprovada com **187 testes (757 asserções)** e 100% de conformidade com o Laravel Pint.

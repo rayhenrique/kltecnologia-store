@@ -269,7 +269,7 @@
                                                 cover_image: {{ json_encode($product->cover_image) }},
                                                 category: {{ json_encode($product->categoryRelation?->name ?? 'Sistema Web') }}
                                             })"
-                                            class="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-teal-200 bg-teal-50 text-teal-700 hover:bg-teal-600 hover:text-white transition shrink-0 cursor-pointer"
+                                            class="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-teal-200 bg-teal-50 text-teal-700 hover:bg-teal-700 hover:text-white transition shrink-0 cursor-pointer"
                                             title="Adicionar ao Carrinho"
                                             aria-label="Adicionar ao carrinho"
                                         >
@@ -279,7 +279,7 @@
                                         </button>
                                         <a 
                                             href="{{ route('storefront.show', $product) }}" 
-                                            class="inline-flex flex-1 items-center justify-center rounded-lg bg-teal-600 hover:bg-teal-500 py-2 text-xs font-bold text-white transition shadow-sm"
+                                            class="inline-flex flex-1 items-center justify-center rounded-lg bg-teal-700 hover:bg-teal-800 py-2 text-xs font-bold text-white transition shadow-sm"
                                         >
                                             Ver Detalhes &rarr;
                                         </a>

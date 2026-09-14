@@ -78,9 +78,9 @@
             linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
         background-size: 100% 100%, 100% 100%, 40px 40px, 40px 40px;
     }
-    .btn-teal { @apply inline-flex min-h-11 items-center justify-center rounded-xl bg-teal-600 px-6 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-teal-500 disabled:cursor-wait disabled:opacity-60; }
+    .btn-teal { @apply inline-flex min-h-11 items-center justify-center rounded-xl bg-teal-700 px-6 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-teal-800 disabled:cursor-wait disabled:opacity-60; }
     .badge-hot { @apply inline-flex items-center rounded bg-amber-400 px-2 py-0.5 text-[11px] font-extrabold uppercase tracking-wide text-slate-950; }
-    .badge-new { @apply inline-flex items-center rounded bg-teal-500 px-2 py-0.5 text-[11px] font-extrabold uppercase tracking-wide text-white; }
+    .badge-new { @apply inline-flex items-center rounded bg-teal-400 px-2 py-0.5 text-[11px] font-extrabold uppercase tracking-wide text-slate-950; }
     .badge-pro { @apply inline-flex items-center rounded bg-blue-600 px-2 py-0.5 text-[11px] font-extrabold uppercase tracking-wide text-white; }
 
     /* Blog Article Content Formatting */

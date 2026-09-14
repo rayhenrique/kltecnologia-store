@@ -423,7 +423,7 @@
                             {{-- Botão Comprar / Baixar Grátis (Direto para o Checkout Seguro) --}}
                             <a 
                                 href="{{ route('checkout.index', ['product' => $product->slug]) }}" 
-                                class="flex-1 {{ (float) $product->price <= 0 ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-600/30' : 'btn-teal shadow-teal-600/30' }} text-base !h-[52px] px-6 font-bold shadow-lg rounded-xl flex items-center justify-center gap-2 group transition"
+                                class="flex-1 {{ (float) $product->price <= 0 ? 'bg-emerald-700 hover:bg-emerald-800 text-white shadow-emerald-700/30' : 'btn-teal shadow-teal-700/30' }} text-base !h-[52px] px-6 font-bold shadow-lg rounded-xl flex items-center justify-center gap-2 group transition"
                             >
                                 <svg class="h-5 w-5 group-hover:scale-110 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ (float) $product->price <= 0 ? 'M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4' : 'M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z' }}" />
@@ -853,7 +853,7 @@
             </button>
             <a 
                 href="{{ route('checkout.index', ['product' => $product->slug]) }}" 
-                class="{{ (float) $product->price <= 0 ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-500/20' : 'btn-teal shadow-teal-500/20' }} rounded-xl !min-h-10 px-4 py-2 text-xs font-bold shadow-md flex items-center gap-1.5"
+                class="{{ (float) $product->price <= 0 ? 'bg-emerald-700 hover:bg-emerald-800 text-white shadow-emerald-700/20' : 'btn-teal shadow-teal-700/20' }} rounded-xl !min-h-10 px-4 py-2 text-xs font-bold shadow-md flex items-center gap-1.5"
             >
                 <span>{{ (float) $product->price <= 0 ? 'Baixar Grátis' : 'Comprar' }}</span>
                 <span>&rarr;</span>
