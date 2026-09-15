@@ -94,6 +94,25 @@
                 </svg>
                 <span x-show="{{ $isMobile ? 'true' : '!sidebarCollapsed' }}" x-cloak class="truncate whitespace-nowrap">Dashboard</span>
             </a>
+
+            {{-- Novidades & Histórico de Versões --}}
+            <a 
+                href="{{ route('admin.changelog.index') }}" 
+                :title="(!{{ $isMobile ? 'true' : 'false' }} && sidebarCollapsed) ? 'Novidades (v{{ config('changelog.current_version', '2.1.0') }})' : ''"
+                class="relative flex items-center rounded-xl text-xs font-semibold transition group {{ request()->routeIs('admin.changelog.*') ? 'bg-teal-600 text-white shadow-sm shadow-teal-600/30 font-bold' : 'text-slate-300 hover:bg-slate-900 hover:text-white' }}"
+                :class="(!{{ $isMobile ? 'true' : 'false' }} && sidebarCollapsed) ? 'justify-center h-11 w-11 mx-auto p-0' : 'justify-between px-3 py-2 w-full'"
+            >
+                <div class="flex items-center gap-3 min-w-0">
+                    <svg class="h-5 w-5 shrink-0 {{ request()->routeIs('admin.changelog.*') ? 'text-white' : 'text-slate-400 group-hover:text-teal-400' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                    <span x-show="{{ $isMobile ? 'true' : '!sidebarCollapsed' }}" x-cloak class="truncate whitespace-nowrap">Novidades</span>
+                </div>
+                <span x-show="{{ $isMobile ? 'true' : '!sidebarCollapsed' }}" x-cloak class="rounded bg-teal-500/10 border border-teal-500/30 px-1.5 py-0.5 text-[9px] font-mono font-bold text-teal-400 uppercase shrink-0">
+                    v{{ config('changelog.current_version', '2.1.0') }}
+                </span>
+                <span x-show="!{{ $isMobile ? 'true' : 'false' }} && sidebarCollapsed" class="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-teal-400 animate-pulse"></span>
+            </a>
         </nav>
     </div>
 

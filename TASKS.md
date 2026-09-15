@@ -503,6 +503,8 @@
     - Sidebar do Admin (`layouts/partials/admin-sidebar.blade.php`): substituição de versão estática por botão dinâmico clicável `v{{ config('changelog.current_version') }}` disparando `open-changelog`.
     - Área do Cliente (`layouts/app.blade.php` em Meus Downloads e Perfil).
     - Vitrine e Loja (`layouts/storefront.blade.php` quando autenticado).
-  - [x] Desenvolver suíte completa de testes automatizados `ChangelogTest` (`tests/Feature/ChangelogTest.php`) com 9 testes e 23 asserções cobrindo autenticação, isolamento de notas de admin/cliente, dispensa assíncrona, json de histórico e renderização no admin e cliente.
-  - [x] Suíte de testes geral elevada para **237 testes aprovados (991 asserções)** com 100% de conformidade com o Laravel Pint.
+  - [x] Criar tela administrativa completa de Novidades (`/admin/novidades` - `Admin\ChangelogController@index` e `resources/views/admin/changelog/index.blade.php`) com métricas em tempo real, timeline visual interativa com todas as 6 versões, badges de público e pré-visualização do modal.
+  - [x] Inserir item de menu dedicado "Novidades" na Sidebar administrativa (`resources/views/layouts/partials/admin-sidebar.blade.php`) com ícone estilizado, badge de versão dinâmico e suporte a modo recolhido/expandido.
+  - [x] Desenvolver suíte completa de testes automatizados `ChangelogTest` (`tests/Feature/ChangelogTest.php`) com 12 testes e 39 asserções cobrindo autenticação, isolamento de notas de admin/cliente, dispensa assíncrona, json de histórico, tela de novidades do admin e item de menu na sidebar.
+  - [x] Suíte de testes geral elevada para **240 testes aprovados (1007 asserções)** com 100% de conformidade com o Laravel Pint.
 

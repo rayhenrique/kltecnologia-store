@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\BlogCategoryController as AdminBlogCategoryController;
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
+use App\Http\Controllers\Admin\ChangelogController as AdminChangelogController;
 use App\Http\Controllers\Admin\CouponController as AdminCouponController;
 use App\Http\Controllers\Admin\CustomerController as AdminCustomerController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
@@ -76,6 +77,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'verified', 'admin']
     Route::get('/newsletter/export', [AdminNewsletterSubscriberController::class, 'export'])->name('newsletter.export');
     Route::post('/newsletter/{subscriber}/toggle-status', [AdminNewsletterSubscriberController::class, 'toggleStatus'])->name('newsletter.toggle-status');
     Route::resource('newsletter', AdminNewsletterSubscriberController::class)->parameters(['newsletter' => 'subscriber']);
+    Route::get('/novidades', [AdminChangelogController::class, 'index'])->name('changelog.index');
 });
 
 require __DIR__.'/auth.php';

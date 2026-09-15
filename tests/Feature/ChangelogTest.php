@@ -167,4 +167,51 @@ class ChangelogTest extends TestCase
         $response->assertOk();
         $response->assertSee('isOpen: false', false);
     }
+
+    public function test_guest_and_customer_cannot_access_admin_novidades_page(): void
+    {
+        $this->get(route('admin.changelog.index'))
+            ->assertRedirect(route('login'));
+
+        $customer = User::factory()->create([
+            'role' => UserRole::Customer,
+        ]);
+
+        $this->actingAs($customer)
+            ->get(route('admin.changelog.index'))
+            ->assertForbidden();
+    }
+
+    public function test_admin_can_access_novidades_page_with_full_release_timeline(): void
+    {
+        $admin = User::factory()->create([
+            'role' => UserRole::Admin,
+        ]);
+
+        $response = $this->actingAs($admin)->get(route('admin.changelog.index'));
+
+        $response->assertOk();
+        $response->assertSee('Novidades');
+        $response->assertSee('Histórico de Lançamentos');
+        $response->assertSee('v2.1.0');
+        $response->assertSee('v2.0.0');
+        $response->assertSee('v1.5.0');
+        $response->assertSee('v1.3.0');
+        $response->assertSee('v1.1.0');
+        $response->assertSee('v1.0.0');
+        $response->assertSee('Pré-visualizar Modal');
+    }
+
+    public function test_admin_sidebar_renders_novidades_menu_item(): void
+    {
+        $admin = User::factory()->create([
+            'role' => UserRole::Admin,
+        ]);
+
+        $response = $this->actingAs($admin)->get(route('admin.dashboard'));
+
+        $response->assertOk();
+        $response->assertSee(route('admin.changelog.index'));
+        $response->assertSee('Novidades');
+    }
 }
