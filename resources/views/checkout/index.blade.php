@@ -296,39 +296,46 @@
                                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                             <div>
                                                 <label for="cpf" class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">
-                                                    CPF <span class="text-rose-400">*</span>
-                                                    <span class="text-[10px] font-normal text-slate-500 lowercase">(exigido pelo Pix/gateway)</span>
+                                                    CPF <span class="text-rose-400" x-show="getTotal() > 0">*</span>
+                                                    <span class="text-[10px] font-normal text-slate-400 lowercase" x-show="getTotal() > 0">(exigido pelo Pix/gateway)</span>
+                                                    <span class="text-[10px] font-normal text-emerald-400 lowercase" x-show="getTotal() === 0" x-cloak>(opcional para download grátis)</span>
                                                 </label>
                                                 <input 
                                                     id="cpf" 
                                                     type="text" 
                                                     name="cpf" 
                                                     value="{{ old('cpf', auth()->user()->cpf) }}" 
-                                                    required 
+                                                    :required="getTotal() > 0"
                                                     inputmode="numeric"
                                                     maxlength="14"
                                                     placeholder="000.000.000-00"
                                                     class="block w-full rounded-xl border border-slate-700 bg-slate-950 px-3.5 py-2.5 text-sm text-white placeholder-slate-500 focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
                                                 />
+                                                <p class="mt-1 text-[11px] text-slate-400">
+                                                    <span x-show="getTotal() > 0">Exigido pelo Banco Central e Mercado Pago para Pix e cartão.</span>
+                                                    <span x-show="getTotal() === 0" x-cloak class="text-emerald-400/80">Dispensado para produtos gratuitos.</span>
+                                                </p>
                                                 <x-input-error :messages="$errors->get('cpf')" class="mt-1 text-xs text-rose-400" />
                                             </div>
 
                                             <div>
                                                 <label for="phone" class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">
-                                                    WhatsApp / Celular <span class="text-rose-400">*</span>
-                                                    <span class="text-[10px] font-normal text-slate-500 lowercase">(com DDD)</span>
+                                                    WhatsApp / Celular <span class="text-rose-400" x-show="getTotal() > 0">*</span>
+                                                    <span class="text-[10px] font-normal text-slate-400 lowercase" x-show="getTotal() > 0">(com DDD)</span>
+                                                    <span class="text-[10px] font-normal text-emerald-400 lowercase" x-show="getTotal() === 0" x-cloak>(opcional)</span>
                                                 </label>
                                                 <input 
                                                     id="phone" 
                                                     type="tel" 
                                                     name="phone" 
                                                     value="{{ old('phone', auth()->user()->phone) }}" 
-                                                    required 
+                                                    :required="getTotal() > 0"
                                                     inputmode="tel"
                                                     maxlength="15"
                                                     placeholder="(11) 99999-9999"
                                                     class="block w-full rounded-xl border border-slate-700 bg-slate-950 px-3.5 py-2.5 text-sm text-white placeholder-slate-500 focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
                                                 />
+                                                <p class="mt-1 text-[11px] text-slate-400">Para suporte técnico caso precise de ajuda.</p>
                                                 <x-input-error :messages="$errors->get('phone')" class="mt-1 text-xs text-rose-400" />
                                             </div>
                                         </div>
@@ -364,6 +371,7 @@
                                                 placeholder="Seu nome completo"
                                                 class="block w-full rounded-xl border border-slate-700 bg-slate-950 px-3.5 py-2.5 text-sm text-white placeholder-slate-500 focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
                                             />
+                                            <p class="mt-1 text-[11px] text-slate-400">Como você deseja ser identificado na sua conta de cliente.</p>
                                             <x-input-error :messages="$errors->get('name')" class="mt-1 text-xs text-rose-400" />
                                         </div>
 
@@ -371,7 +379,7 @@
                                         <div>
                                             <label for="email" class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">
                                                 Endereço de E-mail <span class="text-rose-400">*</span>
-                                                <span class="text-[10px] font-normal text-slate-500 lowercase">(onde receberá os downloads)</span>
+                                                <span class="text-[10px] font-normal text-teal-400 lowercase font-mono">(onde receberá os downloads)</span>
                                             </label>
                                             <input 
                                                 id="email" 
@@ -382,6 +390,7 @@
                                                 placeholder="seu.email@exemplo.com"
                                                 class="block w-full rounded-xl border border-slate-700 bg-slate-950 px-3.5 py-2.5 text-sm text-white placeholder-slate-500 focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
                                             />
+                                            <p class="mt-1 text-[11px] text-teal-400/90 font-medium">⚠️ Muito importante: É para este e-mail que o link de download e a confirmação serão enviados.</p>
                                             <x-input-error :messages="$errors->get('email')" class="mt-1 text-xs text-rose-400" />
                                         </div>
 
@@ -389,39 +398,46 @@
                                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                             <div>
                                                 <label for="cpf" class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">
-                                                    CPF <span class="text-rose-400">*</span>
-                                                    <span class="text-[10px] font-normal text-slate-500 lowercase">(Mercado Pago/Pix)</span>
+                                                    CPF <span class="text-rose-400" x-show="getTotal() > 0">*</span>
+                                                    <span class="text-[10px] font-normal text-slate-400 lowercase" x-show="getTotal() > 0">(Mercado Pago/Pix)</span>
+                                                    <span class="text-[10px] font-normal text-emerald-400 lowercase" x-show="getTotal() === 0" x-cloak>(opcional para grátis)</span>
                                                 </label>
                                                 <input 
                                                     id="cpf" 
                                                     type="text" 
                                                     name="cpf" 
                                                     value="{{ old('cpf') }}" 
-                                                    required 
+                                                    :required="getTotal() > 0" 
                                                     inputmode="numeric"
                                                     maxlength="14"
                                                     placeholder="000.000.000-00"
                                                     class="block w-full rounded-xl border border-slate-700 bg-slate-950 px-3.5 py-2.5 text-sm text-white placeholder-slate-500 focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
                                                 />
+                                                <p class="mt-1 text-[11px] text-slate-400">
+                                                    <span x-show="getTotal() > 0">Exigido pelo Banco Central e Mercado Pago para pagamentos via Pix e cartão.</span>
+                                                    <span x-show="getTotal() === 0" x-cloak class="text-emerald-400/80">Opcional para downloads gratuitos.</span>
+                                                </p>
                                                 <x-input-error :messages="$errors->get('cpf')" class="mt-1 text-xs text-rose-400" />
                                             </div>
 
                                             <div>
                                                 <label for="phone" class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">
-                                                    WhatsApp / Celular <span class="text-rose-400">*</span>
-                                                    <span class="text-[10px] font-normal text-slate-500 lowercase">(com DDD)</span>
+                                                    WhatsApp / Celular <span class="text-rose-400" x-show="getTotal() > 0">*</span>
+                                                    <span class="text-[10px] font-normal text-slate-400 lowercase" x-show="getTotal() > 0">(com DDD)</span>
+                                                    <span class="text-[10px] font-normal text-emerald-400 lowercase" x-show="getTotal() === 0" x-cloak>(opcional)</span>
                                                 </label>
                                                 <input 
                                                     id="phone" 
                                                     type="tel" 
                                                     name="phone" 
                                                     value="{{ old('phone') }}" 
-                                                    required 
+                                                    :required="getTotal() > 0" 
                                                     inputmode="tel"
                                                     maxlength="15"
                                                     placeholder="(11) 99999-9999"
                                                     class="block w-full rounded-xl border border-slate-700 bg-slate-950 px-3.5 py-2.5 text-sm text-white placeholder-slate-500 focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
                                                 />
+                                                <p class="mt-1 text-[11px] text-slate-400">Para suporte técnico caso precise de assistência com os arquivos.</p>
                                                 <x-input-error :messages="$errors->get('phone')" class="mt-1 text-xs text-rose-400" />
                                             </div>
                                         </div>
@@ -451,6 +467,7 @@
                                                         <span x-show="showPassword" x-cloak class="text-xs font-mono">🙈</span>
                                                     </button>
                                                 </div>
+                                                <p class="mt-1 text-[11px] text-slate-400">Você usará para entrar no site e baixar os arquivos.</p>
                                                 <x-input-error :messages="$errors->get('password')" class="mt-1 text-xs text-rose-400" />
                                             </div>
 
@@ -477,6 +494,7 @@
                                                         <span x-show="showPasswordConfirm" x-cloak class="text-xs font-mono">🙈</span>
                                                     </button>
                                                 </div>
+                                                <p class="mt-1 text-[11px] text-slate-400">Digite exatamente a mesma senha acima.</p>
                                                 <x-input-error :messages="$errors->get('password_confirmation')" class="mt-1 text-xs text-rose-400" />
                                             </div>
                                         </div>
@@ -484,7 +502,7 @@
                                 @endauth
                             </div>
 
-                            {{-- Card 2: Pagamento Seguro Mercado Pago --}}
+                            {{-- Card 2: Pagamento Seguro Mercado Pago ou Liberação Gratuita --}}
                             <div class="rounded-3xl border border-slate-800 bg-slate-900/70 p-6 sm:p-8 shadow-xl backdrop-blur-md">
                                 <div class="flex items-center gap-3 pb-5 border-b border-slate-800">
                                     <div class="h-9 w-9 rounded-xl bg-teal-500/10 border border-teal-500/30 text-teal-400 font-display font-bold flex items-center justify-center shrink-0">
@@ -492,10 +510,12 @@
                                     </div>
                                     <div>
                                         <h2 class="font-display text-base sm:text-lg font-bold text-white">
-                                            Forma de Pagamento
+                                            <span x-show="getTotal() > 0">Forma de Pagamento</span>
+                                            <span x-show="getTotal() === 0" x-cloak>Liberação Gratuita do Produto</span>
                                         </h2>
                                         <p class="text-xs text-slate-400">
-                                            Processado com tecnologia e antifraude oficial do Mercado Pago.
+                                            <span x-show="getTotal() > 0">Processado com tecnologia e antifraude oficial do Mercado Pago.</span>
+                                            <span x-show="getTotal() === 0" x-cloak>Download 100% gratuito. Nenhuma cobrança será realizada.</span>
                                         </p>
                                     </div>
                                 </div>
@@ -512,8 +532,8 @@
                                                     <span>Pedido 100% Gratuito</span>
                                                     <span class="rounded bg-emerald-500/20 text-emerald-300 px-2 py-0.5 text-[10px] font-mono font-bold">Sem Cobrança</span>
                                                 </p>
-                                                <p class="text-xs text-slate-300 mt-1 leading-relaxed">
-                                                    Nenhum pagamento ou cartão é necessário. Ao clicar em <strong>Liberar Download Grátis</strong>, sua conta será confirmada e seus arquivos serão liberados imediatamente.
+                                                <p class="text-xs text-slate-300 mt-1.5 leading-relaxed">
+                                                    Nenhum pagamento ou cartão é necessário. Ao aceitar os termos e clicar em <strong>Liberar Download Grátis</strong>, sua conta será confirmada e seus arquivos serão liberados imediatamente na tela e também enviados para o seu e-mail.
                                                 </p>
                                             </div>
                                         </div>
@@ -551,8 +571,8 @@
                                             </span>
                                         </div>
 
-                                        <p class="mt-3 text-[11px] text-slate-400 leading-relaxed">
-                                            Ao clicar em <strong>Finalizar Compra</strong>, você será encaminhado para o ambiente seguro do Mercado Pago para efetuar o pagamento. Assim que confirmado, seu download será liberado no mesmo segundo.
+                                        <p class="mt-3 text-[12px] text-slate-300 leading-relaxed bg-slate-950/60 p-3 rounded-xl border border-slate-800">
+                                            🔒 <strong>Ambiente 100% Protegido:</strong> Você será encaminhado para a página oficial do Mercado Pago para pagar com tranquilidade. Assim que o pagamento for concluído, você receberá um e-mail com a confirmação e o link para download.
                                         </p>
                                     </div>
                                 </div>
@@ -689,70 +709,122 @@
 
                                 {{-- Aceite dos Termos de Uso e Política de Privacidade --}}
                                 <div class="mt-6 pt-5 border-t border-slate-800">
-                                    <label class="relative flex items-start gap-3 cursor-pointer select-none group">
-                                        <div class="flex items-center h-5 mt-0.5">
-                                            <input 
-                                                id="checkout-terms"
-                                                type="checkbox" 
-                                                name="terms" 
-                                                value="1" 
-                                                required 
-                                                x-model="acceptedTerms"
-                                                {{ old('terms') ? 'checked' : '' }}
-                                                class="h-4 w-4 rounded border-slate-700 bg-slate-950 text-teal-500 focus:ring-teal-500 focus:ring-offset-slate-900 transition cursor-pointer"
-                                            />
-                                        </div>
-                                        <div class="text-xs text-slate-300 leading-relaxed">
-                                            <span>Declaro que li e concordo com os </span>
-                                            <a 
-                                                href="{{ route('terms.index') }}" 
-                                                target="_blank" 
-                                                rel="noopener noreferrer" 
-                                                class="font-semibold text-teal-400 hover:text-teal-300 underline underline-offset-2 transition inline-flex items-center gap-0.5"
-                                            >
-                                                Termos de Uso
-                                                <svg class="h-3 w-3 inline opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                                                </svg>
-                                            </a>
-                                            <span> e a </span>
-                                            <a 
-                                                href="{{ route('privacy.index') }}" 
-                                                target="_blank" 
-                                                rel="noopener noreferrer" 
-                                                class="font-semibold text-teal-400 hover:text-teal-300 underline underline-offset-2 transition inline-flex items-center gap-0.5"
-                                            >
-                                                Política de Privacidade
-                                                <svg class="h-3 w-3 inline opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                                                </svg>
-                                            </a>.
-                                        </div>
-                                    </label>
+                                    <div 
+                                        class="p-3.5 rounded-2xl border transition-all"
+                                        :class="acceptedTerms ? 'border-teal-500/40 bg-teal-500/5' : 'border-slate-800 bg-slate-950/60 hover:border-slate-700'"
+                                    >
+                                        <label class="relative flex items-start gap-3 cursor-pointer select-none group">
+                                            <div class="flex items-center h-5 mt-0.5">
+                                                <input 
+                                                    id="checkout-terms"
+                                                    type="checkbox" 
+                                                    name="terms" 
+                                                    value="1" 
+                                                    required 
+                                                    x-model="acceptedTerms"
+                                                    {{ old('terms') ? 'checked' : '' }}
+                                                    class="h-4 w-4 rounded border-slate-700 bg-slate-950 text-teal-500 focus:ring-teal-500 focus:ring-offset-slate-900 transition cursor-pointer"
+                                                />
+                                            </div>
+                                            <div class="text-xs text-slate-300 leading-relaxed">
+                                                <span>Declaro que li e concordo com os </span>
+                                                <a 
+                                                    href="{{ route('terms.index') }}" 
+                                                    target="_blank" 
+                                                    rel="noopener noreferrer" 
+                                                    class="font-semibold text-teal-400 hover:text-teal-300 underline underline-offset-2 transition inline-flex items-center gap-0.5"
+                                                >
+                                                    Termos de Uso
+                                                    <svg class="h-3 w-3 inline opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                                    </svg>
+                                                </a>
+                                                <span> e a </span>
+                                                <a 
+                                                    href="{{ route('privacy.index') }}" 
+                                                    target="_blank" 
+                                                    rel="noopener noreferrer" 
+                                                    class="font-semibold text-teal-400 hover:text-teal-300 underline underline-offset-2 transition inline-flex items-center gap-0.5"
+                                                >
+                                                    Política de Privacidade
+                                                    <svg class="h-3 w-3 inline opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                                    </svg>
+                                                </a>.
+                                            </div>
+                                        </label>
+                                    </div>
                                     <x-input-error :messages="$errors->get('terms')" class="mt-1.5 text-xs text-rose-400" />
                                 </div>
 
+                                {{-- Aviso Simples e Claro: O que acontece ao finalizar --}}
+                                <div class="mt-4">
+                                    {{-- Quando for Pago (Total > 0) --}}
+                                    <div x-show="getTotal() > 0" class="rounded-2xl border border-teal-500/30 bg-teal-950/30 p-4">
+                                        <div class="flex items-start gap-3">
+                                            <span class="text-xl shrink-0 mt-0.5">ℹ️</span>
+                                            <div class="text-xs text-slate-300 leading-relaxed">
+                                                <p class="font-bold text-white mb-1">Como funciona a sua compra:</p>
+                                                <p>
+                                                    Depois de aceitar os termos e clicar em <strong>Finalizar Compra</strong>, você será redirecionado ao <strong>Mercado Pago</strong> para pagar com segurança por <strong>Pix ou cartão</strong>.
+                                                </p>
+                                                <p class="mt-1 text-teal-300 font-medium">
+                                                    Assim que pagar, você receberá um <strong>e-mail confirmando o pagamento e o link para download</strong> dos seus arquivos.
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {{-- Quando for Gratuito (Total === 0) --}}
+                                    <div x-show="getTotal() === 0" x-cloak class="rounded-2xl border border-emerald-500/30 bg-emerald-950/30 p-4">
+                                        <div class="flex items-start gap-3">
+                                            <span class="text-xl shrink-0 mt-0.5">🎁</span>
+                                            <div class="text-xs text-slate-300 leading-relaxed">
+                                                <p class="font-bold text-white mb-1">Download 100% Gratuito:</p>
+                                                <p>
+                                                    Depois de aceitar os termos e clicar em <strong>Liberar Download Grátis</strong>, seus arquivos serão liberados imediatamente na tela.
+                                                </p>
+                                                <p class="mt-1 text-emerald-300 font-medium">
+                                                    Você também receberá um <strong>e-mail confirmando e o link para download</strong>. Nenhum pagamento ou cartão é necessário!
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {{-- Alerta amigável caso a caixinha de termos ainda não esteja marcada --}}
+                                <div x-show="!acceptedTerms" class="mt-3 rounded-xl border border-amber-500/30 bg-amber-500/10 px-3.5 py-2.5 text-xs text-amber-200 flex items-center gap-2">
+                                    <span class="text-base shrink-0">👆</span>
+                                    <span>Marque a caixinha dos <strong>Termos de Uso</strong> acima para ativar o botão de finalização.</span>
+                                </div>
+
                                 {{-- Botão Principal de Finalizar Compra --}}
-                                <div class="mt-5">
+                                <div class="mt-4">
                                     <button 
                                         type="submit" 
                                         :disabled="submitting || items.length === 0 || !acceptedTerms" 
-                                        class="w-full inline-flex items-center justify-center gap-2 rounded-2xl bg-teal-500 hover:bg-teal-400 px-6 py-4 text-sm font-extrabold text-slate-950 shadow-xl shadow-teal-500/25 transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed group"
+                                        class="w-full inline-flex items-center justify-center gap-2 rounded-2xl bg-teal-500 hover:bg-teal-400 active:scale-[0.99] px-6 py-4 text-sm font-black text-slate-950 shadow-xl shadow-teal-500/25 transition-all duration-200 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed group"
                                     >
                                         <span x-show="!submitting" class="flex items-center gap-2">
-                                            <span x-show="getTotal() > 0">Finalizar Compra e Pagar</span>
-                                            <span x-show="getTotal() === 0" x-cloak>Liberar Download Grátis</span>
-                                            <svg class="h-4 w-4 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <span x-show="getTotal() > 0" class="flex items-center gap-2">
+                                                <span>Finalizar Compra e Pagar no Mercado Pago</span>
+                                                <span class="font-mono text-xs bg-slate-950/20 px-2 py-0.5 rounded" x-text="formatMoney(getTotal())"></span>
+                                            </span>
+                                            <span x-show="getTotal() === 0" x-cloak class="flex items-center gap-2">
+                                                <span>Liberar Download Grátis Agora</span>
+                                                <span class="text-xs bg-emerald-950/20 px-2 py-0.5 rounded font-mono">GRÁTIS</span>
+                                            </span>
+                                            <svg class="h-4 w-4 group-hover:translate-x-1 transition-transform shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" />
                                             </svg>
                                         </span>
                                         <span x-show="submitting" x-cloak class="flex items-center gap-2">
-                                            <svg class="animate-spin h-4 w-4 text-slate-950" fill="none" viewBox="0 0 24 24">
+                                            <svg class="animate-spin h-4 w-4 text-slate-950 shrink-0" fill="none" viewBox="0 0 24 24">
                                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
                                             </svg>
-                                            <span x-show="getTotal() > 0">Abrindo Mercado Pago...</span>
-                                            <span x-show="getTotal() === 0" x-cloak>Liberando seus arquivos...</span>
+                                            <span x-show="getTotal() > 0">Redirecionando ao Mercado Pago...</span>
+                                            <span x-show="getTotal() === 0" x-cloak>Liberando seus arquivos para download...</span>
                                         </span>
                                     </button>
 
