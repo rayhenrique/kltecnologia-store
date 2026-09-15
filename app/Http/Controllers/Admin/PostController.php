@@ -9,6 +9,7 @@ use App\Http\Requests\ListFilterRequest;
 use App\Models\BlogCategory;
 use App\Models\Post;
 use App\Services\HtmlSanitizerService;
+use App\Services\NewsletterBroadcastService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\File;
@@ -18,7 +19,10 @@ use Illuminate\View\View;
 
 class PostController extends Controller
 {
-    public function __construct(private readonly HtmlSanitizerService $sanitizer) {}
+    public function __construct(
+        private readonly HtmlSanitizerService $sanitizer,
+        private readonly NewsletterBroadcastService $newsletterBroadcast,
+    ) {}
 
     public function index(ListFilterRequest $request): View
     {
@@ -83,16 +87,22 @@ class PostController extends Controller
 
         $content = $this->sanitizer->sanitize($validated['content']);
 
-        Post::create([
+        $isPublished = (bool) ($validated['is_published'] ?? true);
+
+        $post = Post::create([
             'title' => $validated['title'],
             'category' => $categoryName,
             'blog_category_id' => $blogCategory?->id,
             'excerpt' => $validated['excerpt'] ?? Str::limit(strip_tags($content), 180),
             'content' => $content,
             'cover_path' => $coverPath,
-            'is_published' => $validated['is_published'] ?? true,
-            'published_at' => ($validated['is_published'] ?? true) ? now() : null,
+            'is_published' => $isPublished,
+            'published_at' => $isPublished ? now() : null,
         ]);
+
+        if ($post->is_published) {
+            $this->newsletterBroadcast->broadcastNewPost($post);
+        }
 
         return redirect()->route('admin.posts.index')->with('success', 'Artigo publicado com sucesso.');
     }
@@ -113,6 +123,8 @@ class PostController extends Controller
     {
         Gate::authorize('update', $post);
 
+        $wasPublished = (bool) $post->is_published;
+
         $validated = $request->validated();
 
         if ($request->hasFile('cover')) {
@@ -132,13 +144,17 @@ class PostController extends Controller
         $content = $this->sanitizer->sanitize($validated['content']);
         $post->excerpt = $validated['excerpt'] ?? Str::limit(strip_tags($content), 180);
         $post->content = $content;
-        $post->is_published = $validated['is_published'] ?? true;
+        $post->is_published = (bool) ($validated['is_published'] ?? true);
 
         if ($post->is_published && ! $post->published_at) {
             $post->published_at = now();
         }
 
         $post->save();
+
+        if (! $wasPublished && $post->is_published) {
+            $this->newsletterBroadcast->broadcastNewPost($post);
+        }
 
         return redirect()->route('admin.posts.index')->with('success', 'Artigo atualizado com sucesso.');
     }

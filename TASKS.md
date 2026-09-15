@@ -445,3 +445,20 @@
   - [x] Atualizar `DashboardController` (`app/Http/Controllers/Admin/DashboardController.php`) e template `resources/views/admin/dashboard.blade.php` com interface dark/light SaaS completa e responsiva.
   - [x] Desenvolver suíte de testes automatizados `TrafficAnalyticsTest` (`tests/Feature/TrafficAnalyticsTest.php`).
   - [x] Suíte geral elevada para **200 testes aprovados (832 asserções)** com 100% de conformidade com o Laravel Pint.
+
+- [x] **Fase 37: Inscrição Automática na Newsletter no Checkout, Termos de Uso e Disparo em Fila com Limite Diário (100/dia)**
+  - [x] Criar migration `2026_09_15_170000_create_newsletter_send_logs_table.php` e Model `NewsletterSendLog` para controle diário de envios por e-mail e produto/artigo.
+  - [x] Criar configuração `config/newsletter.php` com cota diária de 100 envios (`NEWSLETTER_DAILY_LIMIT=100`) e intervalo de segurança entre mensagens.
+  - [x] Criar `NewsletterService` com métodos para subscrição automática de compradores, geração de tokens seguros HMAC para cancelamento de inscrição, verificação de limite diário e idempotência de envio.
+  - [x] Integrar subscrição automática no `CheckoutService` (para compras pagas e downloads gratuitos) e no `WebhookService` (na aprovação assíncrona do Mercado Pago).
+  - [x] Adicionar Cláusula 6 ("Comunicações, Atualizações de Produtos e Inscrição na Newsletter") nos Termos de Uso (`resources/views/legal/terms.blade.php`), informando sobre a inscrição automática com garantia de opt-out (descadastro em 1 clique).
+  - [x] Criar `NewsletterUnsubscribeController`, rota `GET /newsletter/cancelar-inscricao` e view de confirmação `resources/views/newsletter/unsubscribed.blade.php`.
+  - [x] Adicionar link de descadastro seguro no rodapé do layout base de e-mails (`resources/views/emails/layouts/default.blade.php`).
+  - [x] Criar Mailables `NewProductNewsletterMail` e `NewPostNewsletterMail` e templates responsivos Blade correspondentes.
+  - [x] Criar Jobs de fila `SendNewProductNewsletterJob` e `SendNewPostNewsletterJob` com verificação de limite diário (quando atinge 100/dia, adia automaticamente via `$this->release()` para o dia seguinte às 00:05, mantendo a fila processando continuamente até zerar).
+  - [x] Criar `NewsletterBroadcastService` enfileirando notificações escalonadas para todos os inscritos ativos quando um novo produto ou artigo for publicado.
+  - [x] Integrar triggers de notificação no `Admin\ProductController` e `Admin\PostController`.
+  - [x] Configurar worker periódico no agendador do Laravel em `routes/console.php` (`queue:work --stop-when-empty --max-time=50`).
+  - [x] Desenvolver suíte completa de testes Feature `NewsletterAutomationTest` (`tests/Feature/NewsletterAutomationTest.php`) cobrindo checkout, opt-out, jobs, fila e limite de 100/dia.
+  - [x] Suíte de testes geral elevada para **210 testes aprovados (856 asserções)** com 100% de conformidade com o Laravel Pint.
+

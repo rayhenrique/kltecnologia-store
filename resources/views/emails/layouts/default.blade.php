@@ -72,6 +72,15 @@
                         Precisa de ajuda ou suporte técnico? Responda a este e-mail ou acesse nossa central em 
                         <a href="{{ config('app.url') }}" target="_blank" style="color: #0d9488; text-decoration: underline;">{{ parse_url(config('app.url'), PHP_URL_HOST) ?? 'kltecnologia.com' }}</a>.
                     </p>
+                    @hasSection('unsubscribe_url')
+                        <p style="margin: 12px 0 0 0; font-size: 11px; color: #94a3b8;">
+                            Não deseja mais receber novidades e atualizações? <a href="@yield('unsubscribe_url')" target="_blank" style="color: #64748b; text-decoration: underline;">Cancelar inscrição da newsletter</a>.
+                        </p>
+                    @elseif(isset($unsubscribeUrl) && !empty($unsubscribeUrl))
+                        <p style="margin: 12px 0 0 0; font-size: 11px; color: #94a3b8;">
+                            Não deseja mais receber novidades e atualizações? <a href="{{ $unsubscribeUrl }}" target="_blank" style="color: #64748b; text-decoration: underline;">Cancelar inscrição da newsletter</a>.
+                        </p>
+                    @endif
                     <div style="font-size: 11px; color: #94a3b8; border-top: 1px dashed #cbd5e1; padding-top: 15px; margin-top: 15px;">
                         © {{ date('Y') }} KL Tecnologia. Todos os direitos reservados.
                     </div>

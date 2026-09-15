@@ -7,6 +7,7 @@ use App\Http\Requests\Admin\StoreProductRequest;
 use App\Http\Requests\Admin\UpdateProductRequest;
 use App\Http\Requests\ListFilterRequest;
 use App\Models\Product;
+use App\Services\NewsletterBroadcastService;
 use App\Services\ProductStorageService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -15,7 +16,10 @@ use Illuminate\View\View;
 
 class ProductController extends Controller
 {
-    public function __construct(private readonly ProductStorageService $storage) {}
+    public function __construct(
+        private readonly ProductStorageService $storage,
+        private readonly NewsletterBroadcastService $newsletterBroadcast,
+    ) {}
 
     public function index(ListFilterRequest $request): View
     {
@@ -68,7 +72,11 @@ class ProductController extends Controller
 
     public function store(StoreProductRequest $request): RedirectResponse|JsonResponse
     {
-        $this->storage->create($request->validated(), $request->file('cover'), $request->file('file'));
+        $product = $this->storage->create($request->validated(), $request->file('cover'), $request->file('file'));
+
+        if ($product->is_active) {
+            $this->newsletterBroadcast->broadcastNewProduct($product);
+        }
 
         if ($request->wantsJson()) {
             session()->flash('success', 'Produto criado com sucesso.');
@@ -92,7 +100,13 @@ class ProductController extends Controller
 
     public function update(UpdateProductRequest $request, Product $product): RedirectResponse|JsonResponse
     {
-        $this->storage->update($product, $request->validated(), $request->file('cover'), $request->file('file'));
+        $wasActive = (bool) $product->is_active;
+
+        $updatedProduct = $this->storage->update($product, $request->validated(), $request->file('cover'), $request->file('file'));
+
+        if (! $wasActive && $updatedProduct->is_active) {
+            $this->newsletterBroadcast->broadcastNewProduct($updatedProduct);
+        }
 
         if ($request->wantsJson()) {
             session()->flash('success', 'Produto atualizado com sucesso.');

@@ -21,6 +21,7 @@ class CheckoutService
         private readonly MercadoPagoService $mercadoPago,
         private readonly OrderMailService $mailService,
         private readonly CouponUsageService $couponUsage,
+        private readonly NewsletterService $newsletterService,
     ) {}
 
     /**
@@ -33,6 +34,7 @@ class CheckoutService
         }
 
         $isFirstPurchase = ! $user->orders()->exists();
+        $this->newsletterService->subscribeCustomer($user->email, request()->ip(), request()->userAgent());
 
         if ((float) $product->price <= 0.0) {
             $order = $user->orders()->create([
@@ -138,6 +140,8 @@ class CheckoutService
             event(new Registered($user));
             Auth::login($user);
         }
+
+        $this->newsletterService->subscribeCustomer($user->email, request()->ip(), request()->userAgent());
 
         if ($checkout['first_purchase']) {
             $this->mailService->sendWelcomeEmail($user);

@@ -19,6 +19,7 @@ use App\Http\Controllers\DownloadController;
 use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\LegalController;
 use App\Http\Controllers\NewsletterSubscriptionController;
+use App\Http\Controllers\NewsletterUnsubscribeController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\StorefrontController;
@@ -33,6 +34,7 @@ Route::get('/favoritos', [FavoriteController::class, 'index'])->name('favorites.
 Route::post('/favoritos/items', [FavoriteController::class, 'items'])->name('favorites.items');
 Route::post('/cupons/validar', [CouponValidationController::class, 'validateCoupon'])->name('coupons.validate');
 Route::post('/newsletter', [NewsletterSubscriptionController::class, 'store'])->name('newsletter.subscribe');
+Route::get('/newsletter/cancelar-inscricao', [NewsletterUnsubscribeController::class, 'unsubscribe'])->name('newsletter.unsubscribe');
 Route::get('/produtos/{product:slug}', [StorefrontController::class, 'show'])->name('storefront.show');
 Route::get('/politica-de-privacidade', [LegalController::class, 'privacy'])->name('privacy.index');
 Route::get('/termos-de-uso', [LegalController::class, 'terms'])->name('terms.index');

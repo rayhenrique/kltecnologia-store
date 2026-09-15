@@ -13,6 +13,7 @@ class WebhookService
         private readonly MercadoPagoService $mercadoPago,
         private readonly OrderMailService $mailService,
         private readonly CouponUsageService $couponUsage,
+        private readonly NewsletterService $newsletterService,
     ) {}
 
     public function handlePayment(string $paymentId): void
@@ -80,6 +81,7 @@ class WebhookService
 
         if ($paidOrders !== null && $orderUser !== null) {
             $this->mailService->sendOrderPaidEmail($orderUser, $paidOrders);
+            $this->newsletterService->subscribeCustomer($orderUser->email);
         }
     }
 

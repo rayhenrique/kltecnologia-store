@@ -94,6 +94,23 @@
                 <a href="{{ route('privacy.index') }}" class="text-teal-600 underline font-bold hover:text-teal-700">Política de Privacidade & LGPD</a>.
             </p>
         </section>
+
+        {{-- 6. Comunicações e Newsletter --}}
+        <section class="panel p-6 sm:p-8 bg-white border border-teal-200/80 rounded-2xl shadow-sm space-y-3">
+            <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                <span class="grid h-6 w-6 place-items-center rounded-lg bg-teal-500 text-white text-xs font-extrabold">6</span>
+                Comunicações, Atualizações de Produtos e Inscrição na Newsletter
+            </h2>
+            <p>
+                Ao concluir um pedido (seja gratuito ou pago) ou criar uma conta na <strong>KL Tecnologia</strong>, você concorda em ser inscrito automaticamente em nosso canal de comunicações e novidades (Newsletter).
+            </p>
+            <p>
+                Este canal é utilizado para enviar notificações sobre o lançamento de novos produtos, códigos-fonte, novos artigos e tutoriais técnicos do blog, bem como atualizações de segurança e correções em sistemas adquiridos.
+            </p>
+            <p class="text-xs sm:text-sm text-slate-600 bg-teal-50/60 p-4 rounded-xl border border-teal-100">
+                <strong class="text-teal-900">Direito de Opt-out (Descadastro em 1 Clique):</strong> Em estrita conformidade com a LGPD e as melhores práticas anti-spam, você pode cancelar sua inscrição a qualquer momento. Todo e-mail promocional ou informativo enviado possui no rodapé um link seguro de cancelamento imediato, sem burocracia.
+            </p>
+        </section>
     </div>
 </div>
 </x-storefront-layout>
