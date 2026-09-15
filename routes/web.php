@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\BlogCategoryController as AdminBlogCategoryController;
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Admin\CouponController as AdminCouponController;
+use App\Http\Controllers\Admin\CustomerController as AdminCustomerController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\NewsletterSubscriberController as AdminNewsletterSubscriberController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
@@ -68,6 +69,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'verified', 'admin']
     Route::resource('posts', AdminPostController::class)->except(['show']);
     Route::resource('blog-categories', AdminBlogCategoryController::class)->except(['show']);
     Route::resource('orders', AdminOrderController::class);
+    Route::resource('customers', AdminCustomerController::class);
     Route::get('/newsletter/export', [AdminNewsletterSubscriberController::class, 'export'])->name('newsletter.export');
     Route::get('/newsletter', [AdminNewsletterSubscriberController::class, 'index'])->name('newsletter.index');
     Route::delete('/newsletter/{subscriber}', [AdminNewsletterSubscriberController::class, 'destroy'])->name('newsletter.destroy');

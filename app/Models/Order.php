@@ -60,6 +60,11 @@ class Order extends Model
         return $this->belongsTo(Coupon::class)->withTrashed();
     }
 
+    public function isPaid(): bool
+    {
+        return $this->status === OrderStatus::Paid;
+    }
+
     /**
      * @param  Builder<Order>  $query
      * @return Builder<Order>

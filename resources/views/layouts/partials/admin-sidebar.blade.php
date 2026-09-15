@@ -193,6 +193,25 @@
                 <span x-show="!{{ $isMobile ? 'true' : 'false' }} && sidebarCollapsed" class="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-emerald-400"></span>
             </a>
 
+            {{-- Clientes --}}
+            <a 
+                href="{{ route('admin.customers.index') }}" 
+                :title="(!{{ $isMobile ? 'true' : 'false' }} && sidebarCollapsed) ? 'Clientes ({{ \App\Models\User::where('role', 'customer')->count() }})' : ''"
+                class="relative flex items-center rounded-xl text-xs font-semibold transition group {{ request()->routeIs('admin.customers.*') ? 'bg-teal-600 text-white shadow-sm shadow-teal-600/30 font-bold' : 'text-slate-300 hover:bg-slate-900 hover:text-white' }}"
+                :class="(!{{ $isMobile ? 'true' : 'false' }} && sidebarCollapsed) ? 'justify-center h-11 w-11 mx-auto p-0' : 'justify-between px-3 py-2 w-full'"
+            >
+                <div class="flex items-center gap-3 min-w-0">
+                    <svg class="h-5 w-5 shrink-0 {{ request()->routeIs('admin.customers.*') ? 'text-white' : 'text-slate-400 group-hover:text-teal-400' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                    <span x-show="{{ $isMobile ? 'true' : '!sidebarCollapsed' }}" x-cloak class="truncate whitespace-nowrap">Clientes</span>
+                </div>
+                <span x-show="{{ $isMobile ? 'true' : '!sidebarCollapsed' }}" x-cloak class="rounded-md bg-slate-900 px-1.5 py-0.5 text-[10px] font-mono text-teal-400 border border-slate-800 shrink-0">
+                    {{ \App\Models\User::where('role', 'customer')->count() }}
+                </span>
+                <span x-show="!{{ $isMobile ? 'true' : 'false' }} && sidebarCollapsed" class="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-teal-400"></span>
+            </a>
+
             {{-- Newsletter (Leads / Inscritos) --}}
             <a 
                 href="{{ route('admin.newsletter.index') }}" 

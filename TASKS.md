@@ -462,3 +462,18 @@
   - [x] Desenvolver suíte completa de testes Feature `NewsletterAutomationTest` (`tests/Feature/NewsletterAutomationTest.php`) cobrindo checkout, opt-out, jobs, fila e limite de 100/dia.
   - [x] Suíte de testes geral elevada para **210 testes aprovados (856 asserções)** com 100% de conformidade com o Laravel Pint.
 
+- [x] **Fase 38: Módulo Completo de Gestão de Clientes no Painel Admin**
+  - [x] Criar `UserPolicy` (`app/Policies/UserPolicy.php`) com regras de autorização para `viewAny`, `view`, `create`, `update` e `delete` (bloqueando autoexclusão).
+  - [x] Criar Form Requests `StoreCustomerRequest` e `UpdateCustomerRequest` com validação de nome, e-mail único, CPF, telefone, perfil e senha.
+  - [x] Criar `CustomerController` (`app/Http/Controllers/Admin/CustomerController.php`) gerenciando CRUD completo, métricas em tempo real (Total de Clientes, Compradores Ativos, Novos no Mês e Faturamento LTV), filtros por status/tipo e ordenação dinâmica.
+  - [x] Registrar recurso `customers` em `routes/web.php` no grupo administrativo (`admin.customers.*`).
+  - [x] Desenvolver views Blade no padrão SaaS dark/light:
+    - `index.blade.php`: Listagem de clientes com cards de métricas, busca global, filtros, avatares, links para WhatsApp e status da newsletter.
+    - `show.blade.php`: Perfil do cliente, resumo de KPIs (LTV, ticket médio, total de pedidos), dados cadastrais/LGPD e histórico completo de compras.
+    - `create.blade.php` e `edit.blade.php`: Cadastro manual e edição de dados com formulário compartilhado `_form.blade.php`.
+  - [x] Integrar item "Clientes" na sidebar administrativa (`resources/views/layouts/partials/admin-sidebar.blade.php`) com ícone e contador dinâmico em tempo real.
+  - [x] Adicionar método helper `isPaid()` no Model `Order`.
+  - [x] Desenvolver suíte de testes Feature `AdminCustomerTest` (`tests/Feature/AdminCustomerTest.php`) com 11 testes cobrindo permissões, busca, filtros, CRUD e regras de integridade contábil na exclusão.
+  - [x] Suíte de testes geral elevada para **221 testes aprovados (903 asserções)** com 100% de conformidade com o Laravel Pint.
+
+
