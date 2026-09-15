@@ -43,6 +43,10 @@ class ChangelogService
      */
     public function getAllReleasesForUser(User $user): array
     {
+        if (! $user->isAdmin()) {
+            return [];
+        }
+
         $allReleases = (array) config('changelog.releases', []);
         $userAudience = $this->getUserAudience($user);
         $filteredReleases = [];
@@ -103,6 +107,10 @@ class ChangelogService
      */
     public function getUnseenReleaseForUser(User $user): ?array
     {
+        if (! $user->isAdmin()) {
+            return null;
+        }
+
         $latestVersion = $this->getLatestVersionForUser($user);
 
         if (! $latestVersion) {

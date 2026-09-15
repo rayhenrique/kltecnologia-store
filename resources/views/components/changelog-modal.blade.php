@@ -1,4 +1,4 @@
-@auth
+@if(auth()->check() && auth()->user()->isAdmin())
     @inject('changelogService', 'App\Services\ChangelogService')
     @php
         $user = auth()->user();
@@ -30,7 +30,7 @@
                 if (this.isDismissing) return;
                 this.isDismissing = true;
 
-                fetch('{{ route('changelog.dismiss') }}', {
+                fetch('{{ route('admin.changelog.dismiss') }}', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -298,4 +298,4 @@
             </div>
         </div>
     </div>
-@endauth
+@endif

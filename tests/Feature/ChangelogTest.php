@@ -16,14 +16,69 @@ class ChangelogTest extends TestCase
 
     public function test_guest_cannot_dismiss_or_view_changelog_history(): void
     {
-        $this->postJson(route('changelog.dismiss'))
+        $this->postJson(route('admin.changelog.dismiss'))
             ->assertUnauthorized();
 
-        $this->getJson(route('changelog.history'))
+        $this->getJson(route('admin.changelog.history'))
             ->assertUnauthorized();
+
+        $this->get(route('admin.changelog.index'))
+            ->assertRedirect(route('login'));
     }
 
-    public function test_admin_receives_admin_and_general_release_notes(): void
+    public function test_customer_cannot_access_or_dismiss_changelog(): void
+    {
+        $customer = User::factory()->create([
+            'role' => UserRole::Customer,
+        ]);
+
+        $this->actingAs($customer)
+            ->postJson(route('admin.changelog.dismiss'))
+            ->assertForbidden();
+
+        $this->actingAs($customer)
+            ->getJson(route('admin.changelog.history'))
+            ->assertForbidden();
+
+        $this->actingAs($customer)
+            ->get(route('admin.changelog.index'))
+            ->assertForbidden();
+    }
+
+    public function test_customer_receives_no_releases_or_unseen_notifications_from_service(): void
+    {
+        $customer = User::factory()->create([
+            'role' => UserRole::Customer,
+            'last_seen_version' => null,
+        ]);
+
+        /** @var ChangelogService $service */
+        $service = app(ChangelogService::class);
+
+        $this->assertEmpty($service->getAllReleasesForUser($customer));
+        $this->assertNull($service->getUnseenReleaseForUser($customer));
+        $this->assertNull($service->getLatestVersionForUser($customer));
+    }
+
+    public function test_customer_pages_never_render_changelog_modal(): void
+    {
+        $customer = User::factory()->create([
+            'role' => UserRole::Customer,
+            'last_seen_version' => null,
+        ]);
+
+        $this->actingAs($customer)
+            ->get(route('customer.downloads'))
+            ->assertOk()
+            ->assertDontSee('O que há de novo na KL Tecnologia');
+
+        $this->actingAs($customer)
+            ->get(route('storefront.index'))
+            ->assertOk()
+            ->assertDontSee('O que há de novo na KL Tecnologia');
+    }
+
+    public function test_admin_receives_release_notes(): void
     {
         $admin = User::factory()->create([
             'role' => UserRole::Admin,
@@ -37,36 +92,10 @@ class ChangelogTest extends TestCase
 
         $this->assertNotNull($unseen);
         $this->assertEquals(config('changelog.current_version'), $unseen['version']);
-
-        // Verifica se há pelo menos uma alteração de admin
-        $hasAdminChange = collect($unseen['changes'])->contains(function ($change) {
-            return in_array($change['audience'] ?? 'all', ['admin', 'all'], true);
-        });
-
-        $this->assertTrue($hasAdminChange);
+        $this->assertNotEmpty($service->getAllReleasesForUser($admin));
     }
 
-    public function test_customer_does_not_receive_admin_only_release_notes(): void
-    {
-        $customer = User::factory()->create([
-            'role' => UserRole::Customer,
-            'last_seen_version' => null,
-        ]);
-
-        /** @var ChangelogService $service */
-        $service = app(ChangelogService::class);
-
-        $unseen = $service->getUnseenReleaseForUser($customer);
-
-        $this->assertNotNull($unseen);
-
-        // Nenhuma alteração exibida para o cliente pode ter audience === 'admin'
-        foreach ($unseen['changes'] as $change) {
-            $this->assertNotEquals('admin', $change['audience'] ?? null, 'Cliente não deve ver notas de alteração exclusivas do admin.');
-        }
-    }
-
-    public function test_user_with_same_or_higher_version_does_not_receive_unseen_release(): void
+    public function test_admin_with_same_or_higher_version_does_not_receive_unseen_release(): void
     {
         $currentVersion = config('changelog.current_version');
 
@@ -83,16 +112,16 @@ class ChangelogTest extends TestCase
         $this->assertNull($unseen);
     }
 
-    public function test_authenticated_user_can_dismiss_changelog(): void
+    public function test_admin_can_dismiss_changelog(): void
     {
-        $user = User::factory()->create([
-            'role' => UserRole::Customer,
+        $admin = User::factory()->create([
+            'role' => UserRole::Admin,
             'last_seen_version' => '1.0.0',
         ]);
 
         $currentVersion = config('changelog.current_version');
 
-        $response = $this->actingAs($user)->postJson(route('changelog.dismiss'), [
+        $response = $this->actingAs($admin)->postJson(route('admin.changelog.dismiss'), [
             'version' => $currentVersion,
         ]);
 
@@ -103,18 +132,18 @@ class ChangelogTest extends TestCase
             ]);
 
         $this->assertDatabaseHas('users', [
-            'id' => $user->id,
+            'id' => $admin->id,
             'last_seen_version' => $currentVersion,
         ]);
     }
 
-    public function test_authenticated_user_can_view_history_json(): void
+    public function test_admin_can_view_history_json(): void
     {
-        $user = User::factory()->create([
-            'role' => UserRole::Customer,
+        $admin = User::factory()->create([
+            'role' => UserRole::Admin,
         ]);
 
-        $response = $this->actingAs($user)->getJson(route('changelog.history'));
+        $response = $this->actingAs($admin)->getJson(route('admin.changelog.history'));
 
         $response->assertOk()
             ->assertJsonStructure([
@@ -137,49 +166,6 @@ class ChangelogTest extends TestCase
         $response->assertOk();
         $response->assertSee('v'.$currentVersion);
         $response->assertSee('O que há de novo na KL Tecnologia');
-    }
-
-    public function test_customer_downloads_page_renders_modal_for_unseen_release(): void
-    {
-        $customer = User::factory()->create([
-            'role' => UserRole::Customer,
-            'last_seen_version' => null,
-        ]);
-
-        $response = $this->actingAs($customer)->get(route('customer.downloads'));
-
-        $response->assertOk();
-        $response->assertSee('O que há de novo na KL Tecnologia');
-        $response->assertSee('isOpen: true', false);
-    }
-
-    public function test_customer_downloads_page_keeps_modal_closed_when_already_seen(): void
-    {
-        $currentVersion = config('changelog.current_version');
-
-        $customer = User::factory()->create([
-            'role' => UserRole::Customer,
-            'last_seen_version' => $currentVersion,
-        ]);
-
-        $response = $this->actingAs($customer)->get(route('customer.downloads'));
-
-        $response->assertOk();
-        $response->assertSee('isOpen: false', false);
-    }
-
-    public function test_guest_and_customer_cannot_access_admin_novidades_page(): void
-    {
-        $this->get(route('admin.changelog.index'))
-            ->assertRedirect(route('login'));
-
-        $customer = User::factory()->create([
-            'role' => UserRole::Customer,
-        ]);
-
-        $this->actingAs($customer)
-            ->get(route('admin.changelog.index'))
-            ->assertForbidden();
     }
 
     public function test_admin_can_access_novidades_page_with_full_release_timeline(): void
