@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CatalogController;
+use App\Http\Controllers\ChangelogController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\CouponValidationController;
 use App\Http\Controllers\CustomerController;
@@ -54,6 +55,8 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::post('/checkout/{product}', [CheckoutController::class, 'store'])->name('checkout.store');
+    Route::post('/changelog/dismiss', [ChangelogController::class, 'dismiss'])->name('changelog.dismiss');
+    Route::get('/changelog/historico', [ChangelogController::class, 'history'])->name('changelog.history');
 });
 
 Route::prefix('customer')->name('customer.')->middleware(['auth', 'verified'])->group(function () {

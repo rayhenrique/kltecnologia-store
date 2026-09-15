@@ -490,6 +490,19 @@
     - `show.blade.php`: Painel detalhado do lead com metadados técnicos, vínculo com cliente cadastrado na loja, link assinado de cancelamento (opt-out) e histórico completo de notificações de novos produtos/posts recebidas.
   - [x] Desenvolver suíte de testes Feature `AdminNewsletterTest` (`tests/Feature/AdminNewsletterTest.php`) com 12 testes cobrindo permissões, listagem, filtros, CRUD completo, restauração de soft deletes, histórico de envios e exportação CSV.
   - [x] Suíte de testes geral elevada para **228 testes aprovados (968 asserções)** com 100% de conformidade com o Laravel Pint.
-
-
+- [x] **Fase 40: Controle de Versões, Changelog e Modal de Novidades com Segmentação de Público**
+  - [x] Criar migration `2026_09_15_220000_add_last_seen_version_to_users_table.php` adicionando coluna `last_seen_version` (`string`, nullable) na tabela `users`.
+  - [x] Atualizar Model `User` (`app/Models/User.php`) com `last_seen_version` em `$fillable` e helper `hasSeenVersion(string $version): bool`.
+  - [x] Criar arquivo de configuração `config/changelog.php` com versionamento semântico (`current_version => 2.1.0`), histórico de releases e segmentação de público (`admin`, `customer`, `all`).
+  - [x] Criar documento de histórico `VERSOES.md` na raiz do projeto documentando todas as versões e fases desde a v1.0.0 até a v2.1.0.
+  - [x] Criar camada de serviço `ChangelogService` (`app/Services/ChangelogService.php`) com métodos `getCurrentVersion`, `getLatestVersionForUser`, `getUnseenReleaseForUser`, `getAllReleasesForUser` e `dismissForUser`.
+  - [x] Criar `ChangelogController` (`app/Http/Controllers/ChangelogController.php`) e registrar rotas autenticadas `POST /changelog/dismiss` e `GET /changelog/historico` em `routes/web.php`.
+  - [x] Desenvolver componente Blade moderno Dark SaaS `<x-changelog-modal />` (`resources/views/components/changelog-modal.blade.php`) com Alpine.js, detecção de versão não vista, tabs para novidades e histórico de releases, e persistência assíncrona.
+  - [x] Integrar modal nos layouts do sistema:
+    - Painel Administrativo (`layouts/admin.blade.php`).
+    - Sidebar do Admin (`layouts/partials/admin-sidebar.blade.php`): substituição de versão estática por botão dinâmico clicável `v{{ config('changelog.current_version') }}` disparando `open-changelog`.
+    - Área do Cliente (`layouts/app.blade.php` em Meus Downloads e Perfil).
+    - Vitrine e Loja (`layouts/storefront.blade.php` quando autenticado).
+  - [x] Desenvolver suíte completa de testes automatizados `ChangelogTest` (`tests/Feature/ChangelogTest.php`) com 9 testes e 23 asserções cobrindo autenticação, isolamento de notas de admin/cliente, dispensa assíncrona, json de histórico e renderização no admin e cliente.
+  - [x] Suíte de testes geral elevada para **237 testes aprovados (991 asserções)** com 100% de conformidade com o Laravel Pint.
 

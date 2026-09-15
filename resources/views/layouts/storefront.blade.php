@@ -976,6 +976,9 @@
 
     {{-- Aviso e Gerenciador de Cookies LGPD --}}
     <x-cookie-consent />
+
+    {{-- Modal de Controle de Versões e Changelog (se autenticado) --}}
+    <x-changelog-modal />
 </body>
 </html>
 

@@ -191,5 +191,8 @@
             </footer>
         </div>
     </div>
+
+    {{-- Modal de Controle de Versões e Changelog --}}
+    <x-changelog-modal />
 </body>
 </html>

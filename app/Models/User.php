@@ -25,6 +25,7 @@ class User extends Authenticatable
         'cpf',
         'phone',
         'password',
+        'last_seen_version',
     ];
 
     /**
@@ -50,6 +51,15 @@ class User extends Authenticatable
     public function isAdmin(): bool
     {
         return $this->role === UserRole::Admin;
+    }
+
+    public function hasSeenVersion(string $version): bool
+    {
+        if (! $this->last_seen_version) {
+            return false;
+        }
+
+        return version_compare($this->last_seen_version, $version, '>=');
     }
 
     /**

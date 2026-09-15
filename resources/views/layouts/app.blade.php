@@ -65,5 +65,8 @@
             } catch (e) {}
         </script>
     @endif
+
+    {{-- Modal de Controle de Versões e Changelog --}}
+    <x-changelog-modal />
 </body>
 </html>

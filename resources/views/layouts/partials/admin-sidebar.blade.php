@@ -31,9 +31,14 @@
 
     @if(!$isMobile)
         <div class="flex items-center gap-1.5" x-show="!sidebarCollapsed" x-cloak>
-            <span class="rounded bg-teal-500/10 border border-teal-500/30 px-1.5 py-0.5 font-mono text-[9px] font-bold text-teal-400 uppercase">
-                v2.0
-            </span>
+            <button 
+                type="button"
+                @click="$dispatch('open-changelog')"
+                class="rounded bg-teal-500/10 hover:bg-teal-500/20 border border-teal-500/30 px-1.5 py-0.5 font-mono text-[9px] font-bold text-teal-400 uppercase transition cursor-pointer"
+                title="Ver novidades e histórico da versão"
+            >
+                v{{ config('changelog.current_version', '2.1.0') }}
+            </button>
             <button 
                 type="button" 
                 @click="toggleSidebar()"
