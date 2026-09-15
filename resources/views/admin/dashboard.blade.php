@@ -115,7 +115,275 @@
             </article>
         </div>
 
-        {{-- 2. TABELA DE PEDIDOS RECENTES --}}
+        {{-- 2. MÉTRICAS NATIVAS DE TRÁFEGO & VISITAS --}}
+        <section class="space-y-6">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="rounded bg-indigo-50 border border-indigo-200/80 px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wider text-indigo-700">
+                            Analytics Nativo
+                        </span>
+                        <span class="inline-flex items-center gap-1 font-mono text-[11px] text-emerald-600 font-semibold">
+                            <span class="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-ping"></span>
+                            Zero Latência • Imune a AdBlockers
+                        </span>
+                    </div>
+                    <h2 class="mt-1 font-display text-lg sm:text-xl font-bold text-slate-900">
+                        Métricas de tráfego & audiência
+                    </h2>
+                </div>
+                <div class="text-xs text-slate-500">
+                    Últimos 14 dias de movimentação orgânica
+                </div>
+            </div>
+
+            {{-- 4 Cards de Métricas de Tráfego --}}
+            <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                {{-- Visitas Hoje --}}
+                <div class="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs hover:shadow-md transition">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Visitas Hoje</span>
+                        <span class="grid h-8 w-8 place-items-center rounded-lg bg-teal-50 text-teal-600 border border-teal-100">
+                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            </svg>
+                        </span>
+                    </div>
+                    <div class="mt-3 flex items-baseline gap-2">
+                        <span class="font-display text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+                            {{ number_format($traffic['todayViews']) }}
+                        </span>
+                        <span class="text-xs text-slate-500">
+                            ({{ number_format($traffic['todayUniques']) }} únicos)
+                        </span>
+                    </div>
+                    <div class="mt-2 text-xs text-slate-500 flex items-center gap-1">
+                        <span>Ontem:</span>
+                        <strong class="text-slate-700">{{ number_format($traffic['yesterdayViews']) }} visualizações</strong>
+                    </div>
+                </div>
+
+                {{-- Visitantes Únicos no Mês --}}
+                <div class="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs hover:shadow-md transition">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Visitantes no Mês</span>
+                        <span class="grid h-8 w-8 place-items-center rounded-lg bg-indigo-50 text-indigo-600 border border-indigo-100">
+                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                            </svg>
+                        </span>
+                    </div>
+                    <div class="mt-3 flex items-baseline gap-2">
+                        <span class="font-display text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+                            {{ number_format($traffic['monthUniques']) }}
+                        </span>
+                        <span class="text-xs text-slate-500">visitantes</span>
+                    </div>
+                    <div class="mt-2 text-xs text-slate-500 flex items-center gap-1">
+                        <span>Total de páginas vistas:</span>
+                        <strong class="text-slate-700">{{ number_format($traffic['monthViews']) }}</strong>
+                    </div>
+                </div>
+
+                {{-- Taxa de Conversão --}}
+                <div class="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs hover:shadow-md transition">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Taxa de Conversão</span>
+                        <span class="grid h-8 w-8 place-items-center rounded-lg bg-emerald-50 text-emerald-600 border border-emerald-100">
+                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                            </svg>
+                        </span>
+                    </div>
+                    <div class="mt-3 flex items-baseline gap-2">
+                        <span class="font-display text-2xl sm:text-3xl font-extrabold text-emerald-600 tracking-tight">
+                            {{ $traffic['conversionRate'] }}%
+                        </span>
+                        <span class="text-xs text-slate-500">visitas &rarr; compras</span>
+                    </div>
+                    <div class="mt-2 text-xs text-slate-500 flex items-center gap-1">
+                        <span>Vendas confirmadas:</span>
+                        <strong class="text-slate-700">{{ $traffic['paidOrdersMonth'] }} pedidos no mês</strong>
+                    </div>
+                </div>
+
+                {{-- Dispositivos --}}
+                <div class="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs hover:shadow-md transition">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Dispositivos</span>
+                        <span class="grid h-8 w-8 place-items-center rounded-lg bg-amber-50 text-amber-600 border border-amber-100">
+                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                            </svg>
+                        </span>
+                    </div>
+                    <div class="mt-3 flex items-baseline gap-2">
+                        <span class="font-display text-xl font-bold text-slate-900">
+                            {{ $traffic['deviceBreakdown']['desktop'] }}% <span class="text-xs font-normal text-slate-500">PC</span>
+                        </span>
+                        <span class="text-slate-300">•</span>
+                        <span class="font-display text-xl font-bold text-slate-900">
+                            {{ $traffic['deviceBreakdown']['mobile'] }}% <span class="text-xs font-normal text-slate-500">Mobile</span>
+                        </span>
+                    </div>
+                    <div class="mt-3 w-full bg-slate-100 rounded-full h-2 overflow-hidden flex">
+                        <div class="bg-teal-500 h-full transition-all duration-500" style="width: {{ $traffic['deviceBreakdown']['desktop'] }}%"></div>
+                        <div class="bg-amber-400 h-full transition-all duration-500" style="width: {{ $traffic['deviceBreakdown']['mobile'] }}%"></div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Gráfico Interativo dos Últimos 14 Dias --}}
+            <div class="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-xs">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+                    <div>
+                        <h3 class="font-display text-base font-bold text-slate-900">
+                            Evolução diária de visualizações
+                        </h3>
+                        <p class="text-xs text-slate-500 mt-0.5">
+                            Passe o mouse sobre as barras para ver os detalhes diários de acessos.
+                        </p>
+                    </div>
+                    <div class="flex items-center gap-4 text-xs">
+                        <span class="flex items-center gap-1.5 font-medium text-slate-600">
+                            <span class="h-3 w-3 rounded bg-teal-500"></span>
+                            Visualizações
+                        </span>
+                    </div>
+                </div>
+
+                {{-- Área do Gráfico de Barras --}}
+                <div class="h-44 flex items-end justify-between gap-1.5 sm:gap-3 pt-6 pb-2 border-b border-slate-100">
+                    @foreach($traffic['dailyChart'] as $point)
+                        <div class="flex-1 h-full flex flex-col justify-end items-center group relative">
+                            {{-- Tooltip ao passar o mouse --}}
+                            <div class="absolute -top-12 z-20 hidden group-hover:flex flex-col items-center pointer-events-none transition-all">
+                                <div class="bg-slate-900 text-white text-[11px] rounded-lg py-1 px-2.5 shadow-lg whitespace-nowrap">
+                                    <div class="font-bold text-teal-400">{{ $point['views'] }} visualizações</div>
+                                    <div class="text-slate-300 text-[10px]">{{ $point['uniques'] }} únicos • {{ $point['fullDate'] }}</div>
+                                </div>
+                                <div class="w-2 h-2 bg-slate-900 rotate-45 -mt-1"></div>
+                            </div>
+
+                            {{-- Barra Vertical --}}
+                            <div 
+                                class="w-full max-w-[28px] rounded-t-md bg-gradient-to-t from-teal-600 to-teal-400 group-hover:from-teal-500 group-hover:to-teal-300 transition-all duration-300 shadow-2xs"
+                                style="height: {{ $point['heightPercent'] }}%; min-height: 4px;"
+                            ></div>
+                        </div>
+                    @endforeach
+                </div>
+
+                {{-- Eixo X de Datas --}}
+                <div class="flex items-center justify-between gap-1.5 sm:gap-3 mt-2 text-[10px] sm:text-[11px] font-mono text-slate-600">
+                    @foreach($traffic['dailyChart'] as $point)
+                        <div class="flex-1 text-center truncate">
+                            {{ $point['date'] }}
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+
+            {{-- 2 Colunas: Top Produtos & Top Artigos --}}
+            <div class="grid gap-6 lg:grid-cols-2">
+                {{-- Top 5 Produtos Mais Acessados --}}
+                <div class="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+                        <div class="flex items-center gap-2">
+                            <span class="text-base">🔥</span>
+                            <h3 class="font-display text-sm font-bold text-slate-900">
+                                Top Produtos Mais Acessados (30 dias)
+                            </h3>
+                        </div>
+                        <a href="{{ route('admin.products.index') }}" class="text-xs font-bold text-teal-600 hover:text-teal-700">
+                            Ver todos &rarr;
+                        </a>
+                    </div>
+
+                    <div class="space-y-3">
+                        @forelse($traffic['topProducts'] as $item)
+                            <div class="flex items-center justify-between p-2.5 rounded-xl hover:bg-slate-50 transition border border-transparent hover:border-slate-200/60">
+                                <div class="flex items-center gap-3 min-w-0 pr-2">
+                                    <div class="h-10 w-10 shrink-0 rounded-lg overflow-hidden bg-slate-100 border border-slate-200/80">
+                                        <img 
+                                            src="{{ $item['product']->cover_path ? asset($item['product']->cover_path) : asset('images/logo-kltecnologia.png') }}" 
+                                            alt="{{ $item['product']->title }}" 
+                                            class="h-full w-full object-cover"
+                                            onerror="this.src='{{ asset('images/logo-kltecnologia.png') }}'"
+                                        >
+                                    </div>
+                                    <div class="min-w-0">
+                                        <a 
+                                            href="{{ route('storefront.show', $item['product']->slug) }}" 
+                                            target="_blank"
+                                            class="font-semibold text-xs text-slate-900 hover:text-teal-600 truncate block transition"
+                                        >
+                                            {{ $item['product']->title }}
+                                        </a>
+                                        <div class="text-[11px] font-mono text-slate-600 mt-0.5">
+                                            R$ {{ number_format((float) $item['product']->price, 2, ',', '.') }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="shrink-0 text-right">
+                                    <span class="inline-flex items-center gap-1 rounded-full bg-teal-50 border border-teal-200/60 px-2 py-0.5 text-[11px] font-bold text-teal-700">
+                                        {{ $item['views'] }} visualizações
+                                    </span>
+                                </div>
+                            </div>
+                        @empty
+                            <p class="text-xs text-slate-500 text-center py-6">Nenhum acesso registrado ainda.</p>
+                        @endforelse
+                    </div>
+                </div>
+
+                {{-- Top 5 Artigos do Blog Mais Lidos --}}
+                <div class="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+                        <div class="flex items-center gap-2">
+                            <span class="text-base">📚</span>
+                            <h3 class="font-display text-sm font-bold text-slate-900">
+                                Top Artigos Mais Lidos no Blog
+                            </h3>
+                        </div>
+                        <a href="{{ route('admin.posts.index') }}" class="text-xs font-bold text-teal-600 hover:text-teal-700">
+                            Ver posts &rarr;
+                        </a>
+                    </div>
+
+                    <div class="space-y-3">
+                        @forelse($traffic['topPosts'] as $item)
+                            <div class="flex items-center justify-between p-2.5 rounded-xl hover:bg-slate-50 transition border border-transparent hover:border-slate-200/60">
+                                <div class="min-w-0 pr-2">
+                                    @if($item['post']->blogCategory)
+                                        <span class="text-[10px] font-bold uppercase tracking-wider text-teal-600 block mb-0.5">
+                                            {{ $item['post']->blogCategory->name }}
+                                        </span>
+                                    @endif
+                                    <a 
+                                        href="{{ route('blog.show', $item['post']->slug) }}" 
+                                        target="_blank"
+                                        class="font-semibold text-xs text-slate-900 hover:text-teal-600 truncate block transition"
+                                    >
+                                        {{ $item['post']->title }}
+                                    </a>
+                                </div>
+                                <div class="shrink-0 text-right">
+                                    <span class="inline-flex items-center gap-1 rounded-full bg-indigo-50 border border-indigo-200/60 px-2 py-0.5 text-[11px] font-bold text-indigo-700">
+                                        {{ $item['views'] }} leituras
+                                    </span>
+                                </div>
+                            </div>
+                        @empty
+                            <p class="text-xs text-slate-500 text-center py-6">Nenhum artigo lido ainda.</p>
+                        @endforelse
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        {{-- 3. TABELA DE PEDIDOS RECENTES --}}
         <section class="rounded-2xl border border-slate-200/80 bg-white shadow-xs overflow-hidden">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-slate-100 p-5 sm:p-6 gap-3">
                 <div>

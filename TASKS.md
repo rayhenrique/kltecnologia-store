@@ -428,3 +428,20 @@
     - Resiliência com `try/catch` e logs detalhados, protegendo fluxos críticos de pagamento contra oscilações de SMTP.
   - [x] Atualizar suíte de testes Feature `OrderEmailTest` com validação de disparo do e-mail do admin para webhook aprovado, checkout gratuito, aprovação manual e renderização do template.
   - [x] Suíte de testes geral mantida com **193 testes aprovados (808 asserções)** e 100% de conformidade com o Laravel Pint.
+
+- [x] **Fase 36: Módulo Nativo de Métricas de Tráfego & Visitas no Painel Admin**
+  - [x] Criar migration `2026_09_15_120000_create_page_views_table.php` e tabela `page_views` indexada com suporte a hash anônimo (LGPD), dispositivos, rotas e relacionamento polimórfico com produtos e artigos do blog.
+  - [x] Criar Model `PageView` (`app/Models/PageView.php`) com escopos temporais (`today`, `yesterday`, `thisMonth`, `lastDays`).
+  - [x] Criar Middleware `TrackPageViews` (`app/Http/Middleware/TrackPageViews.php`) com execução assíncrona (`dispatchAfterResponse`) para latência zero, ignorando bots, rotas utilitárias e acessos de administradores.
+  - [x] Registrar middleware globalmente no grupo `web` em `bootstrap/app.php`.
+  - [x] Criar serviço `TrafficAnalyticsService` (`app/Services/TrafficAnalyticsService.php`) com consolidação de métricas:
+    - Visitas hoje e comparação com ontem.
+    - Visitantes únicos no mês e total de visualizações.
+    - Taxa de conversão da loja em tempo real (`pedidos pagos ÷ visitantes únicos`).
+    - Proporção de dispositivos (Mobile vs Desktop).
+    - Gráfico cronológico interativo de 14 dias com alturas proporcionais.
+    - Ranking dos Top 5 Produtos mais acessados nos últimos 30 dias.
+    - Ranking dos Top 5 Artigos mais lidos no blog.
+  - [x] Atualizar `DashboardController` (`app/Http/Controllers/Admin/DashboardController.php`) e template `resources/views/admin/dashboard.blade.php` com interface dark/light SaaS completa e responsiva.
+  - [x] Desenvolver suíte de testes automatizados `TrafficAnalyticsTest` (`tests/Feature/TrafficAnalyticsTest.php`).
+  - [x] Suíte geral elevada para **200 testes aprovados (832 asserções)** com 100% de conformidade com o Laravel Pint.
