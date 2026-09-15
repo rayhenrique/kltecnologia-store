@@ -1,128 +1,140 @@
 <x-storefront-layout>
     <x-slot:title>Checkout Seguro — Finalizar Compra</x-slot:title>
 
-    <div 
-        class="bg-slate-950 py-8 sm:py-12 min-h-[80vh]"
-        x-data="{
-            isDirectProduct: {{ $product ? 'true' : 'false' }},
-            items: @if($product) [
-                {
-                    id: {{ $product->id }},
-                    title: {{ json_encode($product->title, JSON_UNESCAPED_UNICODE) }},
-                    slug: {{ json_encode($product->slug, JSON_UNESCAPED_UNICODE) }},
-                    price: {{ (float) $product->price }},
-                    cover_image: {{ json_encode($product->cover_image, JSON_UNESCAPED_UNICODE) }},
-                    category: {{ json_encode($product->categoryGroup?->name ?? $product->category ?? 'Sistema Web', JSON_UNESCAPED_UNICODE) }}
-                }
-            ] @elseif(isset($oldItems) && $oldItems->isNotEmpty()) {!! json_encode($oldItems->values(), JSON_UNESCAPED_UNICODE) !!} @else [] @endif,
-            couponInput: '{{ old('coupon', '') }}',
-            appliedCoupon: null,
-            couponError: '',
-            couponSuccess: '',
-            loadingCoupon: false,
-            submitting: false,
-            acceptedTerms: {{ old('terms') ? 'true' : 'false' }},
-            showPassword: false,
-            showPasswordConfirm: false,
-            init() {
-                if (!this.isDirectProduct) {
-                    @if(isset($oldItems) && $oldItems->isNotEmpty())
-                        this.items = {!! json_encode($oldItems->values(), JSON_UNESCAPED_UNICODE) !!};
-                        try {
-                            localStorage.setItem('kl_cart', JSON.stringify(this.items));
-                            window.dispatchEvent(new CustomEvent('cart-updated', { detail: { count: this.items.length } }));
-                        } catch(e) {}
-                    @else
-                        try {
-                            const stored = JSON.parse(localStorage.getItem('kl_cart') || '[]');
-                            this.items = Array.isArray(stored) ? stored : [];
-                        } catch(e) {
-                            this.items = [];
+    @php
+        $initialItems = [];
+        if ($product) {
+            $initialItems = [[
+                'id' => $product->id,
+                'title' => $product->title,
+                'slug' => $product->slug,
+                'price' => (float) $product->price,
+                'cover_image' => $product->cover_image,
+                'category' => $product->categoryGroup?->name ?? $product->category ?? 'Sistema Web',
+            ]];
+        } elseif (!empty($oldItems) && $oldItems->isNotEmpty()) {
+            $initialItems = $oldItems->values()->all();
+        }
+    @endphp
+
+    <script>
+        function checkoutPage() {
+            return {
+                isDirectProduct: {{ $product ? 'true' : 'false' }},
+                items: @json($initialItems),
+                couponInput: @json(old('coupon', '')),
+                appliedCoupon: null,
+                couponError: '',
+                couponSuccess: '',
+                loadingCoupon: false,
+                submitting: false,
+                acceptedTerms: {{ old('terms') ? 'true' : 'false' }},
+                showPassword: false,
+                showPasswordConfirm: false,
+                init() {
+                    if (!this.isDirectProduct) {
+                        if (this.items && this.items.length > 0) {
+                            try {
+                                localStorage.setItem('kl_cart', JSON.stringify(this.items));
+                                window.dispatchEvent(new CustomEvent('cart-updated', { detail: { count: this.items.length } }));
+                            } catch (e) {}
+                        } else {
+                            try {
+                                const stored = JSON.parse(localStorage.getItem('kl_cart') || '[]');
+                                this.items = Array.isArray(stored) ? stored : [];
+                            } catch (e) {
+                                this.items = [];
+                            }
                         }
+                    }
+                    @if(old('coupon'))
+                        this.$nextTick(() => {
+                            this.applyCoupon();
+                        });
                     @endif
-                }
-                @if(old('coupon'))
-                    this.$nextTick(() => {
-                        this.applyCoupon();
-                    });
-                @endif
-            },
-            async applyCoupon() {
-                const code = this.couponInput.trim().toUpperCase();
-                this.couponError = '';
-                this.couponSuccess = '';
+                },
+                async applyCoupon() {
+                    const code = this.couponInput.trim().toUpperCase();
+                    this.couponError = '';
+                    this.couponSuccess = '';
 
-                if (!code) {
-                    this.couponError = 'Digite um código de cupom.';
-                    return;
-                }
-
-                this.loadingCoupon = true;
-
-                try {
-                    const payload = {
-                        code: code,
-                        product_id: this.isDirectProduct && this.items.length > 0 ? this.items[0].id : null,
-                        items: !this.isDirectProduct ? this.items.map(i => i.id) : []
-                    };
-
-                    const response = await fetch('{{ route('coupons.validate') }}', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                        },
-                        body: JSON.stringify(payload)
-                    });
-
-                    const data = await response.json();
-
-                    if (!response.ok || !data.valid) {
-                        this.couponError = data.message || 'Cupom inválido ou expirado.';
-                        this.appliedCoupon = null;
+                    if (!code) {
+                        this.couponError = 'Digite um código de cupom.';
                         return;
                     }
 
-                    this.appliedCoupon = {
-                        code: data.code,
-                        type: data.discount_type,
-                        value: data.discount_value,
-                        amount: data.discount_amount
-                    };
-                    this.couponSuccess = data.message;
-                    this.couponInput = '';
-                } catch (e) {
-                    this.couponError = 'Não foi possível validar o cupom no momento. Tente novamente.';
-                } finally {
-                    this.loadingCoupon = false;
+                    this.loadingCoupon = true;
+
+                    try {
+                        const payload = {
+                            code: code,
+                            product_id: this.isDirectProduct && this.items.length > 0 ? this.items[0].id : null,
+                            items: !this.isDirectProduct ? this.items.map(i => i.id) : []
+                        };
+
+                        const response = await fetch('{{ route('coupons.validate') }}', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            },
+                            body: JSON.stringify(payload)
+                        });
+
+                        const data = await response.json();
+
+                        if (!response.ok || !data.valid) {
+                            this.couponError = data.message || 'Cupom inválido ou expirado.';
+                            this.appliedCoupon = null;
+                            return;
+                        }
+
+                        this.appliedCoupon = {
+                            code: data.code,
+                            type: data.discount_type,
+                            value: data.discount_value,
+                            amount: data.discount_amount
+                        };
+                        this.couponSuccess = data.message;
+                        this.couponInput = '';
+                    } catch (e) {
+                        this.couponError = 'Não foi possível validar o cupom no momento. Tente novamente.';
+                    } finally {
+                        this.loadingCoupon = false;
+                    }
+                },
+                removeCoupon() {
+                    this.appliedCoupon = null;
+                    this.couponSuccess = '';
+                    this.couponError = '';
+                },
+                getSubtotal() {
+                    return this.items.reduce((sum, item) => sum + (parseFloat(item.price) || 0), 0);
+                },
+                getDiscount() {
+                    if (!this.appliedCoupon) return 0;
+                    if (this.appliedCoupon.type === 'percentage') {
+                        return Math.min(this.getSubtotal(), this.getSubtotal() * (this.appliedCoupon.value / 100));
+                    }
+                    return Math.min(this.getSubtotal(), parseFloat(this.appliedCoupon.amount) || 0);
+                },
+                getTotal() {
+                    return Math.max(0, this.getSubtotal() - this.getDiscount());
+                },
+                formatMoney(amount) {
+                    return 'R$ ' + (parseFloat(amount) || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                },
+                handleSubmit() {
+                    this.submitting = true;
                 }
-            },
-            removeCoupon() {
-                this.appliedCoupon = null;
-                this.couponSuccess = '';
-                this.couponError = '';
-            },
-            getSubtotal() {
-                return this.items.reduce((sum, item) => sum + (parseFloat(item.price) || 0), 0);
-            },
-            getDiscount() {
-                if (!this.appliedCoupon) return 0;
-                if (this.appliedCoupon.type === 'percentage') {
-                    return Math.min(this.getSubtotal(), this.getSubtotal() * (this.appliedCoupon.value / 100));
-                }
-                return Math.min(this.getSubtotal(), parseFloat(this.appliedCoupon.amount) || 0);
-            },
-            getTotal() {
-                return Math.max(0, this.getSubtotal() - this.getDiscount());
-            },
-            formatMoney(amount) {
-                return 'R$ ' + (parseFloat(amount) || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-            },
-            handleSubmit() {
-                this.submitting = true;
-            }
-        }"
+            };
+        }
+    </script>
+
+    <div 
+        class="bg-slate-950 py-8 sm:py-12 min-h-[80vh]"
+        x-data="checkoutPage()"
     >
         <div class="page-container">
             {{-- Breadcrumbs --}}
