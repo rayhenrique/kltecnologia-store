@@ -140,4 +140,19 @@ class SeoAndSitemapTest extends TestCase
         $response->assertSee('content="article"', false);
         $response->assertSee('content="'.route('blog.show', $post->slug).'"', false);
     }
+
+    public function test_storefront_renders_google_verification_and_analytics_when_configured(): void
+    {
+        config([
+            'services.google.site_verification' => 'test-verification-code-12345',
+            'services.google.analytics_id' => 'G-ABC123XYZ',
+        ]);
+
+        $response = $this->get('/');
+
+        $response->assertStatus(200);
+        $response->assertSee('<meta name="google-site-verification" content="test-verification-code-12345">', false);
+        $response->assertSee('https://www.googletagmanager.com/gtag/js?id=G-ABC123XYZ', false);
+        $response->assertSee("gtag('config', 'G-ABC123XYZ');", false);
+    }
 }

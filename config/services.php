@@ -43,4 +43,9 @@ return [
         'base_url' => env('MERCADO_PAGO_BASE_URL', 'https://api.mercadopago.com'),
     ],
 
+    'google' => [
+        'analytics_id' => env('GOOGLE_ANALYTICS_ID'),
+        'site_verification' => env('GOOGLE_SITE_VERIFICATION'),
+    ],
+
 ];

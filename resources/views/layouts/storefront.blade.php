@@ -16,6 +16,21 @@
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="{{ $canonical ?? url()->current() }}">
 
+    @if(config('services.google.site_verification'))
+        <meta name="google-site-verification" content="{{ config('services.google.site_verification') }}">
+    @endif
+
+    @if(config('services.google.analytics_id'))
+        <!-- Google tag (gtag.js) -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id={{ config('services.google.analytics_id') }}"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', '{{ config('services.google.analytics_id') }}');
+        </script>
+    @endif
+
     {{-- Open Graph & Twitter Card --}}
     <meta property="og:type" content="{{ $ogType }}">
     <meta property="og:title" content="{{ !empty($title) ? $title.' | ' : '' }}{{ config('app.name', 'KL Tecnologia') }}">
