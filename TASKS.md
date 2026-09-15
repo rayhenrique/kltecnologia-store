@@ -476,4 +476,20 @@
   - [x] Desenvolver suíte de testes Feature `AdminCustomerTest` (`tests/Feature/AdminCustomerTest.php`) com 11 testes cobrindo permissões, busca, filtros, CRUD e regras de integridade contábil na exclusão.
   - [x] Suíte de testes geral elevada para **221 testes aprovados (903 asserções)** com 100% de conformidade com o Laravel Pint.
 
+- [x] **Fase 39: CRUD Completo do Módulo de Newsletter no Painel Admin**
+  - [x] Atualizar `NewsletterSubscriberPolicy` (`app/Policies/NewsletterSubscriberPolicy.php`) com métodos `create` e `update`.
+  - [x] Criar Form Requests `StoreNewsletterSubscriberRequest` e `UpdateNewsletterSubscriberRequest` com validações de e-mail e regras de unicidade seguras.
+  - [x] Atualizar Model `NewsletterSubscriber` (`app/Models/NewsletterSubscriber.php`) com relacionamentos `sendLogs()` e `user()`, e accessor `unsubscribe_url`.
+  - [x] Expandir `Admin\NewsletterSubscriberController` (`app/Http/Controllers/Admin/NewsletterSubscriberController.php`) com métodos `index`, `create`, `store`, `show`, `edit`, `update`, `toggleStatus`, `destroy` e `export`.
+  - [x] Registrar rotas do recurso `newsletter` e endpoint rápido `newsletter.toggle-status` em `routes/web.php`.
+  - [x] Desenvolver views Blade no padrão SaaS dark/light:
+    - `index.blade.php`: Listagem com métricas, busca, filtro por status, botão "+ Novo Inscrito", e ações de Ver Detalhes, Editar, Toggle de Status e Excluir.
+    - `_form.blade.php`: Formulário compartilhado com e-mail, status, data de inscrição e aviso explicativo sobre LGPD e anti-spam.
+    - `create.blade.php`: Interface para cadastro manual de novos inscritos.
+    - `edit.blade.php`: Interface para edição de e-mail e status.
+    - `show.blade.php`: Painel detalhado do lead com metadados técnicos, vínculo com cliente cadastrado na loja, link assinado de cancelamento (opt-out) e histórico completo de notificações de novos produtos/posts recebidas.
+  - [x] Desenvolver suíte de testes Feature `AdminNewsletterTest` (`tests/Feature/AdminNewsletterTest.php`) com 12 testes cobrindo permissões, listagem, filtros, CRUD completo, restauração de soft deletes, histórico de envios e exportação CSV.
+  - [x] Suíte de testes geral elevada para **228 testes aprovados (968 asserções)** com 100% de conformidade com o Laravel Pint.
+
+
 

@@ -17,6 +17,16 @@ class NewsletterSubscriberPolicy
         return $user->isAdmin();
     }
 
+    public function create(User $user): bool
+    {
+        return $user->isAdmin();
+    }
+
+    public function update(User $user, NewsletterSubscriber $subscriber): bool
+    {
+        return $user->isAdmin();
+    }
+
     public function delete(User $user, NewsletterSubscriber $subscriber): bool
     {
         return $user->isAdmin();

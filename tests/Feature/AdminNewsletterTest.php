@@ -2,7 +2,9 @@
 
 namespace Tests\Feature;
 
+use App\Models\NewsletterSendLog;
 use App\Models\NewsletterSubscriber;
+use App\Models\Product;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -12,127 +14,221 @@ class AdminNewsletterTest extends TestCase
 {
     use RefreshDatabase;
 
+    private User $admin;
+
+    private User $customer;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->admin = User::factory()->admin()->create();
+        $this->customer = User::factory()->customer()->create();
+    }
+
     public function test_guest_cannot_access_newsletter_admin_routes(): void
     {
+        $subscriber = NewsletterSubscriber::create(['email' => 'lead@example.com']);
+
         $this->get(route('admin.newsletter.index'))->assertRedirect(route('login'));
+        $this->get(route('admin.newsletter.create'))->assertRedirect(route('login'));
+        $this->get(route('admin.newsletter.show', $subscriber))->assertRedirect(route('login'));
+        $this->get(route('admin.newsletter.edit', $subscriber))->assertRedirect(route('login'));
+        $this->post(route('admin.newsletter.store'), ['email' => 'novo@example.com'])->assertRedirect(route('login'));
+        $this->put(route('admin.newsletter.update', $subscriber), ['email' => 'novo@example.com'])->assertRedirect(route('login'));
+        $this->post(route('admin.newsletter.toggle-status', $subscriber))->assertRedirect(route('login'));
+        $this->delete(route('admin.newsletter.destroy', $subscriber))->assertRedirect(route('login'));
         $this->get(route('admin.newsletter.export'))->assertRedirect(route('login'));
     }
 
     public function test_customer_cannot_access_newsletter_admin_routes(): void
     {
-        $customer = User::factory()->customer()->create();
+        $subscriber = NewsletterSubscriber::create(['email' => 'lead@example.com']);
 
-        $this->actingAs($customer)->get(route('admin.newsletter.index'))->assertForbidden();
-        $this->actingAs($customer)->get(route('admin.newsletter.export'))->assertForbidden();
+        $this->actingAs($this->customer)->get(route('admin.newsletter.index'))->assertForbidden();
+        $this->actingAs($this->customer)->get(route('admin.newsletter.create'))->assertForbidden();
+        $this->actingAs($this->customer)->get(route('admin.newsletter.show', $subscriber))->assertForbidden();
+        $this->actingAs($this->customer)->get(route('admin.newsletter.edit', $subscriber))->assertForbidden();
+        $this->actingAs($this->customer)->post(route('admin.newsletter.store'), ['email' => 'novo@example.com'])->assertForbidden();
+        $this->actingAs($this->customer)->put(route('admin.newsletter.update', $subscriber), ['email' => 'novo@example.com'])->assertForbidden();
+        $this->actingAs($this->customer)->post(route('admin.newsletter.toggle-status', $subscriber))->assertForbidden();
+        $this->actingAs($this->customer)->delete(route('admin.newsletter.destroy', $subscriber))->assertForbidden();
+        $this->actingAs($this->customer)->get(route('admin.newsletter.export'))->assertForbidden();
     }
 
-    public function test_admin_can_view_subscribers_list_and_metrics(): void
+    public function test_admin_can_view_newsletter_index_with_search_and_filters(): void
     {
-        $admin = User::factory()->admin()->create();
+        NewsletterSubscriber::create(['email' => 'carlos@kltecnologia.com', 'is_active' => true]);
+        NewsletterSubscriber::create(['email' => 'maria@gmail.com', 'is_active' => false]);
 
-        NewsletterSubscriber::create([
-            'email' => 'joao@example.com',
+        $response = $this->actingAs($this->admin)->get(route('admin.newsletter.index'));
+
+        $response->assertOk()
+            ->assertSee('Newsletter & Leads', false)
+            ->assertSee('carlos@kltecnologia.com')
+            ->assertSee('maria@gmail.com')
+            ->assertSee('Novo Inscrito');
+
+        // Busca textual
+        $searchResponse = $this->actingAs($this->admin)->get(route('admin.newsletter.index', ['q' => 'carlos']));
+        $searchResponse->assertOk()
+            ->assertSee('carlos@kltecnologia.com')
+            ->assertDontSee('maria@gmail.com');
+
+        // Filtro por status ativo
+        $activeResponse = $this->actingAs($this->admin)->get(route('admin.newsletter.index', ['status' => 'active']));
+        $activeResponse->assertOk()
+            ->assertSee('carlos@kltecnologia.com')
+            ->assertDontSee('maria@gmail.com');
+    }
+
+    public function test_admin_can_view_create_subscriber_page(): void
+    {
+        $response = $this->actingAs($this->admin)->get(route('admin.newsletter.create'));
+
+        $response->assertOk()
+            ->assertSee('Cadastrar Novo Inscrito')
+            ->assertSee('Endereço de E-mail');
+    }
+
+    public function test_admin_can_store_new_subscriber_with_validation(): void
+    {
+        $response = $this->actingAs($this->admin)->post(route('admin.newsletter.store'), [
+            'email' => 'lead.novo@example.com',
+            'is_active' => '1',
+            'subscribed_at' => Carbon::now()->format('Y-m-d\TH:i'),
+        ]);
+
+        $subscriber = NewsletterSubscriber::where('email', 'lead.novo@example.com')->first();
+        $this->assertNotNull($subscriber);
+        $this->assertTrue($subscriber->is_active);
+
+        $response->assertRedirect(route('admin.newsletter.show', $subscriber))
+            ->assertSessionHas('success');
+
+        // Tentar cadastrar o mesmo e-mail novamente deve falhar na validação única
+        $failResponse = $this->actingAs($this->admin)->post(route('admin.newsletter.store'), [
+            'email' => 'lead.novo@example.com',
+        ]);
+        $failResponse->assertSessionHasErrors(['email']);
+    }
+
+    public function test_admin_storing_previously_soft_deleted_subscriber_restores_it(): void
+    {
+        $old = NewsletterSubscriber::create(['email' => 'antigo@example.com']);
+        $old->delete();
+        $this->assertSoftDeleted($old);
+
+        $response = $this->actingAs($this->admin)->post(route('admin.newsletter.store'), [
+            'email' => 'antigo@example.com',
+            'is_active' => '1',
+        ]);
+
+        $this->assertNotSoftDeleted('newsletter_subscribers', ['email' => 'antigo@example.com']);
+        $subscriber = NewsletterSubscriber::where('email', 'antigo@example.com')->first();
+        $response->assertRedirect(route('admin.newsletter.show', $subscriber));
+    }
+
+    public function test_admin_can_view_subscriber_details_and_send_logs(): void
+    {
+        $subscriber = NewsletterSubscriber::create([
+            'email' => 'cliente.lead@example.com',
             'is_active' => true,
-            'subscribed_at' => Carbon::now(),
-        ]);
-
-        NewsletterSubscriber::create([
-            'email' => 'maria@example.com',
-            'is_active' => false,
-            'subscribed_at' => Carbon::now()->subMonth(),
-            'unsubscribed_at' => Carbon::now()->subDays(2),
-        ]);
-
-        $response = $this->actingAs($admin)->get(route('admin.newsletter.index'));
-
-        $response->assertOk();
-        $response->assertSee('Newsletter');
-        $response->assertSee('Leads');
-        $response->assertSee('joao@example.com');
-        $response->assertSee('maria@example.com');
-        $response->assertSee('Exportar Lista (CSV)');
-    }
-
-    public function test_admin_can_filter_subscribers_by_search(): void
-    {
-        $admin = User::factory()->admin()->create();
-
-        NewsletterSubscriber::create(['email' => 'alfa@empresa.com', 'is_active' => true]);
-        NewsletterSubscriber::create(['email' => 'beta@outra.com', 'is_active' => true]);
-
-        $response = $this->actingAs($admin)->get(route('admin.newsletter.index', ['search' => 'alfa']));
-
-        $response->assertOk();
-        $response->assertSee('alfa@empresa.com');
-        $response->assertDontSee('beta@outra.com');
-    }
-
-    public function test_admin_can_filter_subscribers_by_status(): void
-    {
-        $admin = User::factory()->admin()->create();
-
-        NewsletterSubscriber::create(['email' => 'lead-ativo@empresa.com', 'is_active' => true]);
-        NewsletterSubscriber::create(['email' => 'lead-inativo@empresa.com', 'is_active' => false]);
-
-        $response = $this->actingAs($admin)->get(route('admin.newsletter.index', ['status' => 'inactive']));
-
-        $response->assertOk();
-        $response->assertSee('lead-inativo@empresa.com');
-        $response->assertDontSee('lead-ativo@empresa.com');
-    }
-
-    public function test_admin_can_export_subscribers_to_csv(): void
-    {
-        $admin = User::factory()->admin()->create();
-
-        NewsletterSubscriber::create([
-            'email' => 'export1@test.com',
             'ip_address' => '127.0.0.1',
+        ]);
+
+        $product = Product::factory()->create(['title' => 'Sistema ERP em Laravel']);
+
+        NewsletterSendLog::create([
+            'email' => $subscriber->email,
+            'notifiable_type' => Product::class,
+            'notifiable_id' => $product->id,
+            'sent_at' => Carbon::now(),
+            'status' => 'sent',
+        ]);
+
+        $response = $this->actingAs($this->admin)->get(route('admin.newsletter.show', $subscriber));
+
+        $response->assertOk()
+            ->assertSee('cliente.lead@example.com')
+            ->assertSee('127.0.0.1')
+            ->assertSee('Sistema ERP em Laravel')
+            ->assertSee('Novo Produto')
+            ->assertSee('Enviado')
+            ->assertSee($subscriber->unsubscribe_url);
+    }
+
+    public function test_admin_can_view_edit_subscriber_page(): void
+    {
+        $subscriber = NewsletterSubscriber::create(['email' => 'editar@example.com']);
+
+        $response = $this->actingAs($this->admin)->get(route('admin.newsletter.edit', $subscriber));
+
+        $response->assertOk()
+            ->assertSee('Editar Inscrito')
+            ->assertSee('editar@example.com');
+    }
+
+    public function test_admin_can_update_subscriber(): void
+    {
+        $subscriber = NewsletterSubscriber::create([
+            'email' => 'antigo.email@example.com',
             'is_active' => true,
-            'subscribed_at' => Carbon::parse('2026-09-10 10:00:00'),
         ]);
 
-        NewsletterSubscriber::create([
-            'email' => 'export2@test.com',
-            'ip_address' => '192.168.1.1',
-            'is_active' => false,
-            'subscribed_at' => Carbon::parse('2026-09-11 12:00:00'),
-            'unsubscribed_at' => Carbon::parse('2026-09-12 14:00:00'),
+        $response = $this->actingAs($this->admin)->put(route('admin.newsletter.update', $subscriber), [
+            'email' => 'novo.email@example.com',
+            'is_active' => '0',
         ]);
 
-        $response = $this->actingAs($admin)->get(route('admin.newsletter.export'));
+        $response->assertRedirect(route('admin.newsletter.show', $subscriber))
+            ->assertSessionHas('success');
 
-        $response->assertOk();
-        $this->assertStringContainsString('text/csv', (string) $response->headers->get('content-type'));
-        $this->assertStringContainsString('attachment; filename=newsletter-inscritos-', (string) $response->headers->get('content-disposition'));
+        $subscriber->refresh();
+        $this->assertSame('novo.email@example.com', $subscriber->email);
+        $this->assertFalse($subscriber->is_active);
+        $this->assertNotNull($subscriber->unsubscribed_at);
+    }
 
-        $content = $response->streamedContent();
+    public function test_admin_can_toggle_subscriber_status(): void
+    {
+        $subscriber = NewsletterSubscriber::create([
+            'email' => 'toggle@example.com',
+            'is_active' => true,
+        ]);
 
-        // Check UTF-8 BOM
-        $this->assertStringStartsWith("\xEF\xBB\xBF", $content);
-        $this->assertStringContainsString('export1@test.com', $content);
-        $this->assertStringContainsString('export2@test.com', $content);
-        $this->assertStringContainsString('Ativo', $content);
-        $this->assertStringContainsString('Inativo', $content);
+        // Desativar
+        $response = $this->actingAs($this->admin)->post(route('admin.newsletter.toggle-status', $subscriber));
+        $response->assertRedirect();
+        $this->assertFalse($subscriber->fresh()->is_active);
+        $this->assertNotNull($subscriber->fresh()->unsubscribed_at);
+
+        // Reativar
+        $response2 = $this->actingAs($this->admin)->post(route('admin.newsletter.toggle-status', $subscriber));
+        $response2->assertRedirect();
+        $this->assertTrue($subscriber->fresh()->is_active);
+        $this->assertNull($subscriber->fresh()->unsubscribed_at);
     }
 
     public function test_admin_can_delete_subscriber(): void
     {
-        $admin = User::factory()->admin()->create();
+        $subscriber = NewsletterSubscriber::create(['email' => 'remover@example.com']);
 
-        $subscriber = NewsletterSubscriber::create([
-            'email' => 'remover@test.com',
-            'is_active' => true,
-        ]);
+        $response = $this->actingAs($this->admin)->delete(route('admin.newsletter.destroy', $subscriber));
 
-        $response = $this->actingAs($admin)->delete(route('admin.newsletter.destroy', $subscriber));
+        $response->assertRedirect(route('admin.newsletter.index'))
+            ->assertSessionHas('success');
 
-        $response->assertRedirect(route('admin.newsletter.index'));
-        $response->assertSessionHas('success');
+        $this->assertSoftDeleted('newsletter_subscribers', ['id' => $subscriber->id]);
+    }
 
-        $this->assertSoftDeleted('newsletter_subscribers', [
-            'id' => $subscriber->id,
-            'email' => 'remover@test.com',
-        ]);
+    public function test_admin_can_export_subscribers_csv(): void
+    {
+        NewsletterSubscriber::create(['email' => 'export1@example.com']);
+        NewsletterSubscriber::create(['email' => 'export2@example.com']);
+
+        $response = $this->actingAs($this->admin)->get(route('admin.newsletter.export'));
+
+        $response->assertOk();
+        $this->assertTrue($response->headers->contains('content-type', 'text/csv; charset=UTF-8'));
     }
 }

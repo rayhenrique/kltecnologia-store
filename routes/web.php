@@ -71,8 +71,8 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'verified', 'admin']
     Route::resource('orders', AdminOrderController::class);
     Route::resource('customers', AdminCustomerController::class);
     Route::get('/newsletter/export', [AdminNewsletterSubscriberController::class, 'export'])->name('newsletter.export');
-    Route::get('/newsletter', [AdminNewsletterSubscriberController::class, 'index'])->name('newsletter.index');
-    Route::delete('/newsletter/{subscriber}', [AdminNewsletterSubscriberController::class, 'destroy'])->name('newsletter.destroy');
+    Route::post('/newsletter/{subscriber}/toggle-status', [AdminNewsletterSubscriberController::class, 'toggleStatus'])->name('newsletter.toggle-status');
+    Route::resource('newsletter', AdminNewsletterSubscriberController::class)->parameters(['newsletter' => 'subscriber']);
 });
 
 require __DIR__.'/auth.php';

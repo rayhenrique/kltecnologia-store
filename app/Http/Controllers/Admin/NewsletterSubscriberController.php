@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\StoreNewsletterSubscriberRequest;
+use App\Http\Requests\Admin\UpdateNewsletterSubscriberRequest;
 use App\Http\Requests\ListFilterRequest;
 use App\Models\NewsletterSubscriber;
 use Carbon\Carbon;
@@ -48,6 +50,121 @@ class NewsletterSubscriberController extends Controller
             'search' => $search,
             'currentStatus' => $status,
         ]);
+    }
+
+    public function create(): View
+    {
+        Gate::authorize('create', NewsletterSubscriber::class);
+
+        return view('admin.newsletter.create');
+    }
+
+    public function store(StoreNewsletterSubscriberRequest $request): RedirectResponse
+    {
+        Gate::authorize('create', NewsletterSubscriber::class);
+
+        $data = $request->validated();
+        $email = strtolower(trim((string) $data['email']));
+        $isActive = $request->boolean('is_active', true);
+        $subscribedAt = ! empty($data['subscribed_at']) ? Carbon::parse($data['subscribed_at']) : Carbon::now();
+
+        $subscriber = NewsletterSubscriber::withTrashed()->where('email', $email)->first();
+
+        if ($subscriber) {
+            $subscriber->restore();
+            $subscriber->update([
+                'is_active' => $isActive,
+                'subscribed_at' => $subscribedAt,
+                'unsubscribed_at' => $isActive ? null : Carbon::now(),
+                'ip_address' => $subscriber->ip_address ?? $request->ip() ?? 'Admin Manual',
+                'user_agent' => $subscriber->user_agent ?? 'Painel Admin',
+            ]);
+        } else {
+            $subscriber = NewsletterSubscriber::create([
+                'email' => $email,
+                'is_active' => $isActive,
+                'subscribed_at' => $subscribedAt,
+                'unsubscribed_at' => $isActive ? null : Carbon::now(),
+                'ip_address' => $request->ip() ?? 'Admin Manual',
+                'user_agent' => 'Painel Admin',
+            ]);
+        }
+
+        return redirect()->route('admin.newsletter.show', $subscriber)
+            ->with('success', "Inscrito {$subscriber->email} cadastrado com sucesso!");
+    }
+
+    public function show(NewsletterSubscriber $subscriber): View
+    {
+        Gate::authorize('view', $subscriber);
+
+        $subscriber->load([
+            'sendLogs' => fn ($q) => $q->latest('sent_at')->with('notifiable'),
+            'user',
+        ]);
+
+        return view('admin.newsletter.show', [
+            'subscriber' => $subscriber,
+        ]);
+    }
+
+    public function edit(NewsletterSubscriber $subscriber): View
+    {
+        Gate::authorize('update', $subscriber);
+
+        return view('admin.newsletter.edit', [
+            'subscriber' => $subscriber,
+        ]);
+    }
+
+    public function update(UpdateNewsletterSubscriberRequest $request, NewsletterSubscriber $subscriber): RedirectResponse
+    {
+        Gate::authorize('update', $subscriber);
+
+        $data = $request->validated();
+        $isActive = $request->boolean('is_active');
+        $subscribedAt = ! empty($data['subscribed_at']) ? Carbon::parse($data['subscribed_at']) : $subscriber->subscribed_at;
+
+        $unsubscribedAt = $subscriber->unsubscribed_at;
+        if ($isActive && ! $subscriber->is_active) {
+            $unsubscribedAt = null;
+        } elseif (! $isActive && $subscriber->is_active) {
+            $unsubscribedAt = Carbon::now();
+        }
+
+        $subscriber->update([
+            'email' => strtolower(trim((string) $data['email'])),
+            'is_active' => $isActive,
+            'subscribed_at' => $subscribedAt,
+            'unsubscribed_at' => $unsubscribedAt,
+        ]);
+
+        return redirect()->route('admin.newsletter.show', $subscriber)
+            ->with('success', "Inscrição de {$subscriber->email} atualizada com sucesso!");
+    }
+
+    public function toggleStatus(NewsletterSubscriber $subscriber): RedirectResponse
+    {
+        Gate::authorize('update', $subscriber);
+
+        $subscriber->is_active = ! $subscriber->is_active;
+        $subscriber->unsubscribed_at = $subscriber->is_active ? null : Carbon::now();
+        $subscriber->save();
+
+        $statusLabel = $subscriber->is_active ? 'ativada' : 'desativada';
+
+        return back()->with('success', "Inscrição de {$subscriber->email} foi {$statusLabel} com sucesso.");
+    }
+
+    public function destroy(NewsletterSubscriber $subscriber): RedirectResponse
+    {
+        Gate::authorize('delete', $subscriber);
+
+        $email = $subscriber->email;
+        $subscriber->delete();
+
+        return redirect()->route('admin.newsletter.index')
+            ->with('success', "Inscrição de {$email} removida com sucesso.");
     }
 
     public function export(ListFilterRequest $request): StreamedResponse
@@ -102,15 +219,5 @@ class NewsletterSubscriberController extends Controller
             'Pragma' => 'no-cache',
             'Expires' => '0',
         ]);
-    }
-
-    public function destroy(NewsletterSubscriber $subscriber): RedirectResponse
-    {
-        Gate::authorize('delete', $subscriber);
-
-        $subscriber->delete();
-
-        return redirect()->route('admin.newsletter.index')
-            ->with('success', "Inscrição de {$subscriber->email} removida com sucesso.");
     }
 }

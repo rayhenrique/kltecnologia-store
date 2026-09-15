@@ -2,9 +2,12 @@
 
 namespace App\Models;
 
+use App\Services\NewsletterService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class NewsletterSubscriber extends Model
@@ -56,5 +59,26 @@ class NewsletterSubscriber extends Model
             'subscribed_at' => 'datetime',
             'unsubscribed_at' => 'datetime',
         ];
+    }
+
+    /**
+     * @return HasMany<NewsletterSendLog, $this>
+     */
+    public function sendLogs(): HasMany
+    {
+        return $this->hasMany(NewsletterSendLog::class, 'email', 'email');
+    }
+
+    /**
+     * @return HasOne<User, $this>
+     */
+    public function user(): HasOne
+    {
+        return $this->hasOne(User::class, 'email', 'email');
+    }
+
+    public function getUnsubscribeUrlAttribute(): string
+    {
+        return app(NewsletterService::class)->generateUnsubscribeUrl($this->email);
     }
 }
