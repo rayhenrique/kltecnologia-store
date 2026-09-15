@@ -56,5 +56,14 @@
             </div>
         </div>
     </footer>
+
+    @if(session('clear_cart'))
+        <script>
+            try {
+                localStorage.removeItem('kl_cart');
+                window.dispatchEvent(new CustomEvent('cart-updated', { detail: { count: 0, items: [] } }));
+            } catch (e) {}
+        </script>
+    @endif
 </body>
 </html>

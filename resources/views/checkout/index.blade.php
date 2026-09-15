@@ -14,8 +14,8 @@
                     cover_image: {{ json_encode($product->cover_image, JSON_UNESCAPED_UNICODE) }},
                     category: {{ json_encode($product->categoryGroup?->name ?? $product->category ?? 'Sistema Web', JSON_UNESCAPED_UNICODE) }}
                 }
-            ] @else [] @endif,
-            couponInput: '',
+            ] @elseif(isset($oldItems) && $oldItems->isNotEmpty()) {!! json_encode($oldItems->values(), JSON_UNESCAPED_UNICODE) !!} @else [] @endif,
+            couponInput: '{{ old('coupon', '') }}',
             appliedCoupon: null,
             couponError: '',
             couponSuccess: '',
@@ -26,13 +26,26 @@
             showPasswordConfirm: false,
             init() {
                 if (!this.isDirectProduct) {
-                    try {
-                        const stored = JSON.parse(localStorage.getItem('kl_cart') || '[]');
-                        this.items = Array.isArray(stored) ? stored : [];
-                    } catch(e) {
-                        this.items = [];
-                    }
+                    @if(isset($oldItems) && $oldItems->isNotEmpty())
+                        this.items = {!! json_encode($oldItems->values(), JSON_UNESCAPED_UNICODE) !!};
+                        try {
+                            localStorage.setItem('kl_cart', JSON.stringify(this.items));
+                            window.dispatchEvent(new CustomEvent('cart-updated', { detail: { count: this.items.length } }));
+                        } catch(e) {}
+                    @else
+                        try {
+                            const stored = JSON.parse(localStorage.getItem('kl_cart') || '[]');
+                            this.items = Array.isArray(stored) ? stored : [];
+                        } catch(e) {
+                            this.items = [];
+                        }
+                    @endif
                 }
+                @if(old('coupon'))
+                    this.$nextTick(() => {
+                        this.applyCoupon();
+                    });
+                @endif
             },
             async applyCoupon() {
                 const code = this.couponInput.trim().toUpperCase();
@@ -108,11 +121,6 @@
             },
             handleSubmit() {
                 this.submitting = true;
-                // Esvazia carrinho local caso compra seja iniciada com sucesso
-                if (!this.isDirectProduct) {
-                    localStorage.removeItem('kl_cart');
-                    window.dispatchEvent(new CustomEvent('cart-updated', { detail: { count: 0 } }));
-                }
             }
         }"
     >

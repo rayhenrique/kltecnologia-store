@@ -965,6 +965,15 @@
         };
     </script>
 
+    @if(session('clear_cart'))
+        <script>
+            try {
+                localStorage.removeItem('kl_cart');
+                window.dispatchEvent(new CustomEvent('cart-updated', { detail: { count: 0, items: [] } }));
+            } catch (e) {}
+        </script>
+    @endif
+
     {{-- Aviso e Gerenciador de Cookies LGPD --}}
     <x-cookie-consent />
 </body>

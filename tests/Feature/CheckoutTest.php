@@ -359,4 +359,45 @@ class CheckoutTest extends TestCase
             ->assertSee('Política de Privacidade')
             ->assertSee('name="terms"', false);
     }
+
+    public function test_checkout_validation_failure_preserves_cart_items_and_rehydrates_view(): void
+    {
+        $product = Product::factory()->create([
+            'title' => 'Painel SaaS Pro',
+            'price' => '149.90',
+            'is_active' => true,
+        ]);
+
+        // Simula submissão falha (como no relato do usuário: sem nome, sem CPF, email existente ou inválido)
+        $postResponse = $this->from(route('checkout.index'))->post(route('checkout.process'), [
+            'items' => [$product->id],
+            'name' => '',
+            'email' => 'invalid-email',
+            'cpf' => '',
+            'phone' => '',
+            'password' => '12345678',
+            'password_confirmation' => 'diferente',
+            'terms' => '1',
+        ]);
+
+        $postResponse->assertRedirect(route('checkout.index'))
+            ->assertSessionHasErrors(['name', 'email', 'cpf', 'phone', 'password'])
+            ->assertSessionHas('_old_input.items', [$product->id]);
+
+        // Segue o redirecionamento com a sessão e old input
+        $indexResponse = $this->get(route('checkout.index'));
+        $indexResponse->assertOk()
+            ->assertViewHas('oldItems', fn ($oldItems) => $oldItems->contains('id', $product->id))
+            ->assertSee('Painel SaaS Pro');
+    }
+
+    public function test_checkout_return_flashes_clear_cart_flag_when_successful(): void
+    {
+        $customer = User::factory()->customer()->create();
+
+        $response = $this->actingAs($customer)->get(route('checkout.return', ['status' => 'success']));
+
+        $response->assertRedirect(route('customer.downloads'))
+            ->assertSessionHas('clear_cart', true);
+    }
 }

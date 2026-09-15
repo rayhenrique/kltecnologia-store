@@ -23,10 +23,31 @@ class CheckoutController extends Controller
             $product = Product::where('slug', (string) $request->validated('product'))
                 ->availableForSale()
                 ->first();
+        } elseif (old('product_id')) {
+            $product = Product::where('id', old('product_id'))
+                ->availableForSale()
+                ->first();
+        }
+
+        $oldItems = collect();
+        if (old('items') && is_array(old('items'))) {
+            $oldItems = Product::query()
+                ->whereIn('id', old('items'))
+                ->availableForSale()
+                ->get()
+                ->map(fn (Product $p) => [
+                    'id' => $p->id,
+                    'title' => $p->title,
+                    'slug' => $p->slug,
+                    'price' => (float) $p->price,
+                    'cover_image' => $p->cover_image,
+                    'category' => $p->categoryGroup?->name ?? $p->category ?? 'Sistema Web',
+                ]);
         }
 
         return view('checkout.index', [
             'product' => $product,
+            'oldItems' => $oldItems,
             'user' => $request->user(),
         ]);
     }
@@ -38,7 +59,8 @@ class CheckoutController extends Controller
 
             if ($result['is_free']) {
                 return redirect($result['url'])
-                    ->with('success', 'Produto liberado com sucesso! Seu download gratuito já está disponível abaixo.');
+                    ->with('success', 'Produto liberado com sucesso! Seu download gratuito já está disponível abaixo.')
+                    ->with('clear_cart', true);
             }
 
             return redirect()->away($result['url']);
@@ -60,7 +82,8 @@ class CheckoutController extends Controller
 
             if ($result['is_free']) {
                 return redirect($result['url'])
-                    ->with('success', 'Produto liberado com sucesso! Seu download gratuito já está disponível abaixo.');
+                    ->with('success', 'Produto liberado com sucesso! Seu download gratuito já está disponível abaixo.')
+                    ->with('clear_cart', true);
             }
 
             return redirect()->away($result['url']);
@@ -79,10 +102,16 @@ class CheckoutController extends Controller
             default => 'O pagamento não foi concluído. Você pode tentar novamente.',
         };
 
+        $isSuccessful = in_array($request->validated('status'), ['success', 'pending'], true);
+
         if ($request->user()) {
-            return redirect()->route('customer.downloads')->with('success', $message);
+            return redirect()->route('customer.downloads')
+                ->with('success', $message)
+                ->with('clear_cart', $isSuccessful);
         }
 
-        return redirect()->route('login')->with('success', $message);
+        return redirect()->route('login')
+            ->with('success', $message)
+            ->with('clear_cart', $isSuccessful);
     }
 }
