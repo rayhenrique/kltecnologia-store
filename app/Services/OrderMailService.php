@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Mail\AdminNewOrderMail;
 use App\Mail\OrderPaidMail;
 use App\Mail\OrderPendingMail;
 use App\Mail\WelcomeCustomerMail;
@@ -95,6 +96,9 @@ class OrderMailService
             return false;
         }
 
+        // Notifica o administrador sobre a nova venda realizada
+        $this->sendAdminOrderPaidEmail($user, $orderCollection);
+
         try {
             Mail::to($user->email)->send(new OrderPaidMail($user, $orderCollection));
 
@@ -107,6 +111,45 @@ class OrderMailService
         } catch (Throwable $exception) {
             Log::error('Erro ao enviar e-mail de pagamento confirmado ao cliente.', [
                 'user_id' => $user->id,
+                'order_ids' => $orderCollection->pluck('id')->all(),
+                'error' => $exception->getMessage(),
+            ]);
+
+            return false;
+        }
+    }
+
+    /**
+     * Dispara e-mail de notificação de nova compra para o administrador da loja.
+     *
+     * @param  Collection<int, Order>|array<int, Order>|Order  $orders
+     */
+    public function sendAdminOrderPaidEmail(User $customer, Collection|array|Order $orders): bool
+    {
+        $adminEmail = config('mail.admin_email', 'rayhenrique@gmail.com');
+        if (empty($adminEmail)) {
+            return false;
+        }
+
+        $orderCollection = $this->normalizeOrders($orders);
+        if ($orderCollection->isEmpty()) {
+            return false;
+        }
+
+        try {
+            Mail::to($adminEmail)->send(new AdminNewOrderMail($customer, $orderCollection));
+
+            Log::info('E-mail de notificação de nova compra enviado ao administrador com sucesso.', [
+                'admin_email' => $adminEmail,
+                'customer_id' => $customer->id,
+                'order_ids' => $orderCollection->pluck('id')->all(),
+            ]);
+
+            return true;
+        } catch (Throwable $exception) {
+            Log::error('Erro ao enviar e-mail de notificação de nova compra ao administrador.', [
+                'admin_email' => $adminEmail,
+                'customer_id' => $customer->id,
                 'order_ids' => $orderCollection->pluck('id')->all(),
                 'error' => $exception->getMessage(),
             ]);

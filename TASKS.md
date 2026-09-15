@@ -415,3 +415,16 @@
   - [x] Desenvolver suíte de testes Feature `SeoAndSitemapTest` cobrindo o XML do sitemap, regras do robots.txt e integridade dos schemas JSON-LD.
   - [x] Suíte de testes geral elevada para **193 testes aprovados (798 asserções)** com 100% de conformidade com o Laravel Pint.
 
+- [x] **Fase 35: Notificação por E-mail ao Administrador em Novas Compras Realizadas**
+  - [x] Configurar `ADMIN_NOTIFICATION_EMAIL=rayhenrique@gmail.com` em `.env`, `.env.example` e chave `'admin_email'` em `config/mail.php`.
+  - [x] Desenvolver classe Mailable `AdminNewOrderMail` (`app/Mail/AdminNewOrderMail.php`) com assunto dinâmico informativo: `🎉 [Nova Venda] Pedido #... - R$ ... - {Nome}`.
+  - [x] Criar template responsivo de e-mail `resources/views/emails/admin-new-order.blade.php` no padrão SaaS dark/light da KL Tecnologia com:
+    - Badge `🎉 Nova Compra Realizada!`.
+    - Resumo dos dados do cliente (Nome, E-mail, CPF e link direto para WhatsApp com `https://wa.me/...`).
+    - Tabela completa de itens adquiridos, valores unitários, método de pagamento e valor total.
+    - Botão CTA destacado `Ver Pedido no Painel Admin →` com link direto para o pedido.
+  - [x] Integrar método `sendAdminOrderPaidEmail` no `OrderMailService`:
+    - Disparo automático em todas as compras confirmadas (webhook do Mercado Pago aprovado, checkout gratuito e aprovação manual de pedido no painel).
+    - Resiliência com `try/catch` e logs detalhados, protegendo fluxos críticos de pagamento contra oscilações de SMTP.
+  - [x] Atualizar suíte de testes Feature `OrderEmailTest` com validação de disparo do e-mail do admin para webhook aprovado, checkout gratuito, aprovação manual e renderização do template.
+  - [x] Suíte de testes geral mantida com **193 testes aprovados (808 asserções)** e 100% de conformidade com o Laravel Pint.

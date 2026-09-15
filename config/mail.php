@@ -116,4 +116,16 @@ return [
         'name' => env('MAIL_FROM_NAME', env('APP_NAME', 'Laravel')),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Admin Notification Email
+    |--------------------------------------------------------------------------
+    |
+    | Endereço de e-mail do administrador da loja que receberá alertas
+    | transacionais automáticos, como notificações de novas compras.
+    |
+    */
+
+    'admin_email' => env('ADMIN_NOTIFICATION_EMAIL', 'rayhenrique@gmail.com'),
+
 ];

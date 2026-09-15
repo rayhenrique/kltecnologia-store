@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Enums\OrderStatus;
+use App\Mail\AdminNewOrderMail;
 use App\Mail\OrderPaidMail;
 use App\Mail\OrderPendingMail;
 use App\Mail\WelcomeCustomerMail;
@@ -91,6 +92,11 @@ class OrderEmailTest extends TestCase
             return $mail->hasTo('leadgratis@example.com');
         });
 
+        Mail::assertSent(AdminNewOrderMail::class, function (AdminNewOrderMail $mail) {
+            return $mail->hasTo('rayhenrique@gmail.com')
+                && $mail->customer->name === 'Lead Gratuito';
+        });
+
         Mail::assertNotSent(OrderPendingMail::class);
     }
 
@@ -176,6 +182,11 @@ class OrderEmailTest extends TestCase
             return $mail->hasTo('comprador@example.com')
                 && $mail->orders->first()->id === $order->id;
         });
+
+        Mail::assertSent(AdminNewOrderMail::class, function (AdminNewOrderMail $mail) use ($order) {
+            return $mail->hasTo('rayhenrique@gmail.com')
+                && $mail->orders->first()->id === $order->id;
+        });
     }
 
     public function test_duplicate_webhook_does_not_resend_order_paid_email(): void
@@ -215,6 +226,7 @@ class OrderEmailTest extends TestCase
 
         // Should not send again since order was already paid
         Mail::assertNotSent(OrderPaidMail::class);
+        Mail::assertNotSent(AdminNewOrderMail::class);
     }
 
     public function test_admin_marking_order_as_paid_sends_order_paid_email(): void
@@ -245,6 +257,10 @@ class OrderEmailTest extends TestCase
         Mail::assertSent(OrderPaidMail::class, function (OrderPaidMail $mail) {
             return $mail->hasTo('cliente_admin@example.com');
         });
+
+        Mail::assertSent(AdminNewOrderMail::class, function (AdminNewOrderMail $mail) {
+            return $mail->hasTo('rayhenrique@gmail.com');
+        });
     }
 
     public function test_email_templates_render_with_proper_content_and_links(): void
@@ -252,6 +268,8 @@ class OrderEmailTest extends TestCase
         $user = User::factory()->create([
             'name' => 'Renata Oliveira',
             'email' => 'renata@example.com',
+            'phone' => '(11) 99999-8888',
+            'cpf' => '123.456.789-00',
         ]);
 
         $product = Product::factory()->create([
@@ -287,6 +305,16 @@ class OrderEmailTest extends TestCase
         $this->assertStringContainsString('Pagamento Aprovado', $paidHtml);
         $this->assertStringContainsString('PIX', $paidHtml);
         $this->assertStringContainsString(route('customer.downloads'), $paidHtml);
+
+        // Admin New Order Mail
+        $adminMail = new AdminNewOrderMail($user, [$order]);
+        $adminHtml = $adminMail->render();
+        $this->assertStringContainsString('Renata Oliveira', $adminHtml);
+        $this->assertStringContainsString('renata@example.com', $adminHtml);
+        $this->assertStringContainsString('Script SaaS Laravel Pro', $adminHtml);
+        $this->assertStringContainsString('Nova Compra Realizada', $adminHtml);
+        $this->assertStringContainsString(route('admin.orders.show', $order), $adminHtml);
+        $this->assertStringContainsString('197,00', $adminHtml);
     }
 
     private function signedHeaders(string $dataId): array
