@@ -21,21 +21,21 @@ class TrackPageViews
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $response = $next($request);
+        return $next($request);
+    }
 
-        if (! $this->shouldTrack($request, $response)) {
-            return $response;
-        }
-
-        if (app()->runningUnitTests()) {
-            $this->trafficAnalytics->record($request);
-        } else {
-            dispatchAfterResponse(function () use ($request) {
+    /**
+     * Executa o registro de tráfego após a resposta ter sido enviada ao navegador (0 ms de latência).
+     */
+    public function terminate(Request $request, Response $response): void
+    {
+        try {
+            if ($this->shouldTrack($request, $response)) {
                 $this->trafficAnalytics->record($request);
-            });
+            }
+        } catch (\Throwable) {
+            // Falha silenciosa para garantir que nenhum erro de rastreamento afete a resposta ao cliente
         }
-
-        return $response;
     }
 
     /**
