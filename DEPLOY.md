@@ -90,7 +90,24 @@ ssh kltecnologia-store@72.60.142.2
 ```
 *(Digite a senha definida na criação do usuário do site no CloudPanel)*.
 
-### 4.1. Limpar arquivos padrão e Clonar o Repositório
+### 4.1. Configuração de Chave SSH (Deploy Key para Repositório Privado)
+
+Como o repositório é privado, gere uma chave SSH de leitura para o usuário `kltecnologia-store`:
+
+```bash
+ssh-keygen -t ed25519 -C "vps-kltecnologia-store" -f ~/.ssh/id_ed25519 -N ""
+cat ~/.ssh/id_ed25519.pub
+```
+
+1. Copie a chave exibida no terminal.
+2. No GitHub, vá no repositório ➔ **Settings** ➔ **Deploy keys** ➔ **Add deploy key**.
+3. Título: `CloudPanel kltecnologia-store` e cole a chave (deixe *Allow write access* desmarcado).
+4. Teste a conexão:
+   ```bash
+   ssh -T git@github.com
+   ```
+
+### 4.2. Limpar arquivos padrão e Clonar o Repositório
 
 Navegue até o diretório do site:
 ```bash
@@ -103,9 +120,14 @@ rm -rf *
 rm -rf .* 2>/dev/null
 ```
 
-Agora, clone o projeto diretamente na pasta atual:
+Clone o projeto via SSH:
 ```bash
-git clone https://github.com/rayhenrique/kltecnologia-store.git .
+git clone git@github.com:rayhenrique/kltecnologia-store.git .
+```
+
+*(Se o repositório já tiver sido clonado anteriormente por HTTPS, basta atualizar a URL remota):*
+```bash
+git remote set-url origin git@github.com:rayhenrique/kltecnologia-store.git
 ```
 
 ---
