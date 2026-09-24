@@ -16,7 +16,7 @@ A vitrine atende empreendedores brasileiros que compram arquivos digitais. O pai
 - A validação é feita no servidor com Form Requests e erros são exibidos ao lado do campo, com `aria-invalid` e `aria-describedby`.
 - Formulários usam `novalidate`; durante o envio, o botão é desabilitado e informa `Enviando…`.
 - Alterações não enviadas ativam a proteção nativa de saída. Textareas têm altura estável e não podem ser redimensionadas.
-- A capa aceita JPG, PNG ou WebP até 4 MB. O produto aceita ZIP, PDF e arquivos comuns de documentos até 100 MB.
+- A capa aceita JPG, PNG ou WebP até 4 MB, com conversão automática para WebP (largura máx. 600px) no upload. O produto aceita ZIP, PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, RAR, 7Z, TAR e GZ até 512 MB.
 - O nome do arquivo selecionado aparece antes do envio. Arquivos vendidos ficam no disco privado.
 
 ## Operações e feedback

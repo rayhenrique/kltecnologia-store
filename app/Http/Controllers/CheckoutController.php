@@ -55,7 +55,7 @@ class CheckoutController extends Controller
     public function process(ProcessCheckoutRequest $request): RedirectResponse
     {
         try {
-            $result = $this->checkout->process($request->validated(), $request->user());
+            $result = $this->checkout->process($request->validated(), $request->user(), $request->ip(), $request->userAgent());
 
             if ($result['is_free']) {
                 return redirect($result['url'])
@@ -78,7 +78,7 @@ class CheckoutController extends Controller
         abort_unless($product->is_active && $product->file_path, 404);
 
         try {
-            $result = $this->checkout->start($request->user(), $product);
+            $result = $this->checkout->start($request->user(), $product, $request->ip(), $request->userAgent());
 
             if ($result['is_free']) {
                 return redirect($result['url'])

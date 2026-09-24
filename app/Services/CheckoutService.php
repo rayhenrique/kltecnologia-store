@@ -27,14 +27,14 @@ class CheckoutService
     /**
      * @return array{url: string, is_free: bool}
      */
-    public function start(User $user, Product $product): array
+    public function start(User $user, Product $product, ?string $ip = null, ?string $userAgent = null): array
     {
         if (! $product->is_active || blank($product->file_path)) {
             throw new RuntimeException('Este produto ainda não está disponível para compra.');
         }
 
         $isFirstPurchase = ! $user->orders()->exists();
-        $this->newsletterService->subscribeCustomer($user->email, request()->ip(), request()->userAgent());
+        $this->newsletterService->subscribeCustomer($user->email, $ip ?? request()->ip(), $userAgent ?? request()->userAgent());
 
         if ((float) $product->price <= 0.0) {
             $order = $user->orders()->create([
@@ -80,7 +80,7 @@ class CheckoutService
      * @param  array<string, mixed>  $data
      * @return array{url: string, is_free: bool}
      */
-    public function process(array $data, ?User $currentUser): array
+    public function process(array $data, ?User $currentUser, ?string $ip = null, ?string $userAgent = null): array
     {
         $productIds = $this->productIdsFromData($data);
         if ($productIds === []) {
@@ -141,7 +141,7 @@ class CheckoutService
             Auth::login($user);
         }
 
-        $this->newsletterService->subscribeCustomer($user->email, request()->ip(), request()->userAgent());
+        $this->newsletterService->subscribeCustomer($user->email, $ip ?? request()->ip(), $userAgent ?? request()->userAgent());
 
         if ($checkout['first_purchase']) {
             $this->mailService->sendWelcomeEmail($user);

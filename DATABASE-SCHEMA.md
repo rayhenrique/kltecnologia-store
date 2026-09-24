@@ -12,13 +12,16 @@ erDiagram
     COUPONS ||--o{ ORDERS : reserva
     PRODUCTS ||--o{ COUPONS : restringe
     BLOG_CATEGORIES ||--o{ POSTS : classifica
+    PRODUCTS ||--o{ PAGE_VIEWS : recebe
+    POSTS ||--o{ PAGE_VIEWS : recebe
+    NEWSLETTER_SUBSCRIBERS ||--o{ NEWSLETTER_SEND_LOGS : registra
 ```
 
 ## Tabelas de domínio
 
 ### `users`
 
-`id`, `name`, `email` único, `email_verified_at`, `cpf`, `phone`, `password`, `role` (`admin` ou `customer`), `remember_token`, timestamps.
+`id`, `name`, `email` único, `email_verified_at`, `cpf`, `phone`, `password`, `role` (`admin` ou `customer`), `remember_token`, `last_seen_version` anulável, timestamps.
 
 ### `categories`
 
@@ -60,6 +63,19 @@ erDiagram
 ### `newsletter_subscribers`
 
 `id`, `email` único, `ip_address`, `user_agent`, `is_active`, `subscribed_at`, `unsubscribed_at`, timestamps e soft delete.
+
+### `newsletter_send_logs`
+
+`id`, `email` indexado, `notifiable_type` anulável, `notifiable_id` anulável, `sent_at`, `status` (`sent` por padrão), `error_message` anulável, timestamps.
+
+- Índice composto `newsletter_log_lookup_idx` em (`notifiable_type`, `notifiable_id`, `email`) para idempotência de envios.
+- Controla a cota diária de disparos (`config/newsletter.php`, `NEWSLETTER_DAILY_LIMIT`, padrão 100/dia).
+
+### `page_views`
+
+`id`, `url` (500), `route_name` anulável indexado, `viewable_type`/`viewable_id` anuláveis (polimórfico para `products` e `posts`), `visitor_hash` (64, anonimizado LGPD) indexado, `referer` anulável, `device_type` (`desktop` por padrão) indexado, `visited_at` indexado, timestamps.
+
+- Índice composto em (`visited_at`, `visitor_hash`) para métricas de tráfego e conversão.
 
 ## Tabelas de infraestrutura Laravel
 
