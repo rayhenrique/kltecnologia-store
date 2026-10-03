@@ -83,7 +83,7 @@ class PostController extends Controller
             ? BlogCategory::find($validated['blog_category_id'])
             : null;
 
-        $categoryName = $blogCategory?->name ?? ($validated['category'] ?? 'Geral');
+        $categoryName = $blogCategory?->name ?? ($validated['category'] ?? null);
 
         $content = $this->sanitizer->sanitize($validated['content']);
 
@@ -134,17 +134,21 @@ class PostController extends Controller
             $post->cover_path = $this->storeCover($request->file('cover'), $validated['title']);
         }
 
-        $blogCategory = ! empty($validated['blog_category_id'])
-            ? BlogCategory::find($validated['blog_category_id'])
-            : null;
-
-        $categoryName = $blogCategory?->name ?? ($validated['category'] ?? $post->category ?? 'Geral');
-
         $post->title = $validated['title'];
         $post->seo_title = $validated['seo_title'] ?? null;
         $post->meta_description = $validated['meta_description'] ?? null;
-        $post->category = $categoryName;
-        $post->blog_category_id = $blogCategory?->id ?? $post->blog_category_id;
+
+        if (! empty($validated['blog_category_id'])) {
+            $blogCategory = BlogCategory::find($validated['blog_category_id']);
+            $post->blog_category_id = $blogCategory?->id;
+            $post->category = $blogCategory?->name ?? ($validated['category'] ?? null);
+        } elseif (array_key_exists('blog_category_id', $validated) || $request->has('blog_category_id')) {
+            $post->blog_category_id = null;
+            $post->category = ! empty($validated['category']) ? $validated['category'] : null;
+        } elseif (array_key_exists('category', $validated)) {
+            $post->category = $validated['category'];
+        }
+
         $content = $this->sanitizer->sanitize($validated['content']);
         $post->excerpt = $validated['excerpt'] ?? Str::limit(strip_tags($content), 180);
         $post->content = $content;

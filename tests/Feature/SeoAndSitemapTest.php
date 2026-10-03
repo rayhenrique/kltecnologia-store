@@ -553,7 +553,33 @@ class SeoAndSitemapTest extends TestCase
         $response = $this->get('/sitemap.xml');
         $response->assertOk();
 
-        // Não deve conter startOfMonth gerado no ar
-        $this->assertStringNotContainsString(now()->startOfMonth()->toAtomString(), $response->getContent());
+        $content = $response->getContent();
+        $this->assertStringNotContainsString(now()->startOfMonth()->toAtomString(), $content);
+
+        $xml = simplexml_load_string($content);
+        $this->assertNotFalse($xml);
+
+        $privacyUrl = null;
+        $termsUrl = null;
+
+        foreach ($xml->url as $url) {
+            $loc = (string) $url->loc;
+            if ($loc === route('privacy.index')) {
+                $privacyUrl = $url;
+            }
+            if ($loc === route('terms.index')) {
+                $termsUrl = $url;
+            }
+        }
+
+        $this->assertNotNull($privacyUrl, 'URL da Política de Privacidade deve estar presente no sitemap.');
+        $this->assertFalse(isset($privacyUrl->lastmod), 'Política de Privacidade não deve ter lastmod no sitemap.');
+        $this->assertSame('monthly', (string) $privacyUrl->changefreq);
+        $this->assertSame('0.3', (string) $privacyUrl->priority);
+
+        $this->assertNotNull($termsUrl, 'URL dos Termos de Uso deve estar presente no sitemap.');
+        $this->assertFalse(isset($termsUrl->lastmod), 'Termos de Uso não deve ter lastmod no sitemap.');
+        $this->assertSame('monthly', (string) $termsUrl->changefreq);
+        $this->assertSame('0.3', (string) $termsUrl->priority);
     }
 }

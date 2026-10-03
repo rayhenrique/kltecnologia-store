@@ -62,8 +62,9 @@ erDiagram
 
 ### `slug_redirects`
 
-`id`, `model_type` indexado, `model_id` indexado, `old_slug` indexado, `target_url`, timestamps.
+`id`, `model_type` indexado, `old_slug` indexado, `target_slug`, timestamps.
 
+- Índice único composto em (`model_type`, `old_slug`).
 - Registra redirecionamentos permanentes (HTTP 301) quando o slug de um produto, categoria ou post é renomeado, preservando autoridade SEO e evitando erros 404.
 
 ### `newsletter_subscribers`

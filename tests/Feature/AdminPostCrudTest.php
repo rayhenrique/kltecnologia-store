@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\BlogCategory;
 use App\Models\Post;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -192,5 +193,40 @@ class AdminPostCrudTest extends TestCase
             'content' => '<p>Conteúdo</p>',
         ]);
         $responseUpdate->assertSessionHasErrors(['seo_title', 'meta_description']);
+    }
+
+    public function test_admin_can_remove_category_from_post(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $blogCategory = BlogCategory::factory()->create([
+            'name' => 'Tutoriais Avançados',
+            'is_active' => true,
+        ]);
+
+        $post = Post::factory()->create([
+            'title' => 'Artigo com Categoria Inicial',
+            'blog_category_id' => $blogCategory->id,
+            'category' => $blogCategory->name,
+        ]);
+
+        $this->assertSame($blogCategory->id, $post->blog_category_id);
+        $this->assertSame('Tutoriais Avançados', $post->blogCategory->name);
+
+        // Atualização enviando blog_category_id vazio ("" ou null)
+        $response = $this->actingAs($admin)->put(route('admin.posts.update', $post), [
+            'title' => 'Artigo com Categoria Removida',
+            'blog_category_id' => '',
+            'content' => '<p>Conteúdo mantido sem categoria.</p>',
+            'is_published' => '1',
+        ]);
+
+        $response->assertRedirect(route('admin.posts.index'));
+        $response->assertSessionHas('success');
+
+        $freshPost = $post->fresh();
+        $this->assertNull($freshPost->blog_category_id);
+        $this->assertNull($freshPost->category);
+        $this->assertNull($freshPost->blogCategory);
+        $this->assertNotSame('Tutoriais Avançados', $freshPost->category);
     }
 }
