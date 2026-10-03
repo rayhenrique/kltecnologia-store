@@ -6,6 +6,7 @@ use App\Models\BlogCategory;
 use App\Models\Category;
 use App\Models\Post;
 use App\Models\Product;
+use Carbon\Carbon;
 use Illuminate\Http\Response;
 
 class SitemapController extends Controller
@@ -39,19 +40,25 @@ class SitemapController extends Controller
             'priority' => '0.8',
         ];
 
-        $urls[] = [
-            'loc' => route('privacy.index'),
-            'lastmod' => now()->startOfMonth()->toAtomString(),
-            'changefreq' => 'monthly',
-            'priority' => '0.3',
-        ];
+        $privacyPath = resource_path('views/legal/privacy.blade.php');
+        $privacyLastmod = file_exists($privacyPath) ? Carbon::createFromTimestamp((int) filemtime($privacyPath))->toAtomString() : null;
 
-        $urls[] = [
-            'loc' => route('terms.index'),
-            'lastmod' => now()->startOfMonth()->toAtomString(),
+        $termsPath = resource_path('views/legal/terms.blade.php');
+        $termsLastmod = file_exists($termsPath) ? Carbon::createFromTimestamp((int) filemtime($termsPath))->toAtomString() : null;
+
+        $urls[] = array_filter([
+            'loc' => route('privacy.index'),
+            'lastmod' => $privacyLastmod,
             'changefreq' => 'monthly',
             'priority' => '0.3',
-        ];
+        ]);
+
+        $urls[] = array_filter([
+            'loc' => route('terms.index'),
+            'lastmod' => $termsLastmod,
+            'changefreq' => 'monthly',
+            'priority' => '0.3',
+        ]);
 
         // 2. Categorias de Produtos Ativas com produtos disponíveis
         $categories = Category::query()

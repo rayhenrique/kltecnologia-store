@@ -9,20 +9,22 @@
     'robots' => null,
 ])
 @php
-    $hasFilterParams = request()->hasAny(['q', 'sort', 'min_price', 'max_price']) || (request()->has('categoria') && !request()->routeIs('blog.category'));
+    $hasFilterParams = request()->hasAny(['q', 'sort', 'min_price', 'max_price', 'category'])
+        || (request()->has('categoria') && !request()->routeIs('blog.category'));
+    $page = (int) request()->query('page', 1);
     $effectiveRobots = $robots ?? ($hasFilterParams ? 'noindex, follow' : 'index, follow');
 
-    if (!isset($canonical)) {
-        if (request()->has('page') && (int) request('page') > 1) {
-            $effectiveCanonical = url()->current() . '?page=' . (int) request('page');
-        } else {
-            $effectiveCanonical = url()->current();
-        }
+    $rawCanonical = $canonical ?? url()->current();
+    $baseCanonical = strtok((string) $rawCanonical, '?');
+
+    if ($effectiveRobots !== 'noindex, follow' && ! $hasFilterParams && $page > 1) {
+        $effectiveCanonical = $baseCanonical.'?page='.$page;
     } else {
-        $effectiveCanonical = $canonical;
+        $effectiveCanonical = $baseCanonical;
     }
 
-    $pageTitle = !empty($title) ? $title . ' | ' . config('app.name', 'KL Tecnologia') : config('app.name', 'KL Tecnologia');
+    $rawTitle = trim((string) ($title ?? ''));
+    $pageTitle = $rawTitle !== '' ? $rawTitle : config('app.name', 'KL Tecnologia');
     $resolvedOgTitle = $ogTitle ?? $pageTitle;
     $resolvedOgDescription = $ogDescription ?? $metaDescription;
 @endphp

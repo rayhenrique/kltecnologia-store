@@ -1,5 +1,5 @@
 <x-storefront-layout robots="noindex, follow">
-    <x-slot:title>Checkout Seguro — Finalizar Compra</x-slot:title>
+    <x-slot:title>Checkout Seguro — KL Tecnologia</x-slot:title>
 
     @php
         $initialItems = [];

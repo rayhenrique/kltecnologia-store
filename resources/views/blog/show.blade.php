@@ -38,12 +38,12 @@
                 ],
             ])),
         ],
-        [
+        array_filter([
             '@type' => 'Article',
             '@id' => route('blog.show', $post->slug) . '#article',
             'headline' => $post->title,
             'description' => $post->meta_description ?: ($post->excerpt ?: Str::limit(trim(preg_replace('/\s+/', ' ', strip_tags($post->content))), 200)),
-            'image' => $post->cover_path ? asset($post->cover_path) : asset('images/logo-kltecnologia.png'),
+            'image' => $post->cover_path ? asset($post->cover_path) : null,
             'datePublished' => $post->published_at ? $post->published_at->toIso8601String() : $post->created_at->toIso8601String(),
             'dateModified' => $post->updated_at->toIso8601String(),
             'author' => [
@@ -63,7 +63,7 @@
                 '@type' => 'WebPage',
                 '@id' => route('blog.show', $post->slug),
             ],
-        ],
+        ], fn ($value) => $value !== null && $value !== ''),
     ])),
 ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) !!}
 </script>

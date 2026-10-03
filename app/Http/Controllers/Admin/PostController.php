@@ -91,6 +91,8 @@ class PostController extends Controller
 
         $post = Post::create([
             'title' => $validated['title'],
+            'seo_title' => $validated['seo_title'] ?? null,
+            'meta_description' => $validated['meta_description'] ?? null,
             'category' => $categoryName,
             'blog_category_id' => $blogCategory?->id,
             'excerpt' => $validated['excerpt'] ?? Str::limit(strip_tags($content), 180),
@@ -139,6 +141,8 @@ class PostController extends Controller
         $categoryName = $blogCategory?->name ?? ($validated['category'] ?? $post->category ?? 'Geral');
 
         $post->title = $validated['title'];
+        $post->seo_title = $validated['seo_title'] ?? null;
+        $post->meta_description = $validated['meta_description'] ?? null;
         $post->category = $categoryName;
         $post->blog_category_id = $blogCategory?->id ?? $post->blog_category_id;
         $content = $this->sanitizer->sanitize($validated['content']);

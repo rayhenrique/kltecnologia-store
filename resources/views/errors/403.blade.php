@@ -1,5 +1,5 @@
 <x-storefront-layout>
-    <x-slot:title>Acesso negado</x-slot:title>
+    <x-slot:title>Acesso Negado — KL Tecnologia</x-slot:title>
     <section class="page-container py-24 text-center">
         <p class="eyebrow">Erro 403</p>
         <h1 class="mt-4 page-title">Você não tem acesso a esta área.</h1>

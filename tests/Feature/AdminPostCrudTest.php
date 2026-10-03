@@ -104,4 +104,93 @@ class AdminPostCrudTest extends TestCase
 
         $this->assertDatabaseMissing('posts', ['id' => $post->id]);
     }
+
+    public function test_admin_creates_post_persisting_seo_title_and_meta_description(): void
+    {
+        $admin = User::factory()->admin()->create();
+
+        $response = $this->actingAs($admin)->post(route('admin.posts.store'), [
+            'title' => 'Artigo com SEO Customizado',
+            'seo_title' => 'Melhor Tutorial Laravel 2026',
+            'meta_description' => 'Aprenda tudo sobre arquitetura moderna de software com Laravel.',
+            'category' => 'Tutoriais',
+            'content' => '<p>Conteúdo do artigo com SEO.</p>',
+            'is_published' => '1',
+        ]);
+
+        $response->assertRedirect(route('admin.posts.index'));
+        $post = Post::where('title', 'Artigo com SEO Customizado')->sole();
+        $this->assertSame('Melhor Tutorial Laravel 2026', $post->seo_title);
+        $this->assertSame('Aprenda tudo sobre arquitetura moderna de software com Laravel.', $post->meta_description);
+    }
+
+    public function test_admin_updates_post_altering_seo_title_and_meta_description(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $post = Post::factory()->create([
+            'title' => 'Artigo Inicial',
+            'seo_title' => 'SEO Antigo',
+            'meta_description' => 'Desc Antiga',
+        ]);
+
+        $response = $this->actingAs($admin)->put(route('admin.posts.update', $post), [
+            'title' => 'Artigo Inicial',
+            'seo_title' => 'SEO Novo e Otimizado',
+            'meta_description' => 'Nova descrição meta altamente relevante.',
+            'category' => 'Geral',
+            'content' => '<p>Conteúdo mantido.</p>',
+            'is_published' => '1',
+        ]);
+
+        $response->assertRedirect(route('admin.posts.index'));
+        $this->assertSame('SEO Novo e Otimizado', $post->fresh()->seo_title);
+        $this->assertSame('Nova descrição meta altamente relevante.', $post->fresh()->meta_description);
+    }
+
+    public function test_admin_can_clear_seo_fields_on_post_update(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $post = Post::factory()->create([
+            'title' => 'Artigo com SEO para Limpar',
+            'seo_title' => 'SEO para ser removido',
+            'meta_description' => 'Meta description para ser removida',
+        ]);
+
+        $response = $this->actingAs($admin)->put(route('admin.posts.update', $post), [
+            'title' => 'Artigo com SEO para Limpar',
+            'seo_title' => '',
+            'meta_description' => '',
+            'category' => 'Geral',
+            'content' => '<p>Conteúdo mantido.</p>',
+            'is_published' => '1',
+        ]);
+
+        $response->assertRedirect(route('admin.posts.index'));
+        $this->assertNull($post->fresh()->seo_title);
+        $this->assertNull($post->fresh()->meta_description);
+    }
+
+    public function test_post_validation_standardized_limits_for_store_and_update(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $post = Post::factory()->create();
+
+        // 1. Store: exceeds 70 chars for seo_title and 160 for meta_description
+        $responseStore = $this->actingAs($admin)->post(route('admin.posts.store'), [
+            'title' => 'Post Limite Teste',
+            'seo_title' => str_repeat('a', 71),
+            'meta_description' => str_repeat('b', 161),
+            'content' => '<p>Conteúdo</p>',
+        ]);
+        $responseStore->assertSessionHasErrors(['seo_title', 'meta_description']);
+
+        // 2. Update: exceeds 70 chars for seo_title and 160 for meta_description
+        $responseUpdate = $this->actingAs($admin)->put(route('admin.posts.update', $post), [
+            'title' => 'Post Limite Teste',
+            'seo_title' => str_repeat('a', 71),
+            'meta_description' => str_repeat('b', 161),
+            'content' => '<p>Conteúdo</p>',
+        ]);
+        $responseUpdate->assertSessionHasErrors(['seo_title', 'meta_description']);
+    }
 }

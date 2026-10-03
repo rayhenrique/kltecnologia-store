@@ -1,5 +1,5 @@
 <x-storefront-layout>
-    <x-slot:title>Recursos & Produtos Digitais de Alta Performance</x-slot:title>
+    <x-slot:title>KL Tecnologia — Softwares, Scripts e Produtos Digitais Prontos</x-slot:title>
 
     {{-- 1. HERO SECTION (Dark Tech Theme with Search) --}}
     <section class="hero-tech-bg relative overflow-hidden border-b border-slate-800 py-16 sm:py-24 text-white">

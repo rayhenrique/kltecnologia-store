@@ -19,6 +19,7 @@ class CatalogFilterRequest extends FormRequest
         return [
             'q' => ['nullable', 'string', 'max:100'],
             'category' => ['nullable', 'string', 'max:50'],
+            'categoria' => ['nullable', 'string', 'max:50'],
             'sort' => ['nullable', 'string', 'in:latest,price_asc,price_desc,title_asc'],
             'min_price' => ['nullable', 'numeric', 'min:0'],
             'max_price' => ['nullable', 'numeric', 'min:0'],

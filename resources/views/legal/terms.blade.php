@@ -1,5 +1,5 @@
 <x-storefront-layout>
-    <x-slot:title>Termos de Uso e Licenciamento</x-slot:title>
+    <x-slot:title>Termos de Uso e Licenciamento — KL Tecnologia</x-slot:title>
 
 <div class="bg-slate-900 py-12 border-b border-slate-800">
     <div class="page-container">

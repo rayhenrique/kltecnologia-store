@@ -1,5 +1,5 @@
 <x-storefront-layout robots="noindex, follow">
-    <x-slot:title>Meus Favoritos</x-slot:title>
+    <x-slot:title>Meus Favoritos — KL Tecnologia</x-slot:title>
 
     <section 
         class="py-8 sm:py-12 bg-slate-950 min-h-[75vh]"

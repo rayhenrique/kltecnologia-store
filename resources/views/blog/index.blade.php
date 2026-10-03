@@ -2,7 +2,7 @@
     $currentBlogCategory = $currentBlogCategory ?? null;
     $blogTitle = $currentBlogCategory
         ? ($currentBlogCategory->seo_title ?: $currentBlogCategory->name . ' — Blog KL Tecnologia')
-        : 'Blog & Artigos — Estratégias e Tutoriais Web';
+        : 'Blog & Artigos — KL Tecnologia';
     $blogMetaDesc = $currentBlogCategory
         ? ($currentBlogCategory->meta_description ?: ($currentBlogCategory->description ?: 'Artigos e tutoriais sobre ' . $currentBlogCategory->name . ' no Blog da KL Tecnologia.'))
         : 'Artigos, tutoriais e novidades sobre desenvolvimento de sistemas, scripts, automação e e-commerce digital.';

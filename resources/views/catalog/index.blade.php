@@ -1,8 +1,8 @@
 @php
     $currentCategory = $currentCategory ?? null;
     $catalogTitle = $currentCategory
-        ? ($currentCategory->seo_title ?: $currentCategory->name . ' — Catálogo de Produtos Digitais')
-        : 'Catálogo de Produtos Digitais — Scripts, Softwares e Templates';
+        ? ($currentCategory->seo_title ?: $currentCategory->name . ' — KL Tecnologia')
+        : 'Catálogo de Produtos Digitais — KL Tecnologia';
     $catalogMetaDesc = $currentCategory
         ? ($currentCategory->meta_description ?: ($currentCategory->description ?: 'Explore nossa seleção de ' . $currentCategory->name . ' prontos para download com entrega imediata na KL Tecnologia.'))
         : 'Explore o catálogo completo de sistemas web, scripts, templates e automações prontas da KL Tecnologia com download imediato.';

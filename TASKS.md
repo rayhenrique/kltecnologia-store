@@ -1220,3 +1220,21 @@ Este bloco de SEO somente poderá ser considerado concluído quando:
 - [x] Todos os testes passarem.
 - [x] Build de produção passar.
 - [x] O cadastro individual de produtos puder começar sem necessidade de nova alteração estrutural grande.
+
+---
+
+# Revisão pós-implementação SEO
+
+- [x] 1. Corrigir campos inexistentes da página de produto: referências a `$product->license_info` e `$product->brand_name` substituídas por `$product->license` e `$product->brand`; campos não preenchidos não geram textos fictícios; testes adicionados.
+- [x] 2. Remover preços fictícios: removido `$product->regular_price`, cálculo artificial `* 1.35`, fallback `47.00` e tag `<del>De: R$ ...</del>`; preço exibido reflete exclusivamente o valor cadastrado; produtos gratuitos só exibem "acesso vitalício" quando `lifetime_access === true`.
+- [x] 3. Corrigir SEO dos posts: persistência de `seo_title` e `meta_description` implementada em `Admin\PostController::store()` e `update()`; suporte a limpeza dos campos; regras de validação padronizadas em `StorePostRequest` e `UpdatePostRequest` (`max:70` para título, `max:160` para descrição); testes adicionados.
+- [x] 4. Corrigir duplicação do nome KL Tecnologia nos titles: layout `layouts/storefront.blade.php` recebe o título SEO final diretamente sem duplicar marca; fallbacks geram títulos com a marca quando o campo SEO estiver vazio; nunca gera "KL Tecnologia | KL Tecnologia"; testes verificam tags `<title>` exatas para produto, categoria e post (com e sem `seo_title`).
+- [x] 5. Corrigir canonical da paginação: páginas indexáveis paginadas agora geram canonical com `?page=N` (`/catalogo?page=2`, `/catalogo/{slug}?page=2`, `/blog?page=2`, `/blog/categoria/{slug}?page=2`); buscas e filtros mantêm `noindex, follow` e canonicalizam para a landing page base; testes específicos adicionados.
+- [x] 6. Corrigir redirects legados do catálogo: suporte adicionado tanto para `?category=slug` quanto para `?categoria=slug`, redirecionando com HTTP 301 para a rota limpa `/catalogo/{slug}` quando não houver filtros adicionais; links internos mantêm URLs limpas; testes adicionados para ambas as variantes.
+- [x] 7. Corrigir estratégia robots/noindex: removido do `public/robots.txt` o bloqueio a páginas públicas transacionais (`/checkout`, `/carrinho`, `/favoritos`, `/login`, `/register`, `/password/`), permitindo que os robôs acessem e leiam a tag `<meta name="robots" content="noindex, follow">`; mantido bloqueio apenas para áreas restritas (`/admin/` e `/customer/`); testes atualizados.
+- [x] 8. Limpar Product JSON-LD: propriedades nulas (`image`, `brand`, `category`) omitidas completamente via `array_filter` no JSON-LD do produto; preservadas propriedades essenciais (`Product`, `Offer`, `seller`, `price`, `priceCurrency`, `availability`, `sku`); nenhuma avaliação ou `aggregateRating` fictício gerado; testes adicionados.
+- [x] 9. Article JSON-LD: omitida propriedade `image` do artigo quando não houver capa (`cover_path` nulo), sem usar o logo institucional como imagem da matéria; logo mantido em `publisher.logo`; testes adicionados.
+- [x] 10. Corrigir lastmod artificial: removido `now()->startOfMonth()` de Política de Privacidade e Termos de Uso no `SitemapController`; utilizado timestamp real do arquivo (`filemtime`) com tag `<lastmod>` opcional no template XML; testes adicionados.
+- [x] 11. Atualizar DATABASE-SCHEMA.md: documentados todos os novos campos de `products`, `categories`, `blog_categories`, `posts` e a tabela `slug_redirects`.
+- [x] 12. Corrigir/limitar o scraper PLW: preservação integral do conteúdo editorial e SEO curado manualmente (`description`, `short_description`, `seo_title`, `meta_description`, `features`, `requirements`, `license`, `brand`, `product_type`, `support_info`, `price`); removido fallback genérico de código-fonte; extração de preço aprimorada para priorizar preço de venda e `<ins>`, nunca assumindo `<del>` como preço de venda; testes adicionados.
+- [x] 13. Testes e validações de qualidade: 260 testes passando (`php artisan test`), build Vite concluído com sucesso (`npm run build`), código formatado e validado pelo Laravel Pint (`php vendor/bin/pint --test`), e todas as 100 rotas íntegras (`php artisan route:list`).

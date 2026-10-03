@@ -38,7 +38,7 @@
                 ],
             ])),
         ],
-        [
+        array_filter([
             '@type' => 'Product',
             '@id' => route('storefront.show', $product->slug) . '#product',
             'name' => $product->title,
@@ -62,7 +62,7 @@
                     'name' => 'KL Tecnologia',
                 ],
             ],
-        ],
+        ], fn ($value) => $value !== null && $value !== ''),
     ])),
 ]), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) !!}
 </script>
@@ -148,10 +148,10 @@
                             </div>
                         @endif
 
-                        @if($product->license_info)
+                        @if($product->license)
                             <div class="absolute top-4 left-4">
                                 <span class="rounded-lg bg-slate-950/80 backdrop-blur-md border border-slate-700/60 px-3 py-1.5 text-xs font-bold text-teal-300 shadow-lg">
-                                    ★ {{ $product->license_info }}
+                                    ★ {{ $product->license }}
                                 </span>
                             </div>
                         @elseif($product->includes_source_code)
@@ -342,15 +342,17 @@
                     {{-- Tab 3: Licença, Suporte & Entrega (Factual, sem avaliações fictícias) --}}
                     <div x-show="tab === 'license'" x-cloak class="p-6 sm:p-8 space-y-6">
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
-                            <div class="rounded-xl border border-slate-200 bg-slate-50/60 p-4 space-y-2">
-                                <div class="flex items-center gap-2 text-teal-700 font-bold text-sm">
-                                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                                    <span>Licença de Uso</span>
+                            @if($product->license)
+                                <div class="rounded-xl border border-slate-200 bg-slate-50/60 p-4 space-y-2">
+                                    <div class="flex items-center gap-2 text-teal-700 font-bold text-sm">
+                                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                        <span>Licença de Uso</span>
+                                    </div>
+                                    <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                                        {{ $product->license }}
+                                    </p>
                                 </div>
-                                <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                                    {{ $product->license ?: 'Licença comercial para implementação em projetos próprios ou serviços, sem custos recorrentes adicionais.' }}
-                                </p>
-                            </div>
+                            @endif
 
                             <div class="rounded-xl border border-slate-200 bg-slate-50/60 p-4 space-y-2">
                                 <div class="flex items-center gap-2 text-teal-700 font-bold text-sm">
@@ -415,30 +417,20 @@
                     {{-- Price Display --}}
                     <div class="mt-5 border-y border-slate-100 py-4">
                         @if((float) $product->price <= 0)
-                            <div class="flex items-baseline gap-2">
-                                <span class="text-xs font-medium text-slate-400">De:</span>
-                                <del class="text-sm font-semibold text-slate-400">
-                                    R$ {{ number_format((float) ($product->regular_price ?: 47.00), 2, ',', '.') }}
-                                </del>
-                            </div>
                             <div class="mt-1 flex items-baseline gap-2">
-                                <span class="text-xs font-semibold text-emerald-700">Por apenas:</span>
                                 <span class="font-display text-3xl sm:text-4xl font-extrabold text-emerald-600 tracking-tight">
                                     GRÁTIS
                                 </span>
                             </div>
                             <p class="mt-1.5 text-xs text-slate-500">
-                                Sem cobrança. Acesso instantâneo e vitalício após o cadastro.
+                                @if($product->lifetime_access)
+                                    Sem cobrança. Acesso instantâneo e vitalício após o cadastro.
+                                @else
+                                    Sem cobrança. Acesso instantâneo após o cadastro.
+                                @endif
                             </p>
                         @else
-                            <div class="flex items-baseline gap-2">
-                                <span class="text-xs font-medium text-slate-400">De:</span>
-                                <del class="text-sm font-semibold text-slate-400">
-                                    R$ {{ number_format((float) ($product->regular_price ?: ($product->price * 1.35)), 2, ',', '.') }}
-                                </del>
-                            </div>
                             <div class="mt-1 flex items-baseline gap-2">
-                                <span class="text-xs font-semibold text-slate-600">Por apenas:</span>
                                 <span class="font-display text-3xl sm:text-4xl font-extrabold text-slate-950 tracking-tight">
                                     R$ {{ number_format((float) $product->price, 2, ',', '.') }}
                                 </span>
@@ -574,10 +566,10 @@
                                 @endif
                             </dd>
                         </div>
-                        @if($product->brand_name)
+                        @if($product->brand)
                             <div class="flex justify-between py-2.5">
                                 <dt class="text-slate-500 font-medium">Marca / Autor</dt>
-                                <dd class="font-semibold text-slate-900">{{ $product->brand_name }}</dd>
+                                <dd class="font-semibold text-slate-900">{{ $product->brand }}</dd>
                             </div>
                         @endif
                         @if($product->product_type)
@@ -590,12 +582,12 @@
                             <dt class="text-slate-500 font-medium">Atualizado</dt>
                             <dd class="font-semibold text-slate-900">{{ $product->updated_at->format('d/m/Y') }}</dd>
                         </div>
-                        <div class="flex justify-between py-2.5">
-                            <dt class="text-slate-500 font-medium">Licença</dt>
-                            <dd class="font-semibold text-teal-700">
-                                {{ $product->license_info ?: ($product->lifetime_access ? 'Uso Vitalício' : 'Comercial') }}
-                            </dd>
-                        </div>
+                        @if($product->license)
+                            <div class="flex justify-between py-2.5">
+                                <dt class="text-slate-500 font-medium">Licença</dt>
+                                <dd class="font-semibold text-teal-700">{{ $product->license }}</dd>
+                            </div>
+                        @endif
                         <div class="flex justify-between py-2.5">
                             <dt class="text-slate-500 font-medium">Entrega</dt>
                             <dd class="font-semibold text-emerald-600">Download Imediato</dd>
@@ -767,9 +759,6 @@
                                         GRÁTIS
                                     </p>
                                 @else
-                                    <del class="text-[11px] font-medium text-slate-400">
-                                        R$ {{ number_format((float) ($related->regular_price ?: ($related->price * 1.35)), 2, ',', '.') }}
-                                    </del>
                                     <p class="font-display text-base font-extrabold text-slate-950">
                                         R$ {{ number_format((float) $related->price, 2, ',', '.') }}
                                     </p>
@@ -919,11 +908,6 @@
                     <span class="font-display text-lg font-black text-white">
                         R$ {{ number_format($product->price, 2, ',', '.') }}
                     </span>
-                    @if($product->regular_price && $product->regular_price > $product->price)
-                        <span class="text-[11px] text-slate-500 line-through">
-                            R$ {{ number_format($product->regular_price, 2, ',', '.') }}
-                        </span>
-                    @endif
                 @endif
             </div>
             <span class="text-[10px] text-emerald-400 font-mono flex items-center gap-1">

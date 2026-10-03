@@ -23,8 +23,8 @@ class UpdatePostRequest extends FormRequest
             'blog_category_id' => ['nullable', 'integer', 'exists:blog_categories,id'],
             'excerpt' => ['nullable', 'string', 'max:1000'],
             'content' => ['required', 'string'],
-            'seo_title' => ['nullable', 'string', 'max:255'],
-            'meta_description' => ['nullable', 'string', 'max:500'],
+            'seo_title' => ['nullable', 'string', 'max:70'],
+            'meta_description' => ['nullable', 'string', 'max:160'],
             'is_published' => ['nullable', 'boolean'],
             'cover' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
         ];

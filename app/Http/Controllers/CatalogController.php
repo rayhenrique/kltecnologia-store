@@ -13,9 +13,10 @@ class CatalogController extends Controller
     public function index(CatalogFilterRequest $request): View|RedirectResponse
     {
         $validated = $request->validated();
+        $categoryInput = ! empty($validated['category']) ? $validated['category'] : (! empty($validated['categoria']) ? $validated['categoria'] : null);
 
-        if (! empty($validated['category']) && $validated['category'] !== 'all') {
-            $catSlug = trim((string) $validated['category']);
+        if (! empty($categoryInput) && $categoryInput !== 'all') {
+            $catSlug = trim((string) $categoryInput);
             $matched = Category::where('slug', $catSlug)->orWhere('name', $catSlug)->first();
 
             // Redirect 301 if it's a direct clean category request without other search parameters
@@ -35,8 +36,8 @@ class CatalogController extends Controller
             });
         }
 
-        if (! empty($validated['category']) && $validated['category'] !== 'all') {
-            $categoryParam = trim((string) $validated['category']);
+        if (! empty($categoryInput) && $categoryInput !== 'all') {
+            $categoryParam = trim((string) $categoryInput);
             $matched = Category::where('slug', $categoryParam)->orWhere('name', $categoryParam)->first();
 
             if ($matched) {

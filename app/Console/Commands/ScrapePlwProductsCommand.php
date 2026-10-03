@@ -100,9 +100,10 @@ class ScrapePlwProductsCommand extends Command
                     $cardTitle = $imgNode ? trim((string) $imgNode->getAttribute('alt')) : null;
                     $cardCoverUrl = $imgNode ? trim((string) $imgNode->getAttribute('src')) : null;
 
-                    // 3. Extrai preço riscado do card (<del>R$ 100,00</del>)
-                    $cardDelNode = $xpath->query(".//p[contains(@class, 'price-was-line')]//del", $node)->item(0);
-                    $rawCardPrice = $cardDelNode ? trim((string) $cardDelNode->textContent) : null;
+                    // 3. Extrai preço preliminar do card (evitando <del>)
+                    $cardPriceNode = $xpath->query(".//p[contains(@class, 'price') and not(contains(@class, 'was'))]", $node)->item(0)
+                        ?? $xpath->query(".//span[contains(@class, 'amount') and not(ancestor::del)]", $node)->item(0);
+                    $rawCardPrice = $cardPriceNode ? trim((string) $cardPriceNode->textContent) : null;
                     $parsedPrice = $this->parsePrice($rawCardPrice);
 
                     // 4. Acessa a página individual do produto para dados completos
@@ -178,10 +179,15 @@ class ScrapePlwProductsCommand extends Command
                 ?? $xpath->query("//figure[contains(@class, 'item-gallery-frame')]//img")->item(0);
             $coverUrl = $coverNode ? trim((string) $coverNode->getAttribute('src')) : $fallbackCover;
 
-            // Preço riscado (<del>R$ 100,00</del>)
-            $delNode = $xpath->query("//div[contains(@class, 'item-club-price')]//del")->item(0)
-                ?? $xpath->query('//del')->item(0);
-            $rawPrice = $delNode ? trim((string) $delNode->textContent) : null;
+            // Preço real do produto (prioriza preço atual / <ins>, nunca assume <del> que é preço riscado)
+            $priceNode = $xpath->query("//div[contains(@class, 'item-club-price')]//ins//span[contains(@class, 'amount')]")->item(0)
+                ?? $xpath->query("//div[contains(@class, 'item-club-price')]//ins")->item(0)
+                ?? $xpath->query("//div[contains(@class, 'item-club-price')]//span[contains(@class, 'amount') and not(ancestor::del)]")->item(0)
+                ?? $xpath->query("//div[contains(@class, 'item-club-price')]//p[contains(@class, 'price') and not(contains(@class, 'was'))]")->item(0)
+                ?? $xpath->query("//ins//span[contains(@class, 'amount')]")->item(0)
+                ?? $xpath->query('//ins')->item(0)
+                ?? $xpath->query("//span[contains(@class, 'amount') and not(ancestor::del)]")->item(0);
+            $rawPrice = $priceNode ? trim((string) $priceNode->textContent) : null;
             $price = $this->parsePrice($rawPrice) ?? $fallbackPrice ?? 97.00;
 
             // Descrição detalhada
@@ -220,7 +226,7 @@ class ScrapePlwProductsCommand extends Command
     private function formatDescription(?\DOMNode $node, string $title): string
     {
         if (! $node) {
-            return "Código fonte e arquivos completos do {$title}.\n\nPara suporte e atualizações, consulte o painel de compras.";
+            return "Informações sobre {$title}.\n\nConsulte os detalhes adicionais no painel do produto.";
         }
 
         $doc = $node->ownerDocument;
@@ -240,7 +246,7 @@ class ScrapePlwProductsCommand extends Command
         $text = preg_replace('/^Descrição do item\s*/i', '', $text);
         $text = preg_replace("/\n{3,}/", "\n\n", $text);
 
-        return $text ?: "Código fonte e arquivos completos do {$title}.";
+        return $text ?: "Informações sobre {$title}.";
     }
 
     private function downloadCoverImage(?string $url, string $title, bool $force = false): ?string
@@ -288,13 +294,26 @@ class ScrapePlwProductsCommand extends Command
                 $existing->restore();
             }
 
-            $existing->update([
+            // Preserva integralmente o conteúdo editorial e SEO curado manualmente:
+            // NÃO sobrescreve: description, short_description, seo_title, meta_description,
+            // features, requirements, license, brand, product_type, support_info.
+            $updateData = [
                 'title' => $data['title'],
-                'description' => $data['description'],
-                'price' => $data['price'],
-                'cover_path' => $coverPath ?? $existing->cover_path,
+                'cover_path' => $existing->cover_path ?: $coverPath,
                 'is_active' => filled($existing->file_path),
-            ]);
+            ];
+
+            // Preserva a descrição se já existir no produto
+            if (empty($existing->description)) {
+                $updateData['description'] = $data['description'];
+            }
+
+            // Preserva o preço se já estiver definido
+            if ((float) $existing->price <= 0 && $data['price'] > 0) {
+                $updateData['price'] = $data['price'];
+            }
+
+            $existing->update($updateData);
 
             return;
         }

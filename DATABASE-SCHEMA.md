@@ -25,11 +25,11 @@ erDiagram
 
 ### `categories`
 
-`id`, `name`, `slug` único, `description`, `icon`, `is_active`, timestamps.
+`id`, `name`, `slug` único, `description`, `seo_title` anulável, `meta_description` anulável, `icon`, `is_active`, timestamps.
 
 ### `products`
 
-`id`, `category_id` anulável, `title`, `slug` único, `category`, `version`, `description`, `price decimal(10,2)`, `cover_path`, `file_path` anulável, `is_active`, `is_featured`, timestamps e soft delete.
+`id`, `category_id` anulável, `title`, `slug` único, `category`, `version`, `short_description` anulável, `description`, `seo_title` anulável, `meta_description` anulável, `product_type` anulável, `brand` anulável, `features` anulável, `requirements` anulável, `license` anulável, `support_info` anulável, `demo_url` anulável, `documentation_url` anulável, `includes_source_code` (booleano), `lifetime_access` (booleano), `price decimal(10,2)`, `cover_path`, `file_path` anulável, `is_active`, `is_featured`, timestamps e soft delete.
 
 - `category_id → categories.id`, com `NULL` ao excluir a categoria.
 - Um produto só pode ser vendido quando está ativo e possui `file_path`.
@@ -52,13 +52,19 @@ erDiagram
 
 ### `blog_categories`
 
-`id`, `name`, `slug` único, `description`, `icon`, `is_active`, timestamps.
+`id`, `name`, `slug` único, `description`, `seo_title` anulável, `meta_description` anulável, `icon`, `is_active`, timestamps.
 
 ### `posts`
 
-`id`, `blog_category_id` anulável, `title`, `slug` único, `category`, `excerpt`, `content`, `cover_path`, `is_published`, `views_count`, `published_at`, timestamps.
+`id`, `blog_category_id` anulável, `title`, `slug` único, `category`, `seo_title` anulável, `meta_description` anulável, `excerpt`, `content`, `cover_path`, `is_published`, `views_count`, `published_at`, timestamps.
 
 `blog_category_id → blog_categories.id`, com `NULL` ao excluir a categoria. O campo `content` armazena somente HTML sanitizado.
+
+### `slug_redirects`
+
+`id`, `model_type` indexado, `model_id` indexado, `old_slug` indexado, `target_url`, timestamps.
+
+- Registra redirecionamentos permanentes (HTTP 301) quando o slug de um produto, categoria ou post é renomeado, preservando autoridade SEO e evitando erros 404.
 
 ### `newsletter_subscribers`
 

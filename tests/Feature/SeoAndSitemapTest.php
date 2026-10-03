@@ -89,11 +89,16 @@ class SeoAndSitemapTest extends TestCase
 
         $this->assertNotFalse($robotsContent);
         $this->assertStringContainsString('Disallow: /admin/', $robotsContent);
-        $this->assertStringContainsString('Disallow: /checkout', $robotsContent);
-        $this->assertStringContainsString('Disallow: /carrinho', $robotsContent);
-        $this->assertStringContainsString('Disallow: /favoritos', $robotsContent);
         $this->assertStringContainsString('Disallow: /customer/', $robotsContent);
         $this->assertStringContainsString('Sitemap: https://kltecnologia.com/sitemap.xml', $robotsContent);
+
+        // Public transactional pages that carry meta noindex must NOT be disallowed in robots.txt
+        $this->assertStringNotContainsString('Disallow: /checkout', $robotsContent);
+        $this->assertStringNotContainsString('Disallow: /carrinho', $robotsContent);
+        $this->assertStringNotContainsString('Disallow: /favoritos', $robotsContent);
+        $this->assertStringNotContainsString('Disallow: /login', $robotsContent);
+        $this->assertStringNotContainsString('Disallow: /register', $robotsContent);
+        $this->assertStringNotContainsString('Disallow: /password/', $robotsContent);
     }
 
     public function test_product_detail_page_renders_json_ld_schema_and_meta_tags(): void
@@ -190,10 +195,15 @@ class SeoAndSitemapTest extends TestCase
             'is_active' => true,
         ]);
 
-        $response = $this->get('/catalogo?category=sistemas-saas');
+        // Testa variante ?category=
+        $responseCategory = $this->get('/catalogo?category=sistemas-saas');
+        $responseCategory->assertRedirect('/catalogo/sistemas-saas');
+        $responseCategory->assertStatus(301);
 
-        $response->assertRedirect('/catalogo/sistemas-saas');
-        $response->assertStatus(301);
+        // Testa variante legada ?categoria=
+        $responseCategoria = $this->get('/catalogo?categoria=sistemas-saas');
+        $responseCategoria->assertRedirect('/catalogo/sistemas-saas');
+        $responseCategoria->assertStatus(301);
     }
 
     public function test_clean_blog_category_url_renders_and_legacy_redirects(): void
@@ -276,5 +286,274 @@ class SeoAndSitemapTest extends TestCase
 
         $response->assertStatus(301);
         $response->assertRedirect(route('storefront.show', 'script-novo'));
+    }
+
+    public function test_exact_title_tags_for_all_entities_without_brand_duplication(): void
+    {
+        // 1. Produto sem seo_title
+        $productWithoutSeo = Product::factory()->create([
+            'title' => 'Sistema Financeiro Pro',
+            'seo_title' => null,
+            'is_active' => true,
+            'file_path' => 'digital_products/sample.zip',
+        ]);
+        $resProductNoSeo = $this->get(route('storefront.show', $productWithoutSeo->slug));
+        $resProductNoSeo->assertSee('<title>Sistema Financeiro Pro — KL Tecnologia</title>', false);
+        $resProductNoSeo->assertDontSee('KL Tecnologia | KL Tecnologia');
+        $resProductNoSeo->assertDontSee('KL Tecnologia — KL Tecnologia');
+
+        // 2. Produto com seo_title
+        $productWithSeo = Product::factory()->create([
+            'title' => 'Sistema Financeiro Pro',
+            'seo_title' => 'Software Financeiro Completo com PIX',
+            'is_active' => true,
+            'file_path' => 'digital_products/sample.zip',
+        ]);
+        $resProductWithSeo = $this->get(route('storefront.show', $productWithSeo->slug));
+        $resProductWithSeo->assertSee('<title>Software Financeiro Completo com PIX</title>', false);
+        $resProductWithSeo->assertDontSee('KL Tecnologia | KL Tecnologia');
+
+        // 3. Categoria sem seo_title
+        $catNoSeo = Category::factory()->create([
+            'name' => 'Automações Web',
+            'slug' => 'automacoes-web',
+            'seo_title' => null,
+            'is_active' => true,
+        ]);
+        $resCatNoSeo = $this->get(route('catalog.category', $catNoSeo->slug));
+        $resCatNoSeo->assertSee('<title>Automações Web — KL Tecnologia</title>', false);
+        $resCatNoSeo->assertDontSee('KL Tecnologia | KL Tecnologia');
+
+        // 4. Categoria com seo_title
+        $catWithSeo = Category::factory()->create([
+            'name' => 'Scripts PHP',
+            'slug' => 'scripts-php-seo',
+            'seo_title' => 'Scripts PHP Profissionais para Venda',
+            'is_active' => true,
+        ]);
+        $resCatWithSeo = $this->get(route('catalog.category', $catWithSeo->slug));
+        $resCatWithSeo->assertSee('<title>Scripts PHP Profissionais para Venda</title>', false);
+        $resCatWithSeo->assertDontSee('KL Tecnologia | KL Tecnologia');
+
+        // 5. Post sem seo_title
+        $postNoSeo = Post::factory()->create([
+            'title' => 'Como Criar um SaaS em 30 Dias',
+            'seo_title' => null,
+            'is_published' => true,
+        ]);
+        $resPostNoSeo = $this->get(route('blog.show', $postNoSeo->slug));
+        $resPostNoSeo->assertSee('<title>Como Criar um SaaS em 30 Dias — Blog KL Tecnologia</title>', false);
+        $resPostNoSeo->assertDontSee('KL Tecnologia | KL Tecnologia');
+
+        // 6. Post com seo_title
+        $postWithSeo = Post::factory()->create([
+            'title' => 'Como Criar um SaaS em 30 Dias',
+            'seo_title' => 'Guia Definitivo SaaS 2026',
+            'is_published' => true,
+        ]);
+        $resPostWithSeo = $this->get(route('blog.show', $postWithSeo->slug));
+        $resPostWithSeo->assertSee('<title>Guia Definitivo SaaS 2026</title>', false);
+        $resPostWithSeo->assertDontSee('KL Tecnologia | KL Tecnologia');
+    }
+
+    public function test_product_detail_page_brand_and_license_display_and_no_fictitious_values(): void
+    {
+        // Produto COM brand e license cadastradas
+        $productWithSpecs = Product::factory()->create([
+            'title' => 'Script com Especificações Reais',
+            'brand' => 'TechStudio Brasil',
+            'license' => 'GPLv3 Comercial',
+            'price' => 149.00,
+            'is_active' => true,
+            'file_path' => 'digital_products/sample.zip',
+        ]);
+
+        $resSpecs = $this->get(route('storefront.show', $productWithSpecs->slug));
+        $resSpecs->assertOk();
+        $resSpecs->assertSee('TechStudio Brasil');
+        $resSpecs->assertSee('GPLv3 Comercial');
+
+        // Produto SEM brand e license cadastradas
+        $productEmptySpecs = Product::factory()->create([
+            'title' => 'Script Sem Campos Opcionais',
+            'brand' => null,
+            'license' => null,
+            'price' => 149.00,
+            'is_active' => true,
+            'file_path' => 'digital_products/sample.zip',
+        ]);
+
+        $resEmpty = $this->get(route('storefront.show', $productEmptySpecs->slug));
+        $resEmpty->assertOk();
+        // Não pode gerar marcas ou licenças fictícias
+        $resEmpty->assertDontSee('Marca / Autor');
+        $resEmpty->assertDontSee('Uso Vitalício');
+        $resEmpty->assertDontSee('Comercial');
+        $resEmpty->assertDontSee('De: R$');
+        $resEmpty->assertDontSee('47,00');
+    }
+
+    public function test_product_detail_page_pricing_is_factual_without_strikethrough_or_untrue_lifetime_claims(): void
+    {
+        // 1. Produto pago
+        $paidProduct = Product::factory()->create([
+            'title' => 'Sistema Pago Real',
+            'price' => 197.00,
+            'is_active' => true,
+            'file_path' => 'digital_products/sample.zip',
+        ]);
+
+        $resPaid = $this->get(route('storefront.show', $paidProduct->slug));
+        $resPaid->assertOk();
+        $resPaid->assertSee('R$ 197,00');
+        $resPaid->assertDontSee('<del', false);
+        $resPaid->assertDontSee('De: R$');
+
+        // 2. Produto grátis sem acesso vitalício
+        $freeProductNoLifetime = Product::factory()->create([
+            'title' => 'E-book Grátis Básico',
+            'price' => 0.00,
+            'lifetime_access' => false,
+            'is_active' => true,
+            'file_path' => 'digital_products/sample.zip',
+        ]);
+
+        $resFreeNoLifetime = $this->get(route('storefront.show', $freeProductNoLifetime->slug));
+        $resFreeNoLifetime->assertOk();
+        $resFreeNoLifetime->assertSee('GRÁTIS');
+        $resFreeNoLifetime->assertDontSee('De: R$');
+        $resFreeNoLifetime->assertDontSee('Sem cobrança. Acesso instantâneo e vitalício após o cadastro.');
+        $resFreeNoLifetime->assertSee('Sem cobrança. Acesso instantâneo após o cadastro.');
+
+        // 3. Produto grátis COM acesso vitalício
+        $freeProductWithLifetime = Product::factory()->create([
+            'title' => 'Template Grátis Vitalício',
+            'price' => 0.00,
+            'lifetime_access' => true,
+            'is_active' => true,
+            'file_path' => 'digital_products/sample.zip',
+        ]);
+
+        $resFreeLifetime = $this->get(route('storefront.show', $freeProductWithLifetime->slug));
+        $resFreeLifetime->assertOk();
+        $resFreeLifetime->assertSee('Sem cobrança. Acesso instantâneo e vitalício após o cadastro.');
+    }
+
+    public function test_pagination_canonical_on_catalog_and_blog_pages(): void
+    {
+        // Catálogo página 1
+        $resCatalogP1 = $this->get('/catalogo');
+        $resCatalogP1->assertSee('<link rel="canonical" href="'.url('/catalogo').'">', false);
+        $resCatalogP1->assertSee('<meta name="robots" content="index, follow">', false);
+
+        // Catálogo página 2
+        $resCatalogP2 = $this->get('/catalogo?page=2');
+        $resCatalogP2->assertSee('<link rel="canonical" href="'.url('/catalogo?page=2').'">', false);
+        $resCatalogP2->assertSee('<meta name="robots" content="index, follow">', false);
+
+        // Categoria página 2
+        $cat = Category::factory()->create(['is_active' => true]);
+        $resCatP2 = $this->get(route('catalog.category', $cat->slug).'?page=2');
+        $resCatP2->assertSee('<link rel="canonical" href="'.route('catalog.category', $cat->slug).'?page=2">', false);
+        $resCatP2->assertSee('<meta name="robots" content="index, follow">', false);
+
+        // Blog página 2
+        $resBlogP2 = $this->get(route('blog.index').'?page=2');
+        $resBlogP2->assertSee('<link rel="canonical" href="'.route('blog.index').'?page=2">', false);
+        $resBlogP2->assertSee('<meta name="robots" content="index, follow">', false);
+
+        // Blog Categoria página 2
+        $blogCat = BlogCategory::factory()->create(['is_active' => true]);
+        $resBlogCatP2 = $this->get(route('blog.category', $blogCat->slug).'?page=2');
+        $resBlogCatP2->assertSee('<link rel="canonical" href="'.route('blog.category', $blogCat->slug).'?page=2">', false);
+        $resBlogCatP2->assertSee('<meta name="robots" content="index, follow">', false);
+
+        // Busca com paginação deve manter noindex, follow e canonicalizar para landing page base
+        $resSearchPag = $this->get('/catalogo?q=laravel&page=2');
+        $resSearchPag->assertSee('<meta name="robots" content="noindex, follow">', false);
+        $resSearchPag->assertSee('<link rel="canonical" href="'.url('/catalogo').'">', false);
+    }
+
+    public function test_product_json_ld_omits_null_properties_and_preserves_required_structure(): void
+    {
+        $product = Product::factory()->create([
+            'title' => 'Produto Sem Imagem ou Marca',
+            'brand' => null,
+            'cover_path' => null,
+            'category_id' => null,
+            'category' => null,
+            'price' => 79.90,
+            'is_active' => true,
+            'file_path' => 'digital_products/sample.zip',
+        ]);
+
+        $response = $this->get(route('storefront.show', $product->slug));
+        $response->assertOk();
+
+        $content = $response->getContent();
+        preg_match_all('/<script type="application\/ld\+json">(.*?)<\/script>/s', $content, $matches);
+        $this->assertNotEmpty($matches[1]);
+        $productSchema = null;
+        foreach ($matches[1] as $json) {
+            $data = json_decode($json, true);
+            if (isset($data['@graph'])) {
+                $productSchema = collect($data['@graph'])->firstWhere('@type', 'Product');
+                if ($productSchema) {
+                    break;
+                }
+            }
+        }
+
+        $this->assertNotNull($productSchema);
+        $this->assertSame('Produto Sem Imagem ou Marca', $productSchema['name']);
+        $this->assertArrayNotHasKey('brand', $productSchema);
+        $this->assertArrayNotHasKey('image', $productSchema);
+        $this->assertArrayNotHasKey('category', $productSchema);
+        $this->assertSame('79.90', $productSchema['offers']['price']);
+        $this->assertSame('BRL', $productSchema['offers']['priceCurrency']);
+        $this->assertSame('KL-'.$product->id, $productSchema['sku']);
+        $this->assertArrayNotHasKey('aggregateRating', $productSchema);
+        $this->assertArrayNotHasKey('review', $productSchema);
+    }
+
+    public function test_article_json_ld_omits_image_when_cover_is_absent_and_keeps_publisher_logo(): void
+    {
+        $post = Post::factory()->create([
+            'title' => 'Artigo Sem Imagem de Capa',
+            'cover_path' => null,
+            'is_published' => true,
+        ]);
+
+        $response = $this->get(route('blog.show', $post->slug));
+        $response->assertOk();
+
+        $content = $response->getContent();
+        preg_match_all('/<script type="application\/ld\+json">(.*?)<\/script>/s', $content, $matches);
+        $this->assertNotEmpty($matches[1]);
+        $article = null;
+        foreach ($matches[1] as $json) {
+            $data = json_decode($json, true);
+            if (isset($data['@graph'])) {
+                $article = collect($data['@graph'])->firstWhere('@type', 'Article');
+                if ($article) {
+                    break;
+                }
+            }
+        }
+
+        $this->assertNotNull($article);
+        $this->assertSame('Artigo Sem Imagem de Capa', $article['headline']);
+        $this->assertArrayNotHasKey('image', $article);
+        $this->assertSame('KL Tecnologia', $article['publisher']['name']);
+        $this->assertStringContainsString('logo-kltecnologia.png', $article['publisher']['logo']['url']);
+    }
+
+    public function test_sitemap_does_not_contain_artificial_dates_for_static_pages(): void
+    {
+        $response = $this->get('/sitemap.xml');
+        $response->assertOk();
+
+        // Não deve conter startOfMonth gerado no ar
+        $this->assertStringNotContainsString(now()->startOfMonth()->toAtomString(), $response->getContent());
     }
 }

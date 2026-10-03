@@ -1,5 +1,5 @@
 <x-storefront-layout>
-    <x-slot:title>Política de Privacidade & LGPD</x-slot:title>
+    <x-slot:title>Política de Privacidade & LGPD — KL Tecnologia</x-slot:title>
 
 <div class="bg-slate-900 py-12 border-b border-slate-800">
     <div class="page-container">
