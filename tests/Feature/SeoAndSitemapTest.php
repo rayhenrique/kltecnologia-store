@@ -77,8 +77,8 @@ class SeoAndSitemapTest extends TestCase
 
         $response = $this->get('/sitemap.xml');
 
-        $response->assertSee(route('catalog.index', ['categoria' => $category->slug]), false);
-        $response->assertSee(route('blog.index', ['categoria' => $blogCat->slug]), false);
+        $response->assertSee(route('catalog.category', $category->slug), false);
+        $response->assertSee(route('blog.category', $blogCat->slug), false);
         $response->assertSee(route('blog.show', $publishedPost->slug), false);
         $response->assertDontSee(route('blog.show', $draftPost->slug), false);
     }
@@ -154,5 +154,127 @@ class SeoAndSitemapTest extends TestCase
         $response->assertSee('<meta name="google-site-verification" content="test-verification-code-12345">', false);
         $response->assertSee('https://www.googletagmanager.com/gtag/js?id=G-ABC123XYZ', false);
         $response->assertSee("gtag('config', 'G-ABC123XYZ');", false);
+    }
+
+    public function test_clean_catalog_category_url_renders_and_sets_canonical(): void
+    {
+        $category = Category::query()->where('slug', 'scripts-php')->first() ?? Category::factory()->create(['slug' => 'scripts-php']);
+        $category->update([
+            'name' => 'Scripts PHP',
+            'seo_title' => 'Comprar Scripts PHP Prontos | KL Tecnologia',
+            'meta_description' => 'Scripts PHP com código aberto e entrega imediata.',
+            'is_active' => true,
+        ]);
+
+        Product::factory()->create([
+            'category_id' => $category->id,
+            'title' => 'Script de Automação',
+            'is_active' => true,
+            'file_path' => 'digital_products/sample.zip',
+        ]);
+
+        $response = $this->get('/catalogo/scripts-php');
+
+        $response->assertStatus(200);
+        $response->assertSee('Comprar Scripts PHP Prontos | KL Tecnologia');
+        $response->assertSee('Scripts PHP com código aberto e entrega imediata.');
+        $response->assertSee('<link rel="canonical" href="'.url('/catalogo/scripts-php').'">', false);
+        $response->assertSee('<h1', false);
+        $response->assertSee('Scripts PHP');
+    }
+
+    public function test_legacy_catalog_query_param_redirects_301_to_clean_url(): void
+    {
+        Category::query()->where('slug', 'sistemas-saas')->first() ?? Category::factory()->create([
+            'slug' => 'sistemas-saas',
+            'is_active' => true,
+        ]);
+
+        $response = $this->get('/catalogo?category=sistemas-saas');
+
+        $response->assertRedirect('/catalogo/sistemas-saas');
+        $response->assertStatus(301);
+    }
+
+    public function test_clean_blog_category_url_renders_and_legacy_redirects(): void
+    {
+        $blogCategory = BlogCategory::factory()->create([
+            'name' => 'Tutoriais',
+            'slug' => 'tutoriais',
+            'is_active' => true,
+        ]);
+
+        Post::factory()->create([
+            'blog_category_id' => $blogCategory->id,
+            'title' => 'Tutorial de Laravel',
+            'is_published' => true,
+        ]);
+
+        $responseClean = $this->get('/blog/categoria/tutoriais');
+        $responseClean->assertStatus(200);
+        $responseClean->assertSee('Tutorial de Laravel');
+        $responseClean->assertSee('<link rel="canonical" href="'.url('/blog/categoria/tutoriais').'">', false);
+
+        $responseLegacy = $this->get('/blog?categoria=tutoriais');
+        $responseLegacy->assertRedirect('/blog/categoria/tutoriais');
+        $responseLegacy->assertStatus(301);
+    }
+
+    public function test_filter_and_search_query_strings_inject_noindex_follow(): void
+    {
+        $responseSearch = $this->get('/catalogo?q=laravel');
+        $responseSearch->assertStatus(200);
+        $responseSearch->assertSee('<meta name="robots" content="noindex, follow">', false);
+        $responseSearch->assertSee('<link rel="canonical" href="'.url('/catalogo').'">', false);
+
+        $responseSort = $this->get('/catalogo?sort=price_asc');
+        $responseSort->assertStatus(200);
+        $responseSort->assertSee('<meta name="robots" content="noindex, follow">', false);
+    }
+
+    public function test_product_detail_page_does_not_contain_fake_reviews_or_generic_tech(): void
+    {
+        $product = Product::factory()->create([
+            'title' => 'Bot Python Telegram',
+            'description' => 'Robô para automação de mensagens.',
+            'includes_source_code' => false,
+            'lifetime_access' => true,
+            'license' => 'Licença Individual 1 Domínio',
+            'requirements' => 'Python 3.11+, VPS Linux',
+            'features' => 'Painel Web, Webhook integrado',
+            'is_active' => true,
+            'file_path' => 'digital_products/sample.zip',
+        ]);
+
+        $response = $this->get(route('storefront.show', $product->slug));
+
+        $response->assertStatus(200);
+        $response->assertDontSee('48 avaliações de clientes verificados');
+        $response->assertDontSee('100% avaliaram como excelente');
+        $response->assertDontSee('aggregateRating');
+        $response->assertDontSee('review');
+        $response->assertDontSee('Código Fonte Incluso');
+        $response->assertSee('Licença Individual 1 Domínio');
+        $response->assertSee('Python 3.11+, VPS Linux');
+        $response->assertSee('Painel Web');
+    }
+
+    public function test_slug_redirect_works_when_product_slug_changes(): void
+    {
+        $product = Product::factory()->create([
+            'title' => 'Script Antigo',
+            'slug' => 'script-antigo',
+            'is_active' => true,
+            'file_path' => 'digital_products/sample.zip',
+        ]);
+
+        // Manually update slug to trigger redirect creation
+        $product->slug = 'script-novo';
+        $product->save();
+
+        $response = $this->get('/produtos/script-antigo');
+
+        $response->assertStatus(301);
+        $response->assertRedirect(route('storefront.show', 'script-novo'));
     }
 }

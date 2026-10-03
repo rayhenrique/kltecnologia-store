@@ -1,20 +1,41 @@
 @props([
     'title' => null,
     'metaDescription' => 'Plataforma oficial de produtos digitais, scripts, sistemas SaaS, automações e templates prontos para acelerar seu negócio na KL Tecnologia.',
+    'ogTitle' => null,
+    'ogDescription' => null,
     'ogImage' => null,
     'ogType' => 'website',
     'canonical' => null,
+    'robots' => null,
 ])
+@php
+    $hasFilterParams = request()->hasAny(['q', 'sort', 'min_price', 'max_price']) || (request()->has('categoria') && !request()->routeIs('blog.category'));
+    $effectiveRobots = $robots ?? ($hasFilterParams ? 'noindex, follow' : 'index, follow');
+
+    if (!isset($canonical)) {
+        if (request()->has('page') && (int) request('page') > 1) {
+            $effectiveCanonical = url()->current() . '?page=' . (int) request('page');
+        } else {
+            $effectiveCanonical = url()->current();
+        }
+    } else {
+        $effectiveCanonical = $canonical;
+    }
+
+    $pageTitle = !empty($title) ? $title . ' | ' . config('app.name', 'KL Tecnologia') : config('app.name', 'KL Tecnologia');
+    $resolvedOgTitle = $ogTitle ?? $pageTitle;
+    $resolvedOgDescription = $ogDescription ?? $metaDescription;
+@endphp
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ !empty($title) ? $title.' | ' : '' }}{{ config('app.name', 'KL Tecnologia') }}</title>
+    <title>{{ $pageTitle }}</title>
     <meta name="description" content="{{ $metaDescription }}">
-    <meta name="robots" content="index, follow">
-    <link rel="canonical" href="{{ $canonical ?? url()->current() }}">
+    <meta name="robots" content="{{ $effectiveRobots }}">
+    <link rel="canonical" href="{{ $effectiveCanonical }}">
 
     @if(config('services.google.site_verification'))
         <meta name="google-site-verification" content="{{ config('services.google.site_verification') }}">
@@ -33,14 +54,14 @@
 
     {{-- Open Graph & Twitter Card --}}
     <meta property="og:type" content="{{ $ogType }}">
-    <meta property="og:title" content="{{ !empty($title) ? $title.' | ' : '' }}{{ config('app.name', 'KL Tecnologia') }}">
-    <meta property="og:description" content="{{ $metaDescription }}">
-    <meta property="og:url" content="{{ $canonical ?? url()->current() }}">
+    <meta property="og:title" content="{{ $resolvedOgTitle }}">
+    <meta property="og:description" content="{{ $resolvedOgDescription }}">
+    <meta property="og:url" content="{{ $effectiveCanonical }}">
     <meta property="og:image" content="{{ $ogImage ?? asset('images/logo-kltecnologia.png') }}">
     <meta property="og:site_name" content="KL Tecnologia">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="{{ !empty($title) ? $title.' | ' : '' }}{{ config('app.name', 'KL Tecnologia') }}">
-    <meta name="twitter:description" content="{{ $metaDescription }}">
+    <meta name="twitter:title" content="{{ $resolvedOgTitle }}">
+    <meta name="twitter:description" content="{{ $resolvedOgDescription }}">
     <meta name="twitter:image" content="{{ $ogImage ?? asset('images/logo-kltecnologia.png') }}">
 
     <link rel="icon" type="image/png" href="{{ asset('images/logo-kltecnologia.png') }}">
@@ -57,7 +78,7 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     @endproduction
 
-    {{-- Global Structured Data (Organization & WebSite with SearchAction) --}}
+    {{-- Global Structured Data (Organization & WebSite) --}}
     <script type="application/ld+json">
     {!! json_encode([
         '@context' => 'https://schema.org',
@@ -81,14 +102,6 @@
                 'name' => 'KL Tecnologia',
                 'publisher' => [
                     '@id' => url('/') . '#organization',
-                ],
-                'potentialAction' => [
-                    '@type' => 'SearchAction',
-                    'target' => [
-                        '@type' => 'EntryPoint',
-                        'urlTemplate' => route('catalog.index') . '?q={search_term_string}',
-                    ],
-                    'query-input' => 'required name=search_term_string',
                 ],
             ],
         ],

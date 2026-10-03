@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ListFilterRequest;
+use App\Models\Category;
+use App\Models\Post;
 use App\Models\Product;
 use Illuminate\View\View;
 
@@ -51,10 +53,18 @@ class StorefrontController extends Controller
             ->take(8)
             ->get();
 
+        $categories = Category::query()
+            ->active()
+            ->whereHas('products', fn ($q) => $q->availableForSale())
+            ->withCount(['products' => fn ($q) => $q->availableForSale()])
+            ->take(8)
+            ->get();
+
         return view('storefront.index', [
             'products' => $products,
             'featuredProducts' => $featuredProducts,
             'recentUpdates' => $recentUpdates,
+            'categories' => $categories,
             'search' => $search,
         ]);
     }
@@ -68,13 +78,38 @@ class StorefrontController extends Controller
         $relatedProducts = Product::query()
             ->availableForSale()
             ->where('id', '!=', $product->id)
-            ->inRandomOrder()
+            ->when($product->category_id, function ($q) use ($product): void {
+                $q->orderByRaw('CASE WHEN category_id = ? THEN 0 ELSE 1 END', [$product->category_id]);
+            })
+            ->orderByDesc('updated_at')
+            ->orderByDesc('created_at')
             ->take(4)
             ->get();
+
+        $relatedPosts = Post::query()
+            ->published()
+            ->when($product->categoryGroup, function ($query) use ($product): void {
+                $query->where(function ($q) use ($product): void {
+                    $q->where('category', 'like', '%'.$product->categoryGroup->name.'%')
+                        ->orWhere('title', 'like', '%'.$product->categoryGroup->name.'%');
+                });
+            })
+            ->latest('published_at')
+            ->take(3)
+            ->get();
+
+        if ($relatedPosts->isEmpty()) {
+            $relatedPosts = Post::query()
+                ->published()
+                ->latest('published_at')
+                ->take(3)
+                ->get();
+        }
 
         return view('storefront.show', [
             'product' => $product,
             'relatedProducts' => $relatedProducts,
+            'relatedPosts' => $relatedPosts,
         ]);
     }
 }

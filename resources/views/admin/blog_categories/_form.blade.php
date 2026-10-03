@@ -105,6 +105,60 @@
             <p class="mt-1 text-xs text-slate-400">Esta descrição pode ser exibida no cabeçalho da página de filtragem do blog.</p>
             <x-input-error :messages="$errors->get('description')" class="mt-1.5 text-xs text-red-500" />
         </div>
+
+        {{-- SEO da Categoria do Blog --}}
+        <div class="rounded-xl border border-slate-200 bg-slate-50/70 p-5 space-y-4" x-data="{
+            seoTitle: @js(old('seo_title', $blogCategory->seo_title ?? '')),
+            seoDescription: @js(old('meta_description', $blogCategory->meta_description ?? '')),
+            name: @js(old('name', $blogCategory->name ?? ''))
+        }">
+            <div>
+                <h4 class="font-display text-sm font-bold text-slate-900">SEO da Categoria do Blog</h4>
+                <p class="text-xs text-slate-500 mt-0.5">Otimize a indexação da página de categoria do blog no Google.</p>
+            </div>
+
+            <div class="grid gap-4 sm:grid-cols-2">
+                <div>
+                    <div class="flex justify-between items-center mb-1">
+                        <x-input-label for="seo_title" value="Título SEO (opcional)" class="text-xs font-bold uppercase text-slate-700" />
+                        <span class="text-[11px] text-slate-600 font-mono" x-text="(seoTitle ? seoTitle.length : 0) + ' / 60'"></span>
+                    </div>
+                    <x-text-input 
+                        id="seo_title" 
+                        name="seo_title" 
+                        type="text" 
+                        x-model="seoTitle"
+                        class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm text-slate-900 shadow-2xs" 
+                        placeholder="Ex: Artigos e Tutoriais | Blog KL Tecnologia" 
+                    />
+                    <x-input-error :messages="$errors->get('seo_title')" class="mt-1.5 text-xs text-red-500" />
+                </div>
+
+                <div>
+                    <div class="flex justify-between items-center mb-1">
+                        <x-input-label for="meta_description" value="Meta Description (opcional)" class="text-xs font-bold uppercase text-slate-700" />
+                        <span class="text-[11px] text-slate-600 font-mono" x-text="(seoDescription ? seoDescription.length : 0) + ' / 160'"></span>
+                    </div>
+                    <textarea 
+                        id="meta_description" 
+                        name="meta_description" 
+                        rows="2" 
+                        x-model="seoDescription"
+                        class="w-full rounded-xl border border-slate-300 p-2.5 text-sm text-slate-900 shadow-2xs" 
+                        placeholder="Ex: Leia artigos práticos e novidades sobre tecnologia, programação e SaaS no Blog da KL Tecnologia..."
+                    ></textarea>
+                    <x-input-error :messages="$errors->get('meta_description')" class="mt-1.5 text-xs text-red-500" />
+                </div>
+            </div>
+
+            {{-- Prévia no Google (SERP) --}}
+            <div class="rounded-lg border border-slate-200 bg-white p-3.5 space-y-1">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-600">Prévia no Google</span>
+                <p class="text-xs text-emerald-700 font-mono truncate">{{ url('/blog/categoria/' . ($blogCategory->slug ?? 'categoria')) }}</p>
+                <h5 class="text-base text-blue-700 font-medium hover:underline truncate" x-text="seoTitle || (name ? name + ' - Blog | KL Tecnologia' : 'Categoria - Blog | KL Tecnologia')"></h5>
+                <p class="text-xs text-slate-600 line-clamp-2" x-text="seoDescription || 'Artigos e novidades na categoria selecionada no Blog da KL Tecnologia.'"></p>
+            </div>
+        </div>
     </div>
 
     {{-- BOTÕES DE AÇÃO --}}

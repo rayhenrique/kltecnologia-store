@@ -1,16 +1,36 @@
-<x-storefront-layout>
-    <x-slot:title>Catálogo de Produtos Digitais</x-slot:title>
-
+@php
+    $currentCategory = $currentCategory ?? null;
+    $catalogTitle = $currentCategory
+        ? ($currentCategory->seo_title ?: $currentCategory->name . ' — Catálogo de Produtos Digitais')
+        : 'Catálogo de Produtos Digitais — Scripts, Softwares e Templates';
+    $catalogMetaDesc = $currentCategory
+        ? ($currentCategory->meta_description ?: ($currentCategory->description ?: 'Explore nossa seleção de ' . $currentCategory->name . ' prontos para download com entrega imediata na KL Tecnologia.'))
+        : 'Explore o catálogo completo de sistemas web, scripts, templates e automações prontas da KL Tecnologia com download imediato.';
+    $catalogCanonical = $currentCategory
+        ? route('catalog.category', $currentCategory->slug)
+        : route('catalog.index');
+@endphp
+<x-storefront-layout 
+    :title="$catalogTitle"
+    :meta-description="$catalogMetaDesc"
+    :canonical="$catalogCanonical"
+>
     {{-- 1. PAGE HEADER (Green/Teal Banner like in the reference image) --}}
     <section class="bg-gradient-to-r from-teal-500 via-emerald-500 to-teal-600 py-6 text-white shadow-inner">
         <div class="page-container flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
             <h1 class="font-display text-2xl sm:text-3xl font-bold tracking-tight text-white">
-                Produtos Digitais
+                {{ $currentCategory ? $currentCategory->name : 'Produtos Digitais' }}
             </h1>
-            <nav class="flex items-center gap-2 text-xs font-semibold text-teal-100" aria-label="Breadcrumb">
+            <nav class="flex items-center gap-2 text-xs font-semibold text-teal-100 flex-wrap" aria-label="Breadcrumb">
                 <a href="{{ route('storefront.index') }}" class="hover:text-white transition">Início</a>
                 <span>/</span>
-                <span class="text-white">Catálogo</span>
+                @if($currentCategory)
+                    <a href="{{ route('catalog.index') }}" class="hover:text-white transition">Catálogo</a>
+                    <span>/</span>
+                    <span class="text-white">{{ $currentCategory->name }}</span>
+                @else
+                    <span class="text-white">Catálogo</span>
+                @endif
             </nav>
         </div>
     </section>
@@ -47,13 +67,13 @@
                             Filtrar produtos
                         </h2>
                         @if(!empty(array_filter($filters)))
-                            <a href="{{ route('catalog.index') }}" class="hidden md:inline text-xs font-semibold text-teal-600 hover:text-teal-700 underline">
+                            <a href="{{ $currentCategory ? route('catalog.category', $currentCategory->slug) : route('catalog.index') }}" class="hidden md:inline text-xs font-semibold text-teal-600 hover:text-teal-700 underline">
                                 Limpar
                             </a>
                         @endif
                     </div>
 
-                    <form action="{{ route('catalog.index') }}" method="GET" class="space-y-4" :class="filtersMobileOpen ? 'block' : 'hidden md:block'">
+                    <form action="{{ $currentCategory ? route('catalog.category', $currentCategory->slug) : route('catalog.index') }}" method="GET" class="space-y-4" :class="filtersMobileOpen ? 'block' : 'hidden md:block'">
                         {{-- Buscar --}}
                         <div>
                             <label for="filter-q" class="block text-xs font-bold text-slate-700 mb-1">
@@ -77,14 +97,17 @@
                             <select 
                                 id="filter-category" 
                                 name="category" 
+                                onchange="if(this.value === 'all') { window.location.href = '{{ route('catalog.index') }}'; } else if(this.value) { window.location.href = '/catalogo/' + this.value; }"
                                 class="w-full rounded-lg border border-slate-300 px-3 py-2 text-xs text-slate-900 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 shadow-sm"
                             >
-                                <option value="all" {{ request('category', 'all') === 'all' ? 'selected' : '' }}>Todas</option>
-                                <option value="scripts" {{ request('category') === 'scripts' ? 'selected' : '' }}>Scripts</option>
-                                <option value="templates" {{ request('category') === 'templates' ? 'selected' : '' }}>Templates</option>
-                                <option value="sistemas" {{ request('category') === 'sistemas' ? 'selected' : '' }}>Sistemas & SaaS</option>
-                                <option value="softwares" {{ request('category') === 'softwares' ? 'selected' : '' }}>Softwares & Extensões</option>
-                                <option value="outros" {{ request('category') === 'outros' ? 'selected' : '' }}>Outros</option>
+                                <option value="all" {{ (!$currentCategory && (request('category', 'all') === 'all')) ? 'selected' : '' }}>Todas as Categorias</option>
+                                @if(isset($allCategories))
+                                    @foreach($allCategories as $cat)
+                                        <option value="{{ $cat->slug }}" {{ ($currentCategory?->id === $cat->id || request('category') === $cat->slug) ? 'selected' : '' }}>
+                                            {{ $cat->name }} ({{ $cat->products_count }})
+                                        </option>
+                                    @endforeach
+                                @endif
                             </select>
                         </div>
 
@@ -150,9 +173,12 @@
                     <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm mb-6 border-l-4 border-l-teal-500">
                         <h2 class="font-display text-lg font-bold text-slate-900">
                             {{ $products->total() }} {{ $products->total() === 1 ? 'item ativo' : 'itens ativos' }}
+                            @if($currentCategory)
+                                em {{ $currentCategory->name }}
+                            @endif
                         </h2>
                         <p class="mt-1 text-xs text-slate-500 leading-relaxed">
-                            Catálogo de produtos digitais da KL Tecnologia: scripts, sistemas, templates e automações com entrega imediata e download protegido.
+                            {{ $currentCategory?->description ?: 'Catálogo de produtos digitais da KL Tecnologia: scripts, sistemas, templates e automações com entrega imediata e download protegido.' }}
                         </p>
                     </div>
 
@@ -180,10 +206,11 @@
                                         @endif
                                     </a>
 
-                                    {{-- Badge Amarelo "DESTAQUE" no canto inferior esquerdo da capa --}}
-                                    <span class="absolute bottom-2 left-2 rounded bg-amber-400 px-2 py-0.5 text-[9px] font-black uppercase tracking-wider text-slate-950 shadow-sm">
-                                        DESTAQUE
-                                    </span>
+                                    @if($product->is_featured)
+                                        <span class="absolute bottom-2 left-2 rounded bg-amber-400 px-2 py-0.5 text-[9px] font-black uppercase tracking-wider text-slate-950 shadow-sm">
+                                            DESTAQUE
+                                        </span>
+                                    @endif
 
                                     {{-- Ícone de Coração / Favorito no canto superior direito da capa --}}
                                     <button 
@@ -204,7 +231,7 @@
                                                     slug: {{ json_encode($product->slug) }},
                                                     price: {{ (float) $product->price }},
                                                     cover_image: {{ json_encode($product->cover_path ? asset($product->cover_path) : null) }},
-                                                    category: {{ json_encode($product->categoryRelation?->name ?? 'Sistema Web') }}
+                                                    category: {{ json_encode($product->categoryGroup?->name ?? $product->category ?? 'Sistema Web') }}
                                                 });
                                             }
                                         "
@@ -226,7 +253,7 @@
                                     </h3>
                                     
                                     <p class="mt-1.5 text-xs text-slate-500 line-clamp-2 leading-relaxed min-h-[2rem]">
-                                        {{ $product->description }}
+                                        {{ $product->short_description ?: Str::limit(trim(preg_replace('/\s+/', ' ', strip_tags($product->description))), 100) }}
                                     </p>
 
                                     {{-- Linha de Downloads / Imediato --}}
@@ -240,7 +267,9 @@
                                     {{-- Rodapé do Card --}}
                                     <div class="mt-auto pt-3 border-t border-slate-100 flex items-center justify-between">
                                         <div>
-                                            <span class="text-xs font-bold text-teal-700 block">Digital</span>
+                                            <span class="text-xs font-bold text-teal-700 block">
+                                                {{ $product->categoryGroup?->name ?? $product->category ?? 'Digital' }}
+                                            </span>
                                             <span class="text-[10px] font-mono text-slate-400">KL TEC</span>
                                         </div>
                                         <div class="text-right">
@@ -266,8 +295,8 @@
                                                 title: {{ json_encode($product->title) }},
                                                 slug: {{ json_encode($product->slug) }},
                                                 price: {{ (float) $product->price }},
-                                                cover_image: {{ json_encode($product->cover_image) }},
-                                                category: {{ json_encode($product->categoryRelation?->name ?? 'Sistema Web') }}
+                                                cover_image: {{ json_encode($product->cover_path ? asset($product->cover_path) : null) }},
+                                                category: {{ json_encode($product->categoryGroup?->name ?? $product->category ?? 'Sistema Web') }}
                                             })"
                                             class="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-teal-200 bg-teal-50 text-teal-700 hover:bg-teal-700 hover:text-white transition shrink-0 cursor-pointer"
                                             title="Adicionar ao Carrinho"
@@ -298,7 +327,7 @@
                                     Tente ajustar os filtros ao lado para encontrar o produto desejado.
                                 </p>
                                 <div class="mt-4">
-                                    <a href="{{ route('catalog.index') }}" class="inline-flex items-center rounded-lg bg-slate-800 text-white px-4 py-2 text-xs font-bold hover:bg-slate-700 transition">
+                                    <a href="{{ $currentCategory ? route('catalog.category', $currentCategory->slug) : route('catalog.index') }}" class="inline-flex items-center rounded-lg bg-slate-800 text-white px-4 py-2 text-xs font-bold hover:bg-slate-700 transition">
                                         Limpar todos os filtros
                                     </a>
                                 </div>

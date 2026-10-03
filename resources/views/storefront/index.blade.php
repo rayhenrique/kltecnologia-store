@@ -14,7 +14,7 @@
                     Projetos e Templates para <span class="bg-gradient-to-r from-teal-400 via-cyan-300 to-blue-400 bg-clip-text text-transparent">acelerar sua execução.</span>
                 </h1>
                 <p class="mt-6 text-base sm:text-lg leading-relaxed text-slate-300">
-                    Acesso imediato a códigos autorais, templates e automações de alta qualidade. Compra unitária e segura, sem taxas ocultas ou mensalidades.
+                    Acesso imediato a scripts, sistemas, templates e produtos digitais prontos para produção. Compra única com entrega direta e segura.
                 </p>
             </div>
 
@@ -40,6 +40,18 @@
                         Buscar
                     </button>
                 </form>
+
+                @if(isset($categories) && $categories->isNotEmpty())
+                    <div class="mt-4 flex flex-wrap items-center justify-center gap-2">
+                        <span class="text-xs text-slate-400 font-mono">Categorias:</span>
+                        @foreach($categories as $cat)
+                            <a href="{{ route('catalog.category', $cat->slug) }}" class="inline-flex items-center gap-1.5 rounded-full bg-slate-800/80 hover:bg-teal-500/20 border border-slate-700 hover:border-teal-500/40 px-3 py-1 text-xs text-slate-300 hover:text-teal-300 transition">
+                                <span>{{ $cat->name }}</span>
+                                <span class="text-[10px] text-slate-500 font-mono">({{ $cat->products_count }})</span>
+                            </a>
+                        @endforeach
+                    </div>
+                @endif
             </div>
         </div>
     </section>
@@ -220,7 +232,7 @@
                             </a>
                         </h3>
                         <p class="mt-2 text-xs text-slate-600 line-clamp-2 leading-relaxed">
-                            {{ $item->description }}
+                            {{ $item->short_description ?: Str::limit(trim(preg_replace('/\s+/', ' ', strip_tags($item->description))), 100) }}
                         </p>
 
                         <div class="mt-auto pt-5 border-t border-slate-100 flex items-center justify-between gap-2">
@@ -347,7 +359,7 @@
                             </a>
                         </h3>
                         <p class="mt-2.5 line-clamp-3 text-sm leading-relaxed text-slate-600">
-                            {{ $product->description }}
+                            {{ $product->short_description ?: Str::limit(trim(preg_replace('/\s+/', ' ', strip_tags($product->description))), 120) }}
                         </p>
 
                         <div class="mt-auto flex items-center justify-between gap-4 pt-6 border-t border-slate-100">
@@ -432,7 +444,7 @@
                                 </h3>
                             </div>
                             <p class="text-xs text-slate-600 mt-0.5 line-clamp-1">
-                                {{ $update->description }}
+                                {{ $update->short_description ?: Str::limit(trim(preg_replace('/\s+/', ' ', strip_tags($update->description))), 80) }}
                             </p>
                         </div>
                     </div>

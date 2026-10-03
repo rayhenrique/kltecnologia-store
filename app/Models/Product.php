@@ -26,6 +26,19 @@ class Product extends Model
         'category',
         'version',
         'description',
+        'short_description',
+        'seo_title',
+        'meta_description',
+        'product_type',
+        'brand',
+        'features',
+        'requirements',
+        'license',
+        'support_info',
+        'demo_url',
+        'documentation_url',
+        'includes_source_code',
+        'lifetime_access',
         'price',
         'cover_path',
         'file_path',
@@ -39,6 +52,8 @@ class Product extends Model
     protected $attributes = [
         'is_active' => true,
         'is_featured' => false,
+        'includes_source_code' => false,
+        'lifetime_access' => false,
     ];
 
     protected static function booted(): void
@@ -140,6 +155,8 @@ class Product extends Model
             'price' => 'decimal:2',
             'is_active' => 'boolean',
             'is_featured' => 'boolean',
+            'includes_source_code' => 'boolean',
+            'lifetime_access' => 'boolean',
         ];
     }
 }

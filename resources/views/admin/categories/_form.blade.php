@@ -107,6 +107,60 @@
             <x-input-error :messages="$errors->get('description')" class="mt-1.5 text-xs text-red-500" />
         </div>
 
+        {{-- SEO da Categoria --}}
+        <div class="rounded-xl border border-slate-200 bg-slate-50/70 p-5 space-y-4" x-data="{
+            seoTitle: @js(old('seo_title', $category->seo_title ?? '')),
+            seoDescription: @js(old('meta_description', $category->meta_description ?? '')),
+            name: @js(old('name', $category->name ?? ''))
+        }">
+            <div>
+                <h4 class="font-display text-sm font-bold text-slate-900">SEO da Categoria</h4>
+                <p class="text-xs text-slate-500 mt-0.5">Otimize a indexação da página de catálogo desta categoria no Google.</p>
+            </div>
+
+            <div class="grid gap-4 sm:grid-cols-2">
+                <div>
+                    <div class="flex justify-between items-center mb-1">
+                        <x-input-label for="seo_title" value="Título SEO (opcional)" class="text-xs font-bold uppercase text-slate-700" />
+                        <span class="text-[11px] text-slate-600 font-mono" x-text="(seoTitle ? seoTitle.length : 0) + ' / 60'"></span>
+                    </div>
+                    <x-text-input 
+                        id="seo_title" 
+                        name="seo_title" 
+                        type="text" 
+                        x-model="seoTitle"
+                        class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm text-slate-900 shadow-2xs" 
+                        placeholder="Ex: Scripts PHP e Sistemas Prontos | KL Tecnologia" 
+                    />
+                    <x-input-error :messages="$errors->get('seo_title')" class="mt-1.5 text-xs text-red-500" />
+                </div>
+
+                <div>
+                    <div class="flex justify-between items-center mb-1">
+                        <x-input-label for="meta_description" value="Meta Description (opcional)" class="text-xs font-bold uppercase text-slate-700" />
+                        <span class="text-[11px] text-slate-600 font-mono" x-text="(seoDescription ? seoDescription.length : 0) + ' / 160'"></span>
+                    </div>
+                    <textarea 
+                        id="meta_description" 
+                        name="meta_description" 
+                        rows="2" 
+                        x-model="seoDescription"
+                        class="w-full rounded-xl border border-slate-300 p-2.5 text-sm text-slate-900 shadow-2xs" 
+                        placeholder="Ex: Explore nossa seleção de scripts e sistemas prontos para seu negócio com entrega imediata..."
+                    ></textarea>
+                    <x-input-error :messages="$errors->get('meta_description')" class="mt-1.5 text-xs text-red-500" />
+                </div>
+            </div>
+
+            {{-- Prévia no Google (SERP) --}}
+            <div class="rounded-lg border border-slate-200 bg-white p-3.5 space-y-1">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-600">Prévia no Google</span>
+                <p class="text-xs text-emerald-700 font-mono truncate">{{ url('/catalogo/' . ($category->slug ?? 'categoria')) }}</p>
+                <h5 class="text-base text-blue-700 font-medium hover:underline truncate" x-text="seoTitle || (name ? name + ' | KL Tecnologia' : 'Título da Categoria | KL Tecnologia')"></h5>
+                <p class="text-xs text-slate-600 line-clamp-2" x-text="seoDescription || 'Catálogo de soluções digitais na categoria selecionada na KL Tecnologia.'"></p>
+            </div>
+        </div>
+
         @if($editing)
             <div class="rounded-xl bg-slate-50 border border-slate-200/80 p-4 flex items-center justify-between text-xs text-slate-600">
                 <div class="flex items-center gap-2">

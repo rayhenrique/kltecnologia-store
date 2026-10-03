@@ -508,3 +508,715 @@
   - [x] Desenvolver suíte completa de testes automatizados `ChangelogTest` (`tests/Feature/ChangelogTest.php`) com 12 testes e 39 asserções cobrindo autenticação, isolamento de notas de admin/cliente, dispensa assíncrona, json de histórico, tela de novidades do admin e item de menu na sidebar.
   - [x] Suíte de testes geral elevada para **240 testes aprovados (1007 asserções)** com 100% de conformidade com o Laravel Pint.
 
+# SEO — KL Tecnologia
+
+> Objetivo: preparar a infraestrutura técnica e editorial da KL Tecnologia para SEO orgânico antes da otimização individual dos produtos.
+>
+> **Regra de execução:** marcar uma tarefa como `[x]` somente quando a implementação correspondente estiver concluída e validada. Não marcar tarefas apenas porque o código foi iniciado.
+>
+> **Importante:** este plano não inclui a reescrita individual dos produtos existentes. O conteúdo SEO de cada produto será tratado posteriormente.
+
+---
+
+## Fase SEO 01 — Auditoria da implementação atual
+
+- [x] Revisar a arquitetura SEO atual do projeto.
+- [x] Revisar `routes/web.php`.
+- [x] Revisar `StorefrontController`.
+- [x] Revisar `CatalogController`.
+- [x] Revisar `BlogController`.
+- [x] Revisar `SitemapController`.
+- [x] Revisar model `Product`.
+- [x] Revisar model `Category`.
+- [x] Revisar model `Post`.
+- [x] Revisar model `BlogCategory`.
+- [x] Revisar `Admin/ProductController`.
+- [x] Revisar requests relacionados a produtos, posts e categorias.
+- [x] Revisar `ProductStorageService`.
+- [x] Revisar `resources/views/layouts/storefront.blade.php`.
+- [x] Revisar `resources/views/storefront/index.blade.php`.
+- [x] Revisar `resources/views/storefront/show.blade.php`.
+- [x] Revisar `resources/views/catalog/index.blade.php`.
+- [x] Revisar `resources/views/blog/index.blade.php`.
+- [x] Revisar `resources/views/blog/show.blade.php`.
+- [x] Revisar formulários administrativos.
+- [x] Revisar migrations existentes.
+- [x] Revisar `tests/Feature/SeoAndSitemapTest.php`.
+- [x] Revisar `public/robots.txt`.
+- [x] Identificar regressões ou inconsistências entre rotas, sitemap, canonicals e filtros.
+- [x] Registrar no resumo final os problemas encontrados antes das alterações.
+
+---
+
+## Fase SEO 02 — Estrutura de dados dos produtos
+
+- [x] Criar migration retrocompatível para novos campos SEO e comerciais de produtos.
+- [x] Adicionar `short_description`.
+- [x] Adicionar `seo_title`.
+- [x] Adicionar `meta_description`.
+- [x] Adicionar `product_type`.
+- [x] Adicionar campo opcional para marca/desenvolvedor.
+- [x] Adicionar campo para funcionalidades/recursos.
+- [x] Adicionar campo para requisitos.
+- [x] Adicionar campo para informações de licença.
+- [x] Adicionar campo para informações de suporte.
+- [x] Adicionar `demo_url`.
+- [x] Adicionar `documentation_url`.
+- [x] Adicionar `includes_source_code`.
+- [x] Adicionar `lifetime_access`.
+- [x] Atualizar `$fillable` do model `Product`.
+- [x] Atualizar casts necessários.
+- [x] Garantir que todos os novos campos sejam opcionais quando aplicável.
+- [x] Não criar `meta_keywords`.
+- [x] Não alterar automaticamente slugs existentes.
+- [x] Garantir compatibilidade com produtos já cadastrados.
+
+---
+
+## Fase SEO 03 — Administração de produtos
+
+- [x] Criar seção `SEO & Apresentação` no formulário administrativo.
+- [x] Adicionar campo `Título SEO`.
+- [x] Adicionar campo `Meta description`.
+- [x] Adicionar campo `Descrição curta`.
+- [x] Adicionar campo `Tipo de produto`.
+- [x] Adicionar campo `Marca / Desenvolvedor`.
+- [x] Adicionar campo `Recursos / Funcionalidades`.
+- [x] Adicionar campo `Requisitos`.
+- [x] Adicionar campo `Licença`.
+- [x] Adicionar campo `Suporte`.
+- [x] Adicionar campo `URL de demonstração`.
+- [x] Adicionar campo `URL de documentação`.
+- [x] Adicionar opção `Contém código-fonte`.
+- [x] Adicionar opção `Acesso vitalício`.
+- [x] Implementar validação server-side.
+- [x] Implementar contador visual para título SEO.
+- [x] Implementar contador visual para meta description.
+- [x] Implementar preview simples de resultado do Google.
+- [x] Garantir que informações comerciais não sejam preenchidas automaticamente.
+
+---
+
+## Fase SEO 04 — Remover informações genéricas incorretas
+
+- [x] Remover afirmação global `Código Fonte Incluso`.
+- [x] Remover afirmação global `Uso Vitalício`.
+- [x] Remover afirmação global `Licença Comercial Definitiva`.
+- [x] Remover afirmação global `Código 100% desbloqueado`.
+- [x] Remover afirmação global de banco de dados SQL.
+- [x] Remover requisitos globais de PHP.
+- [x] Remover requisitos globais de MySQL/MariaDB.
+- [x] Remover requisitos globais de Apache/Nginx.
+- [x] Remover afirmações globais sobre trava de domínio.
+- [x] Remover afirmações globais sobre instalação para clientes.
+- [x] Exibir código-fonte somente quando `includes_source_code = true`.
+- [x] Exibir acesso vitalício somente quando `lifetime_access = true`.
+- [x] Exibir requisitos somente quando cadastrados.
+- [x] Exibir licença somente quando cadastrada.
+- [x] Exibir suporte somente quando cadastrado.
+- [x] Não apresentar a KL como desenvolvedora de produtos de terceiros.
+
+---
+
+## Fase SEO 05 — Avaliações e prova social
+
+- [x] Remover o texto estático `48 avaliações de clientes verificados`.
+- [x] Remover o texto estático `100% dos compradores avaliaram como excelente`.
+- [x] Remover depoimentos genéricos repetidos entre produtos.
+- [x] Não gerar avaliações fictícias.
+- [x] Não gerar `aggregateRating` sem avaliações reais.
+- [x] Não gerar `Review` estruturado sem avaliações reais.
+- [x] Substituir a aba atual por `Licença, Suporte & Entrega` enquanto não existir sistema real de reviews.
+- [x] Garantir que toda prova social exibida venha de dados reais.
+
+---
+
+## Fase SEO 06 — Página individual de produto
+
+- [x] Tornar a página do produto completamente dinâmica.
+- [x] Usar `seo_title` quando preenchido.
+- [x] Implementar fallback seguro de título.
+- [x] Não acrescentar automaticamente `Código Fonte` ao título.
+- [x] Usar `meta_description` quando preenchida.
+- [x] Usar `short_description` como primeiro fallback.
+- [x] Usar trecho limpo de `description` como segundo fallback.
+- [x] Manter exatamente um H1.
+- [x] Usar título real do produto como H1.
+- [x] Exibir descrição curta próxima ao topo.
+- [x] Exibir descrição completa.
+- [x] Exibir recursos somente quando existentes.
+- [x] Exibir requisitos somente quando existentes.
+- [x] Exibir licença somente quando existente.
+- [x] Exibir suporte somente quando existente.
+- [x] Exibir demonstração somente quando houver URL válida.
+- [x] Exibir documentação somente quando houver URL válida.
+- [x] Não deixar seções vazias.
+- [x] Não inventar atributos do produto.
+
+---
+
+## Fase SEO 07 — Breadcrumbs dos produtos
+
+- [x] Remover breadcrumb fixo `Scripts & SaaS`.
+- [x] Usar categoria real do produto.
+- [x] Implementar estrutura:
+  - [x] Início.
+  - [x] Catálogo.
+  - [x] Categoria.
+  - [x] Produto.
+- [x] Fazer a categoria apontar para sua landing page SEO.
+- [x] Atualizar `BreadcrumbList` JSON-LD com as mesmas URLs.
+- [x] Garantir que URLs do breadcrumb sejam canônicas.
+
+---
+
+## Fase SEO 08 — Produtos relacionados
+
+- [x] Remover `inRandomOrder()` como principal estratégia.
+- [x] Priorizar produtos da mesma categoria.
+- [x] Excluir o próprio produto.
+- [x] Usar produtos recentes/relevantes como fallback.
+- [x] Limitar quantidade de relacionados.
+- [x] Garantir que somente produtos disponíveis para venda sejam exibidos.
+
+---
+
+## Fase SEO 09 — Conteúdo relacionado do blog
+
+- [x] Remover artigos fixos sobre PHP/MySQL da página de produto.
+- [x] Relacionar artigos dinamicamente.
+- [x] Priorizar categoria/tópico relacionado.
+- [x] Usar artigos recentes somente como fallback.
+- [x] Não exibir seção caso não existam artigos razoavelmente relacionados.
+
+---
+
+## Fase SEO 10 — Home page
+
+- [x] Revisar proposta de valor da Home.
+- [x] Remover afirmações que indiquem que todos os produtos são autorais.
+- [x] Posicionar a KL como loja de scripts, sistemas, templates e produtos digitais.
+- [x] Revisar H1 principal.
+- [x] Evitar keyword stuffing.
+- [x] Evitar descrição completa dos produtos nos cards.
+- [x] Usar `short_description` nos cards.
+- [x] Criar fallback curto a partir de `description`.
+- [x] Limitar tamanho do texto server-side.
+- [x] Criar links visíveis para categorias principais.
+- [x] Manter links para produtos estratégicos.
+- [x] Manter acesso ao blog.
+
+---
+
+## Fase SEO 11 — Categorias de produtos com URLs limpas
+
+- [x] Corrigir inconsistência atual entre `categoria` e `category`.
+- [x] Criar rota de categoria com URL limpa.
+- [x] Utilizar formato `/catalogo/{category:slug}`.
+- [x] Criar rota nomeada `catalog.category` ou equivalente.
+- [x] Usar Route Model Binding.
+- [x] Filtrar produtos por `category_id`.
+- [x] Não determinar categoria pesquisando palavras em título/descrição.
+- [x] Preservar `/catalogo` como catálogo geral.
+- [x] Criar canonical individual para cada categoria.
+- [x] Criar H1 individual para cada categoria.
+- [x] Mostrar descrição da categoria.
+- [x] Mostrar somente produtos daquela categoria.
+- [x] Adicionar breadcrumbs.
+- [x] Garantir indexação da landing page.
+
+---
+
+## Fase SEO 12 — SEO das categorias de produto
+
+- [x] Adicionar `seo_title` às categorias.
+- [x] Adicionar `meta_description` às categorias.
+- [x] Atualizar model `Category`.
+- [x] Atualizar admin de categorias.
+- [x] Adicionar validação.
+- [x] Criar fallback para SEO title.
+- [x] Criar fallback para meta description.
+- [x] Manter `description` como conteúdo editorial da página.
+
+---
+
+## Fase SEO 13 — Categorias do blog com URLs limpas
+
+- [x] Criar rota `/blog/categoria/{blogCategory:slug}`.
+- [x] Usar Route Model Binding.
+- [x] Atualizar links das categorias do blog.
+- [x] Atualizar breadcrumbs.
+- [x] Atualizar canonical.
+- [x] Atualizar sitemap.
+- [x] Evitar usar `?categoria=` como URL principal indexável.
+- [x] Preservar compatibilidade com URLs antigas.
+- [x] Criar 301 quando a URL antiga tiver substituição direta.
+
+---
+
+## Fase SEO 14 — SEO de categorias do blog
+
+- [x] Adicionar `seo_title`.
+- [x] Adicionar `meta_description`.
+- [x] Atualizar model `BlogCategory`.
+- [x] Atualizar admin.
+- [x] Criar fallbacks seguros.
+- [x] Garantir H1 único.
+- [x] Exibir descrição editorial quando existente.
+
+---
+
+## Fase SEO 15 — Busca, filtros e facetas
+
+- [x] Identificar URLs com `?q=`.
+- [x] Identificar URLs com `?sort=`.
+- [x] Identificar URLs com `?min_price=`.
+- [x] Identificar URLs com `?max_price=`.
+- [x] Identificar combinações de filtros.
+- [x] Aplicar `noindex, follow` a páginas de busca.
+- [x] Aplicar `noindex, follow` a páginas de ordenação.
+- [x] Aplicar `noindex, follow` a filtros por faixa de preço.
+- [x] Aplicar `noindex, follow` às combinações de facetas.
+- [x] Não depender somente de `robots.txt` para evitar indexação.
+- [x] Não bloquear via robots URLs que precisam ser rastreadas para que o `noindex` seja visto.
+
+---
+
+## Fase SEO 16 — Canonicals
+
+- [x] Revisar uso atual de `url()->current()`.
+- [x] Criar canonical explícito para Home.
+- [x] Criar canonical explícito para catálogo.
+- [x] Criar canonical explícito para categorias.
+- [x] Criar canonical explícito para produtos.
+- [x] Criar canonical explícito para blog.
+- [x] Criar canonical explícito para categorias do blog.
+- [x] Criar canonical explícito para posts.
+- [x] Tratar corretamente URLs com filtros.
+- [x] Tratar corretamente paginação.
+- [x] Não canonicalizar página 2 automaticamente para página 1.
+- [x] Evitar canonical contraditório com sitemap ou links internos.
+
+---
+
+## Fase SEO 17 — Layout global de metadados
+
+- [x] Refatorar cuidadosamente `storefront.blade.php`.
+- [x] Suportar `title`.
+- [x] Suportar `metaDescription`.
+- [x] Suportar `canonical`.
+- [x] Suportar `robots`.
+- [x] Suportar `ogTitle`.
+- [x] Suportar `ogDescription`.
+- [x] Suportar `ogImage`.
+- [x] Suportar `ogType`.
+- [x] Preservar Google Site Verification.
+- [x] Preservar Google Analytics.
+- [x] Preservar favicons.
+- [x] Preservar Open Graph.
+- [x] Preservar Twitter Card.
+- [x] Não duplicar meta tags.
+- [x] Não gerar meta description vazia.
+- [x] Escapar corretamente conteúdo dinâmico.
+
+---
+
+## Fase SEO 18 — Schema global
+
+- [x] Manter `Organization`.
+- [x] Manter `WebSite`.
+- [x] Remover `SearchAction` obsoleto.
+- [x] Usar IDs consistentes para Organization/WebSite.
+- [x] Não inventar telefone.
+- [x] Não inventar endereço.
+- [x] Não inventar perfis sociais.
+- [x] Não inventar informações institucionais.
+
+---
+
+## Fase SEO 19 — Product JSON-LD
+
+- [x] Preservar JSON-LD server-side no HTML inicial.
+- [x] Manter `Product`.
+- [x] Manter `Offer`.
+- [x] Gerar `name`.
+- [x] Gerar descrição verdadeira.
+- [x] Gerar imagem somente quando existir.
+- [x] Gerar SKU.
+- [x] Gerar categoria quando existir.
+- [x] Gerar marca somente quando conhecida.
+- [x] Não usar KL Tecnologia como `brand` automaticamente.
+- [x] Manter KL Tecnologia como `seller` quando apropriado.
+- [x] Gerar `priceCurrency = BRL`.
+- [x] Gerar preço real.
+- [x] Gerar disponibilidade real.
+- [x] Gerar item condition quando apropriado.
+- [x] Remover `priceValidUntil = now()+1 ano`.
+- [x] Só utilizar `priceValidUntil` quando existir data real.
+- [x] Não gerar review falso.
+- [x] Não gerar aggregateRating falso.
+- [x] Não gerar imagem inválida quando `cover_path` for nulo.
+
+---
+
+## Fase SEO 20 — SEO do blog/post
+
+- [x] Criar migration retrocompatível para `seo_title`.
+- [x] Criar migration retrocompatível para `meta_description`.
+- [x] Atualizar model `Post`.
+- [x] Atualizar request/validation.
+- [x] Atualizar formulário administrativo.
+- [x] Adicionar seção `SEO`.
+- [x] Criar contador de título.
+- [x] Criar contador de meta description.
+- [x] Criar preview simples de SERP.
+- [x] Usar `seo_title` quando preenchido.
+- [x] Usar `title` como fallback.
+- [x] Usar `meta_description` quando preenchida.
+- [x] Usar `excerpt` como primeiro fallback.
+- [x] Usar trecho limpo do conteúdo como segundo fallback.
+- [x] Não criar meta keywords.
+
+---
+
+## Fase SEO 21 — Article JSON-LD
+
+- [x] Manter schema `Article`.
+- [x] Manter `headline`.
+- [x] Usar descrição correta.
+- [x] Adicionar imagem somente quando existir.
+- [x] Manter `datePublished`.
+- [x] Manter `dateModified`.
+- [x] Manter `author`.
+- [x] Manter `publisher`.
+- [x] Manter `mainEntityOfPage`.
+- [x] Manter BreadcrumbList.
+- [x] Não gerar URL de imagem inválida.
+
+---
+
+## Fase SEO 22 — Redirects de slugs
+
+- [x] Preservar slug quando somente o título for alterado.
+- [x] Não regenerar automaticamente slugs existentes.
+- [x] Criar mecanismo de histórico de slugs/redirects.
+- [x] Criar redirect 301 para slug antigo de produto.
+- [x] Criar redirect 301 para slug antigo de post.
+- [x] Criar redirect 301 para slug antigo de categoria.
+- [x] Criar redirect 301 para slug antigo de categoria do blog.
+- [x] Evitar cadeias de redirects.
+- [x] Fazer slug antigo apontar diretamente para o slug atual.
+- [x] Não redirecionar 404 genérico para Home.
+- [x] Manter 404 quando a URL nunca existiu.
+
+---
+
+## Fase SEO 23 — Sitemap XML
+
+- [x] Preservar endpoint `/sitemap.xml`.
+- [x] Garantir `Content-Type: application/xml`.
+- [x] Incluir Home.
+- [x] Incluir catálogo.
+- [x] Incluir categorias de produtos com URLs limpas.
+- [x] Incluir produtos disponíveis.
+- [x] Incluir blog.
+- [x] Incluir categorias do blog com URLs limpas.
+- [x] Incluir artigos publicados.
+- [x] Incluir páginas institucionais relevantes.
+- [x] Excluir pesquisas.
+- [x] Excluir filtros.
+- [x] Excluir ordenação.
+- [x] Excluir carrinho.
+- [x] Excluir favoritos.
+- [x] Excluir checkout.
+- [x] Excluir login/register.
+- [x] Excluir admin.
+- [x] Excluir customer.
+- [x] Excluir drafts.
+- [x] Excluir produtos inativos.
+- [x] Excluir produtos indisponíveis.
+- [x] Excluir categorias sem produtos disponíveis.
+- [x] Excluir categorias do blog sem posts publicados.
+- [x] Remover URLs de categoria com query string.
+- [x] Usar `lastmod` baseado em dados reais.
+
+---
+
+## Fase SEO 24 — Robots e páginas noindex
+
+- [x] Revisar `public/robots.txt`.
+- [x] Preservar proteção de `/admin/`.
+- [x] Preservar proteção de áreas privadas.
+- [x] Garantir sitemap absoluto.
+- [x] Aplicar `noindex` ao carrinho.
+- [x] Aplicar `noindex` aos favoritos.
+- [x] Aplicar `noindex` ao checkout.
+- [x] Aplicar `noindex` ao login.
+- [x] Aplicar `noindex` ao register.
+- [x] Aplicar `noindex` ao dashboard/área privada.
+- [x] Não bloquear CSS.
+- [x] Não bloquear JavaScript.
+- [x] Não bloquear imagens públicas necessárias.
+
+---
+
+## Fase SEO 25 — Links internos
+
+- [x] Adicionar links da Home para categorias principais.
+- [x] Adicionar links das categorias para produtos.
+- [x] Adicionar links dos produtos para sua categoria.
+- [x] Adicionar produtos relacionados semanticamente.
+- [x] Relacionar artigos e produtos quando houver conexão real.
+- [x] Garantir links para o blog.
+- [x] Evitar links artificiais criados somente para SEO.
+- [x] Evitar páginas órfãs.
+
+---
+
+## Fase SEO 26 — Headings
+
+- [x] Auditar H1/H2/H3 da Home.
+- [x] Auditar H1/H2/H3 do catálogo.
+- [x] Auditar H1/H2/H3 das categorias.
+- [x] Auditar H1/H2/H3 de produto.
+- [x] Auditar H1/H2/H3 do blog.
+- [x] Auditar H1/H2/H3 dos artigos.
+- [x] Manter apenas um H1 principal por página.
+- [x] Não utilizar headings somente por aparência visual.
+
+---
+
+## Fase SEO 27 — Imagens
+
+- [x] Auditar ALT das imagens.
+- [x] Usar ALT descritivo e natural.
+- [x] Não fazer keyword stuffing em ALT.
+- [x] Preservar WebP quando existente.
+- [x] Garantir `width`/`height` quando possível.
+- [x] Usar lazy loading fora do conteúdo prioritário.
+- [x] Não usar lazy loading na imagem principal/LCP quando prejudicial.
+- [x] Evitar CLS causado por imagens.
+
+---
+
+## Fase SEO 28 — Performance e Core Web Vitals
+
+- [x] Avaliar tamanho do HTML da Home.
+- [x] Avaliar tamanho do HTML das páginas de produto.
+- [x] Avaliar CSS inline via `Vite::content()`.
+- [x] Avaliar impacto das fontes.
+- [x] Avaliar imagens.
+- [x] Avaliar JavaScript.
+- [x] Avaliar preload.
+- [x] Evitar mudanças especulativas sem benefício.
+- [x] Priorizar LCP.
+- [x] Priorizar CLS.
+- [x] Priorizar INP.
+- [x] Evitar regressão visual.
+
+---
+
+## Fase SEO 29 — Conteúdo duplicado
+
+- [x] Remover descrição completa dos cards da Home.
+- [x] Remover descrição completa dos cards do catálogo.
+- [x] Remover descrição completa dos produtos relacionados.
+- [x] Usar `short_description`.
+- [x] Criar fallback curto.
+- [x] Manter conteúdo completo principalmente na página individual.
+- [x] Não copiar automaticamente conteúdo de fornecedores.
+- [x] Não gerar automaticamente textos SEO no banco.
+
+---
+
+## Fase SEO 30 — Produtos de terceiros e autoria
+
+- [x] Separar conceito de vendedor e desenvolvedor.
+- [x] KL Tecnologia deve continuar como `seller` quando apropriado.
+- [x] Não usar KL automaticamente como `brand`.
+- [x] Não usar KL automaticamente como desenvolvedora.
+- [x] Não afirmar autoria de produtos de terceiros.
+- [x] Permitir cadastro da marca/desenvolvedor verdadeiro.
+- [x] Omitir marca quando desconhecida.
+
+---
+
+## Fase SEO 31 — Páginas de categoria com conteúdo editorial
+
+- [x] Exibir H1 da categoria.
+- [x] Exibir descrição introdutória.
+- [x] Exibir grade de produtos.
+- [x] Preparar estrutura para conteúdo adicional futuro.
+- [x] Não gerar textos longos automaticamente.
+- [x] Utilizar conteúdo informado pelo administrador.
+
+---
+
+## Fase SEO 32 — Status HTTP e erros
+
+- [x] Produto inexistente deve retornar 404.
+- [x] Produto indisponível deve seguir regra consistente do projeto.
+- [x] Post inexistente deve retornar 404.
+- [x] URL antiga conhecida deve retornar 301.
+- [x] URL realmente inexistente deve retornar 404.
+- [x] Não redirecionar 404 globalmente para Home.
+
+---
+
+## Fase SEO 33 — Testes de produto
+
+- [x] Testar title.
+- [x] Testar meta description.
+- [x] Testar canonical.
+- [x] Testar robots.
+- [x] Testar Open Graph.
+- [x] Testar Product JSON-LD.
+- [x] Testar Offer.
+- [x] Testar `BRL`.
+- [x] Testar seller.
+- [x] Testar brand quando existir.
+- [x] Testar ausência de brand quando não existir.
+- [x] Testar ausência de `priceValidUntil` inventado.
+- [x] Testar ausência de reviews fictícias.
+- [x] Testar breadcrumb com categoria real.
+
+---
+
+## Fase SEO 34 — Testes de categoria
+
+- [x] Testar URL limpa.
+- [x] Testar status HTTP 200.
+- [x] Testar H1.
+- [x] Testar title.
+- [x] Testar meta description.
+- [x] Testar canonical.
+- [x] Testar produtos somente da categoria.
+- [x] Testar `index,follow`.
+
+---
+
+## Fase SEO 35 — Testes de filtros
+
+- [x] Testar `?q=` com `noindex,follow`.
+- [x] Testar `?sort=` com `noindex,follow`.
+- [x] Testar `?min_price=` com `noindex,follow`.
+- [x] Testar `?max_price=` com `noindex,follow`.
+- [x] Testar combinação de filtros.
+- [x] Testar canonical resultante.
+
+---
+
+## Fase SEO 36 — Testes do blog
+
+- [x] Testar Article schema.
+- [x] Testar canonical.
+- [x] Testar SEO title personalizado.
+- [x] Testar meta description personalizada.
+- [x] Testar fallback do SEO title.
+- [x] Testar fallback da meta description.
+- [x] Testar categoria do blog.
+- [x] Testar breadcrumbs.
+
+---
+
+## Fase SEO 37 — Testes do sitemap
+
+- [x] Testar produto ativo presente.
+- [x] Testar produto inativo ausente.
+- [x] Testar produto indisponível ausente.
+- [x] Testar categoria válida presente.
+- [x] Testar categoria vazia ausente.
+- [x] Testar post publicado presente.
+- [x] Testar draft ausente.
+- [x] Testar categoria do blog válida.
+- [x] Testar ausência de URLs de busca.
+- [x] Testar ausência de filtros.
+- [x] Testar URLs limpas.
+
+---
+
+## Fase SEO 38 — Testes de redirects
+
+- [x] Testar slug antigo de produto.
+- [x] Confirmar HTTP 301.
+- [x] Confirmar destino canônico.
+- [x] Testar slug antigo de artigo.
+- [x] Testar slug antigo de categoria.
+- [x] Testar slug antigo de categoria de blog.
+- [x] Testar ausência de redirect chain.
+
+---
+
+## Fase SEO 39 — Testes de avaliações
+
+- [x] Confirmar remoção de `48 avaliações de clientes verificados`.
+- [x] Confirmar remoção de `100% dos compradores avaliaram como excelente`.
+- [x] Confirmar ausência de depoimentos fictícios.
+- [x] Confirmar ausência de Review schema sem dados reais.
+
+---
+
+## Fase SEO 40 — Validação final
+
+- [x] Executar `php artisan test`.
+- [x] Corrigir todos os testes quebrados.
+- [x] Executar `npm run build`.
+- [x] Corrigir erros de build.
+- [x] Executar `./vendor/bin/pint --test`.
+- [x] Corrigir estilo quando necessário.
+- [x] Executar testes novamente após Pint.
+- [x] Executar `php artisan route:list`.
+- [x] Conferir rotas novas.
+- [x] Conferir que checkout continua funcionando.
+- [x] Conferir autenticação.
+- [x] Conferir produtos.
+- [x] Conferir downloads.
+- [x] Conferir painel administrativo.
+- [x] Conferir blog.
+- [x] Conferir newsletter.
+- [x] Conferir webhooks.
+- [x] Conferir integração Mercado Pago.
+
+---
+
+## Fase SEO 41 — Documentação e encerramento
+
+- [x] Atualizar este `TASKS.md` marcando todas as tarefas efetivamente concluídas.
+- [x] Não marcar tarefas pendentes como concluídas.
+- [x] Registrar arquivos criados.
+- [x] Registrar arquivos alterados.
+- [x] Registrar migrations.
+- [x] Registrar novas rotas.
+- [x] Registrar campos novos do admin.
+- [x] Registrar estratégia de canonical.
+- [x] Registrar estratégia de noindex.
+- [x] Registrar mudanças de Product JSON-LD.
+- [x] Registrar mudanças do sitemap.
+- [x] Registrar redirects implementados.
+- [x] Registrar resultado de `php artisan test`.
+- [x] Registrar resultado de `npm run build`.
+- [x] Registrar resultado do Pint.
+- [x] Listar qualquer pendência real.
+- [x] Não otimizar individualmente os produtos nesta fase.
+
+---
+
+# Definição de concluído
+
+Este bloco de SEO somente poderá ser considerado concluído quando:
+
+- [x] A infraestrutura permitir SEO individual por produto.
+- [x] Produtos diferentes puderem ter requisitos diferentes.
+- [x] Produtos diferentes puderem ter licenças diferentes.
+- [x] Produtos sem código-fonte não forem apresentados como código-fonte.
+- [x] Avaliações fictícias tiverem sido removidas.
+- [x] Categorias tiverem URLs próprias e limpas.
+- [x] Filtros não criarem páginas indexáveis desnecessárias.
+- [x] Canonicals estiverem coerentes.
+- [x] Sitemap estiver usando somente URLs canônicas.
+- [x] Product JSON-LD contiver somente dados verdadeiros.
+- [x] Blog estiver preparado para SEO editorial.
+- [x] Slugs antigos puderem ser redirecionados com HTTP 301.
+- [x] Todos os testes passarem.
+- [x] Build de produção passar.
+- [x] O cadastro individual de produtos puder começar sem necessidade de nova alteração estrutural grande.

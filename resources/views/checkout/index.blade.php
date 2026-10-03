@@ -1,4 +1,4 @@
-<x-storefront-layout>
+<x-storefront-layout robots="noindex, follow">
     <x-slot:title>Checkout Seguro — Finalizar Compra</x-slot:title>
 
     @php

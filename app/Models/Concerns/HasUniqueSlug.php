@@ -2,6 +2,11 @@
 
 namespace App\Models\Concerns;
 
+use App\Models\BlogCategory;
+use App\Models\Category;
+use App\Models\Post;
+use App\Models\Product;
+use App\Services\SlugRedirectService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -14,12 +19,34 @@ trait HasUniqueSlug
         static::saving(function (Model $model): void {
             $sourceField = filled($model->getAttribute('title')) || $model->isDirty('title') ? 'title' : 'name';
 
+            if ($model->exists && filled($model->getOriginal('slug')) && ! $model->isDirty('slug')) {
+                return;
+            }
+
             if (! $model->isDirty($sourceField) && filled($model->getAttribute('slug'))) {
                 return;
             }
 
             $sourceValue = (string) ($model->getAttribute($sourceField) ?: 'item');
             $model->setAttribute('slug', $model->generateUniqueSlug($sourceValue));
+        });
+
+        static::saved(function (Model $model): void {
+            if ($model->wasChanged('slug') && filled($model->getOriginal('slug'))) {
+                $type = match (true) {
+                    $model instanceof Product => 'product',
+                    $model instanceof Post => 'post',
+                    $model instanceof Category => 'category',
+                    $model instanceof BlogCategory => 'blog_category',
+                    default => Str::snake(class_basename($model)),
+                };
+
+                app(SlugRedirectService::class)->recordRedirect(
+                    $type,
+                    (string) $model->getOriginal('slug'),
+                    (string) $model->getAttribute('slug')
+                );
+            }
         });
     }
 

@@ -26,22 +26,62 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\StorefrontController;
 use App\Http\Controllers\WebhookController;
+use App\Services\SlugRedirectService;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [StorefrontController::class, 'index'])->name('storefront.index');
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap.index');
 Route::get('/catalogo', [CatalogController::class, 'index'])->name('catalog.index');
+Route::get('/catalogo/{category:slug}', [CatalogController::class, 'category'])
+    ->name('catalog.category')
+    ->missing(function (Request $request) {
+        $slug = (string) $request->route('category');
+        if ($target = app(SlugRedirectService::class)->findTargetSlug('category', $slug)) {
+            return redirect()->route('catalog.category', $target, 301);
+        }
+        abort(404);
+    });
+
 Route::get('/carrinho', [CartController::class, 'index'])->name('cart.index');
 Route::get('/favoritos', [FavoriteController::class, 'index'])->name('favorites.index');
 Route::post('/favoritos/items', [FavoriteController::class, 'items'])->name('favorites.items');
 Route::post('/cupons/validar', [CouponValidationController::class, 'validateCoupon'])->name('coupons.validate');
 Route::post('/newsletter', [NewsletterSubscriptionController::class, 'store'])->name('newsletter.subscribe');
 Route::get('/newsletter/cancelar-inscricao', [NewsletterUnsubscribeController::class, 'unsubscribe'])->name('newsletter.unsubscribe');
-Route::get('/produtos/{product:slug}', [StorefrontController::class, 'show'])->name('storefront.show');
+
+Route::get('/produtos/{product:slug}', [StorefrontController::class, 'show'])
+    ->name('storefront.show')
+    ->missing(function (Request $request) {
+        $slug = (string) $request->route('product');
+        if ($target = app(SlugRedirectService::class)->findTargetSlug('product', $slug)) {
+            return redirect()->route('storefront.show', $target, 301);
+        }
+        abort(404);
+    });
+
 Route::get('/politica-de-privacidade', [LegalController::class, 'privacy'])->name('privacy.index');
 Route::get('/termos-de-uso', [LegalController::class, 'terms'])->name('terms.index');
 Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
-Route::get('/blog/{post:slug}', [BlogController::class, 'show'])->name('blog.show');
+Route::get('/blog/categoria/{blogCategory:slug}', [BlogController::class, 'category'])
+    ->name('blog.category')
+    ->missing(function (Request $request) {
+        $slug = (string) $request->route('blogCategory');
+        if ($target = app(SlugRedirectService::class)->findTargetSlug('blog_category', $slug)) {
+            return redirect()->route('blog.category', $target, 301);
+        }
+        abort(404);
+    });
+
+Route::get('/blog/{post:slug}', [BlogController::class, 'show'])
+    ->name('blog.show')
+    ->missing(function (Request $request) {
+        $slug = (string) $request->route('post');
+        if ($target = app(SlugRedirectService::class)->findTargetSlug('post', $slug)) {
+            return redirect()->route('blog.show', $target, 301);
+        }
+        abort(404);
+    });
 Route::post('/webhooks/mercado-pago', WebhookController::class)->middleware('throttle:60,1')->name('webhooks.mercado-pago');
 
 Route::get('/dashboard', DashboardController::class)->middleware(['auth', 'verified'])->name('dashboard');

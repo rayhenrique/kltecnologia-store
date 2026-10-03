@@ -1,17 +1,17 @@
 <x-storefront-layout 
-    :title="$post->title . ' — Blog KL Tecnologia'"
-    :meta-description="$post->excerpt ?: Str::limit(trim(preg_replace('/\s+/', ' ', strip_tags($post->content))), 155)"
-    :og-image="asset($post->cover_path)"
+    :title="$post->seo_title ?: $post->title . ' — Blog KL Tecnologia'"
+    :meta-description="$post->meta_description ?: ($post->excerpt ?: Str::limit(trim(preg_replace('/\s+/', ' ', strip_tags($post->content))), 155))"
+    :og-image="$post->cover_path ? asset($post->cover_path) : asset('images/logo-kltecnologia.png')"
     og-type="article"
     :canonical="route('blog.show', $post->slug)"
 >
 <script type="application/ld+json">
 {!! json_encode([
     '@context' => 'https://schema.org',
-    '@graph' => [
+    '@graph' => array_values(array_filter([
         [
             '@type' => 'BreadcrumbList',
-            'itemListElement' => [
+            'itemListElement' => array_values(array_filter([
                 [
                     '@type' => 'ListItem',
                     'position' => 1,
@@ -24,20 +24,26 @@
                     'name' => 'Blog',
                     'item' => route('blog.index'),
                 ],
-                [
+                $post->blogCategory ? [
                     '@type' => 'ListItem',
                     'position' => 3,
+                    'name' => $post->blogCategory->name,
+                    'item' => route('blog.category', $post->blogCategory->slug),
+                ] : null,
+                [
+                    '@type' => 'ListItem',
+                    'position' => $post->blogCategory ? 4 : 3,
                     'name' => $post->title,
                     'item' => route('blog.show', $post->slug),
                 ],
-            ],
+            ])),
         ],
         [
             '@type' => 'Article',
             '@id' => route('blog.show', $post->slug) . '#article',
             'headline' => $post->title,
-            'description' => $post->excerpt ?: Str::limit(trim(preg_replace('/\s+/', ' ', strip_tags($post->content))), 200),
-            'image' => asset($post->cover_path),
+            'description' => $post->meta_description ?: ($post->excerpt ?: Str::limit(trim(preg_replace('/\s+/', ' ', strip_tags($post->content))), 200)),
+            'image' => $post->cover_path ? asset($post->cover_path) : asset('images/logo-kltecnologia.png'),
             'datePublished' => $post->published_at ? $post->published_at->toIso8601String() : $post->created_at->toIso8601String(),
             'dateModified' => $post->updated_at->toIso8601String(),
             'author' => [
@@ -58,7 +64,7 @@
                 '@id' => route('blog.show', $post->slug),
             ],
         ],
-    ],
+    ])),
 ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) !!}
 </script>
     <div class="bg-slate-50 min-h-screen py-8 sm:py-12">
@@ -68,9 +74,12 @@
                 <a href="{{ route('storefront.index') }}" class="hover:text-teal-600 transition">Início</a>
                 <span>/</span>
                 <a href="{{ route('blog.index') }}" class="hover:text-teal-600 transition">Blog</a>
-                @if($post->category)
+                @if($post->blogCategory)
                     <span>/</span>
-                    <a href="{{ route('blog.index', ['categoria' => $post->category]) }}" class="hover:text-teal-600 transition">{{ $post->category }}</a>
+                    <a href="{{ route('blog.category', $post->blogCategory->slug) }}" class="hover:text-teal-600 transition">{{ $post->blogCategory->name }}</a>
+                @elseif($post->category)
+                    <span>/</span>
+                    <span class="text-slate-600">{{ $post->category }}</span>
                 @endif
                 <span>/</span>
                 <span class="text-slate-800 truncate max-w-xs">{{ $post->title }}</span>

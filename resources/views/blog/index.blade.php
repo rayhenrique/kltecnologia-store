@@ -1,4 +1,20 @@
-<x-storefront-layout title="Blog & Artigos">
+@php
+    $currentBlogCategory = $currentBlogCategory ?? null;
+    $blogTitle = $currentBlogCategory
+        ? ($currentBlogCategory->seo_title ?: $currentBlogCategory->name . ' — Blog KL Tecnologia')
+        : 'Blog & Artigos — Estratégias e Tutoriais Web';
+    $blogMetaDesc = $currentBlogCategory
+        ? ($currentBlogCategory->meta_description ?: ($currentBlogCategory->description ?: 'Artigos e tutoriais sobre ' . $currentBlogCategory->name . ' no Blog da KL Tecnologia.'))
+        : 'Artigos, tutoriais e novidades sobre desenvolvimento de sistemas, scripts, automação e e-commerce digital.';
+    $blogCanonical = $currentBlogCategory
+        ? route('blog.category', $currentBlogCategory->slug)
+        : route('blog.index');
+@endphp
+<x-storefront-layout 
+    :title="$blogTitle"
+    :meta-description="$blogMetaDesc"
+    :canonical="$blogCanonical"
+>
     {{-- Hero Section --}}
     <section class="hero-tech-bg text-white py-14 sm:py-20 border-b border-slate-800">
         <div class="page-container text-center max-w-4xl mx-auto">
@@ -8,18 +24,19 @@
             </span>
 
             <h1 class="mt-5 font-display text-3xl sm:text-5xl font-extrabold tracking-tight text-white leading-tight">
-                Artigos, Tutoriais & <span class="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-blue-400">Estratégias Digitais</span>
+                @if($currentBlogCategory)
+                    {{ $currentBlogCategory->name }}
+                @else
+                    Artigos, Tutoriais & <span class="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-blue-400">Estratégias Digitais</span>
+                @endif
             </h1>
 
             <p class="mt-4 text-base sm:text-lg text-slate-300 max-w-2xl mx-auto">
-                Explore conteúdos práticos sobre desenvolvimento web, automação, PHP, SaaS, marketing e escala de negócios online.
+                {{ $currentBlogCategory?->description ?: 'Explore conteúdos práticos sobre desenvolvimento web, automação, PHP, SaaS, marketing e escala de negócios online.' }}
             </p>
 
             {{-- Formulário de Busca --}}
-            <form action="{{ route('blog.index') }}" method="GET" class="mt-8 max-w-2xl mx-auto flex flex-col sm:flex-row gap-2">
-                @if($selectedCategory)
-                    <input type="hidden" name="categoria" value="{{ $selectedCategory }}">
-                @endif
+            <form action="{{ $currentBlogCategory ? route('blog.category', $currentBlogCategory->slug) : route('blog.index') }}" method="GET" class="mt-8 max-w-2xl mx-auto flex flex-col sm:flex-row gap-2">
                 <div class="relative flex-1">
                     <input 
                         type="search" 
@@ -38,23 +55,22 @@
             </form>
 
             {{-- Categorias Filter Pills --}}
-            @if($categories->isNotEmpty())
+            @if(isset($categories) && $categories->isNotEmpty())
                 <div class="mt-8 flex flex-wrap items-center justify-center gap-2">
                     <a 
                         href="{{ route('blog.index', array_filter(['q' => $search])) }}" 
-                        class="inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-semibold transition {{ empty($selectedCategory) ? 'bg-teal-500 text-slate-950 font-bold shadow-md shadow-teal-500/20' : 'bg-slate-900/80 border border-slate-800 text-slate-300 hover:bg-slate-800 hover:text-white' }}"
+                        class="inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-semibold transition {{ empty($currentBlogCategory) ? 'bg-teal-500 text-slate-950 font-bold shadow-md shadow-teal-500/20' : 'bg-slate-900/80 border border-slate-800 text-slate-300 hover:bg-slate-800 hover:text-white' }}"
                     >
                         <span>Todos</span>
-                        <span class="rounded-full bg-slate-950/40 px-1.5 py-0.2 text-[10px]">{{ \App\Models\Post::published()->count() }}</span>
                     </a>
 
                     @foreach($categories as $cat)
                         <a 
-                            href="{{ route('blog.index', array_filter(['categoria' => $cat->category, 'q' => $search])) }}" 
-                            class="inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-semibold transition {{ $selectedCategory === $cat->category ? 'bg-teal-500 text-slate-950 font-bold shadow-md shadow-teal-500/20' : 'bg-slate-900/80 border border-slate-800 text-slate-300 hover:bg-slate-800 hover:text-white' }}"
+                            href="{{ route('blog.category', $cat->slug) }}" 
+                            class="inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-semibold transition {{ ($currentBlogCategory?->id === $cat->id) ? 'bg-teal-500 text-slate-950 font-bold shadow-md shadow-teal-500/20' : 'bg-slate-900/80 border border-slate-800 text-slate-300 hover:bg-slate-800 hover:text-white' }}"
                         >
-                            <span>{{ $cat->category }}</span>
-                            <span class="rounded-full bg-slate-950/40 px-1.5 py-0.2 text-[10px]">{{ $cat->count }}</span>
+                            <span>{{ $cat->name }}</span>
+                            <span class="rounded-full bg-slate-950/40 px-1.5 py-0.2 text-[10px]">{{ $cat->posts_count }}</span>
                         </a>
                     @endforeach
                 </div>
@@ -68,20 +84,22 @@
             {{-- Breadcrumb / Info bar --}}
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-8 mb-8 border-b border-slate-200 gap-4">
                 <div>
-                    <nav class="flex items-center gap-2 text-xs font-semibold text-slate-500 mb-1">
+                    <nav class="flex items-center gap-2 text-xs font-semibold text-slate-500 mb-1 flex-wrap">
                         <a href="{{ route('storefront.index') }}" class="hover:text-teal-600 transition">Início</a>
                         <span>/</span>
-                        <a href="{{ route('blog.index') }}" class="text-teal-700">Blog</a>
-                        @if($selectedCategory)
+                        @if($currentBlogCategory)
+                            <a href="{{ route('blog.index') }}" class="hover:text-teal-600 transition">Blog</a>
                             <span>/</span>
-                            <span class="text-slate-800">{{ $selectedCategory }}</span>
+                            <span class="text-slate-800">{{ $currentBlogCategory->name }}</span>
+                        @else
+                            <span class="text-teal-700">Blog</span>
                         @endif
                     </nav>
                     <h2 class="font-display text-xl font-bold text-slate-900">
                         @if($search)
                             Resultados para: <span class="text-teal-600">"{{ $search }}"</span>
-                        @elseif($selectedCategory)
-                            Categoria: <span class="text-teal-600">{{ $selectedCategory }}</span>
+                        @elseif($currentBlogCategory)
+                            Categoria: <span class="text-teal-600">{{ $currentBlogCategory->name }}</span>
                         @else
                             Últimas Publicações
                         @endif
@@ -134,7 +152,7 @@
                                 {{-- Categoria Badge Flutuante --}}
                                 <div class="absolute top-3 left-3">
                                     <span class="inline-flex items-center rounded-lg bg-slate-950/80 backdrop-blur-md px-2.5 py-1 text-[11px] font-bold text-teal-400 border border-teal-500/30 shadow-xs">
-                                        {{ $post->category ?? 'Artigo' }}
+                                        {{ $post->blogCategory?->name ?? $post->category ?? 'Artigo' }}
                                     </span>
                                 </div>
                             </a>

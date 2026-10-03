@@ -1,4 +1,4 @@
-<x-storefront-layout>
+<x-storefront-layout robots="noindex, follow">
     <x-slot:title>Meus Favoritos</x-slot:title>
 
     <section 

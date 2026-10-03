@@ -1,17 +1,17 @@
 <x-storefront-layout 
-    :title="$product->title . ' — Download Imediato com Código Fonte'"
-    :meta-description="Str::limit(trim(preg_replace('/\s+/', ' ', strip_tags($product->description))), 155, '... Compre com entrega imediata na KL Tecnologia.')"
-    :og-image="asset($product->cover_path)"
+    :title="$product->seo_title ?: $product->title . ' — KL Tecnologia'"
+    :meta-description="$product->meta_description ?: ($product->short_description ?: Str::limit(trim(preg_replace('/\s+/', ' ', strip_tags($product->description))), 155, '...'))"
+    :og-image="$product->cover_path ? asset($product->cover_path) : null"
     og-type="product"
     :canonical="route('storefront.show', $product->slug)"
 >
 <script type="application/ld+json">
-{!! json_encode([
+{!! json_encode(array_filter([
     '@context' => 'https://schema.org',
-    '@graph' => [
+    '@graph' => array_values(array_filter([
         [
             '@type' => 'BreadcrumbList',
-            'itemListElement' => [
+            'itemListElement' => array_values(array_filter([
                 [
                     '@type' => 'ListItem',
                     'position' => 1,
@@ -24,32 +24,37 @@
                     'name' => 'Catálogo',
                     'item' => route('catalog.index'),
                 ],
-                [
+                $product->categoryGroup ? [
                     '@type' => 'ListItem',
                     'position' => 3,
+                    'name' => $product->categoryGroup->name,
+                    'item' => route('catalog.category', $product->categoryGroup->slug),
+                ] : null,
+                [
+                    '@type' => 'ListItem',
+                    'position' => $product->categoryGroup ? 4 : 3,
                     'name' => $product->title,
                     'item' => route('storefront.show', $product->slug),
                 ],
-            ],
+            ])),
         ],
         [
             '@type' => 'Product',
             '@id' => route('storefront.show', $product->slug) . '#product',
             'name' => $product->title,
-            'description' => Str::limit(trim(preg_replace('/\s+/', ' ', strip_tags($product->description))), 250),
-            'image' => asset($product->cover_path),
+            'description' => $product->short_description ?: Str::limit(trim(preg_replace('/\s+/', ' ', strip_tags($product->description))), 250),
+            'image' => $product->cover_path ? asset($product->cover_path) : null,
             'sku' => 'KL-' . $product->id,
-            'category' => $product->categoryGroup?->name ?? $product->category ?? 'Software & Scripts',
-            'brand' => [
+            'category' => $product->categoryGroup?->name ?? $product->category ?? null,
+            'brand' => $product->brand ? [
                 '@type' => 'Brand',
-                'name' => 'KL Tecnologia',
-            ],
+                'name' => $product->brand,
+            ] : null,
             'offers' => [
                 '@type' => 'Offer',
                 'url' => route('storefront.show', $product->slug),
                 'priceCurrency' => 'BRL',
                 'price' => number_format((float) $product->price, 2, '.', ''),
-                'priceValidUntil' => now()->addYear()->format('Y-m-d'),
                 'availability' => 'https://schema.org/InStock',
                 'itemCondition' => 'https://schema.org/NewCondition',
                 'seller' => [
@@ -58,8 +63,8 @@
                 ],
             ],
         ],
-    ],
-], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) !!}
+    ])),
+]), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) !!}
 </script>
 
     {{-- Page Header Banner --}}
@@ -70,23 +75,37 @@
                 <a href="{{ route('storefront.index') }}" class="hover:text-teal-400 transition">Início</a>
                 <span class="text-slate-600">/</span>
                 <a href="{{ route('catalog.index') }}" class="hover:text-teal-400 transition">Catálogo</a>
-                <span class="text-slate-600">/</span>
-                <span class="text-slate-400">Scripts & SaaS</span>
+                @if($product->categoryGroup)
+                    <span class="text-slate-600">/</span>
+                    <a href="{{ route('catalog.category', $product->categoryGroup->slug) }}" class="hover:text-teal-400 transition">{{ $product->categoryGroup->name }}</a>
+                @elseif($product->category)
+                    <span class="text-slate-600">/</span>
+                    <span class="text-slate-400">{{ $product->category }}</span>
+                @endif
                 <span class="text-slate-600">/</span>
                 <span class="text-teal-400 font-medium truncate max-w-[200px] sm:max-w-xs md:max-w-md">{{ $product->title }}</span>
             </nav>
 
             {{-- Badges & Title --}}
             <div class="mt-4 flex flex-wrap items-center gap-2">
-                <span class="badge-new">
-                    ★ Código Fonte Incluso
-                </span>
+                @if($product->includes_source_code)
+                    <span class="badge-new">
+                        ★ Código Fonte Incluso
+                    </span>
+                @endif
                 <span class="inline-flex items-center gap-1 rounded bg-slate-800 border border-slate-700 px-2 py-0.5 text-[11px] font-semibold text-slate-300">
                     ⚡ Entrega Imediata
                 </span>
-                <span class="inline-flex items-center gap-1 rounded bg-slate-800 border border-slate-700 px-2 py-0.5 text-[11px] font-semibold text-slate-300">
-                    ♾️ Uso Vitalício
-                </span>
+                @if($product->lifetime_access)
+                    <span class="inline-flex items-center gap-1 rounded bg-slate-800 border border-slate-700 px-2 py-0.5 text-[11px] font-semibold text-slate-300">
+                        ♾️ Uso Vitalício
+                    </span>
+                @endif
+                @if($product->license)
+                    <span class="inline-flex items-center gap-1 rounded bg-slate-800 border border-slate-700 px-2 py-0.5 text-[11px] font-semibold text-slate-300">
+                        📜 {{ $product->license }}
+                    </span>
+                @endif
                 <span class="text-xs text-slate-400 ml-auto hidden sm:inline-block">
                     Atualizado em {{ $product->updated_at->format('d/m/Y') }}
                 </span>
@@ -95,6 +114,11 @@
             <h1 class="mt-4 font-display text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-white leading-snug max-w-4xl">
                 {{ $product->title }}
             </h1>
+            @if($product->short_description)
+                <p class="mt-2 text-sm sm:text-base text-slate-300 max-w-3xl leading-relaxed">
+                    {{ $product->short_description }}
+                </p>
+            @endif
         </div>
     </section>
 
@@ -124,11 +148,19 @@
                             </div>
                         @endif
 
-                        <div class="absolute top-4 left-4">
-                            <span class="rounded-lg bg-slate-950/80 backdrop-blur-md border border-slate-700/60 px-3 py-1.5 text-xs font-bold text-teal-300 shadow-lg">
-                                ★ Licença Comercial Definitiva
-                            </span>
-                        </div>
+                        @if($product->license_info)
+                            <div class="absolute top-4 left-4">
+                                <span class="rounded-lg bg-slate-950/80 backdrop-blur-md border border-slate-700/60 px-3 py-1.5 text-xs font-bold text-teal-300 shadow-lg">
+                                    ★ {{ $product->license_info }}
+                                </span>
+                            </div>
+                        @elseif($product->includes_source_code)
+                            <div class="absolute top-4 left-4">
+                                <span class="rounded-lg bg-slate-950/80 backdrop-blur-md border border-slate-700/60 px-3 py-1.5 text-xs font-bold text-teal-300 shadow-lg">
+                                    ★ Código Fonte Aberto
+                                </span>
+                            </div>
+                        @endif
 
                         <div class="absolute top-4 right-4">
                             <button 
@@ -172,11 +204,37 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                         </svg>
                     </div>
-                    <div>
-                        <h2 class="font-display text-sm font-bold text-teal-950">Acesso Vitalício & Código 100% Desbloqueado</h2>
+                    <div class="flex-1">
+                        <h2 class="font-display text-sm font-bold text-teal-950">
+                            @if($product->lifetime_access && $product->includes_source_code)
+                                Acesso Vitalício & Código-Fonte Incluso
+                            @elseif($product->lifetime_access)
+                                Acesso Vitalício & Entrega Digital Imediata
+                            @elseif($product->includes_source_code)
+                                Código-Fonte Incluso & Entrega Imediata
+                            @else
+                                Entrega Digital Imediata & Compra Segura
+                            @endif
+                        </h2>
                         <p class="mt-1 text-xs sm:text-sm text-teal-800/90 leading-relaxed">
-                            Ao adquirir este item, você recebe o download imediato dos arquivos fontes completos, banco de dados SQL e manual de instalação. Sem mensalidades, sem travas de domínio e pronto para produção.
+                            {{ $product->short_description ?: 'Ao adquirir este item, o download é liberado instantaneamente na sua conta após a confirmação. Arquivos verificados e prontos para utilização.' }}
                         </p>
+                        @if($product->demo_url || $product->documentation_url)
+                            <div class="mt-3 flex flex-wrap items-center gap-4 pt-2 border-t border-teal-200/60">
+                                @if($product->demo_url)
+                                    <a href="{{ $product->demo_url }}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 text-xs font-bold text-teal-700 hover:text-teal-900 underline">
+                                        <span>Ver Demonstração Online</span>
+                                        <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+                                    </a>
+                                @endif
+                                @if($product->documentation_url)
+                                    <a href="{{ $product->documentation_url }}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 text-xs font-bold text-teal-700 hover:text-teal-900 underline">
+                                        <span>Documentação</span>
+                                        <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                                    </a>
+                                @endif
+                            </div>
+                        @endif
                     </div>
                 </div>
 
@@ -210,14 +268,14 @@
 
                         <button 
                             type="button" 
-                            @click="tab = 'reviews'" 
-                            :class="tab === 'reviews' ? 'border-teal-600 text-teal-700 bg-white font-bold' : 'border-transparent text-slate-600 hover:text-slate-900 font-medium'"
+                            @click="tab = 'license'" 
+                            :class="tab === 'license' ? 'border-teal-600 text-teal-700 bg-white font-bold' : 'border-transparent text-slate-600 hover:text-slate-900 font-medium'"
                             class="inline-flex items-center gap-2 border-b-2 py-3.5 px-4 text-sm transition whitespace-nowrap rounded-t-lg"
                         >
-                            <svg class="h-4 w-4 text-amber-500" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                            <svg class="h-4 w-4 text-teal-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                             </svg>
-                            Avaliações & Garantia
+                            Licença, Suporte & Entrega
                         </button>
                     </div>
 
@@ -256,105 +314,70 @@
 
                     {{-- Tab 2: Recursos & Requisitos Técnicos --}}
                     <div x-show="tab === 'features'" x-cloak class="p-6 sm:p-8 space-y-6">
-                        <div>
-                            <h3 class="font-display text-lg font-bold text-slate-900">Requisitos Recomendados do Servidor</h3>
-                            <p class="text-xs sm:text-sm text-slate-500 mt-1">Compatível com 99% das hospedagens compartilhadas e servidores VPS do mercado.</p>
-                        </div>
-
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-4">
-                                <span class="text-xs font-mono uppercase font-bold text-teal-700">Linguagem Backend</span>
-                                <p class="font-display text-sm font-bold text-slate-900 mt-1">PHP 8.1 / 8.2 / 8.3</p>
-                                <p class="text-xs text-slate-500 mt-1">Com extensões PDO, cURL, OpenSSL e Mbstring habilitadas.</p>
+                        @if($product->requirements)
+                            <div>
+                                <h3 class="font-display text-lg font-bold text-slate-900">Requisitos do Produto</h3>
+                                <div class="mt-3 p-4 rounded-xl border border-slate-200 bg-slate-50 text-xs sm:text-sm text-slate-700 leading-relaxed whitespace-pre-line font-mono">
+{{ $product->requirements }}
+                                </div>
                             </div>
+                        @endif
 
-                            <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-4">
-                                <span class="text-xs font-mono uppercase font-bold text-teal-700">Banco de Dados</span>
-                                <p class="font-display text-sm font-bold text-slate-900 mt-1">MySQL 5.7+ ou MariaDB 10.3+</p>
-                                <p class="text-xs text-slate-500 mt-1">Acompanha arquivo .SQL com todas as tabelas prontas para importação.</p>
+                        @if($product->features)
+                            <div>
+                                <h3 class="font-display text-lg font-bold text-slate-900">Recursos & Funcionalidades</h3>
+                                <div class="mt-3 p-4 rounded-xl border border-slate-200 bg-slate-50 text-xs sm:text-sm text-slate-700 leading-relaxed whitespace-pre-line">
+{{ $product->features }}
+                                </div>
                             </div>
+                        @endif
 
-                            <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-4">
-                                <span class="text-xs font-mono uppercase font-bold text-teal-700">Servidor Web</span>
-                                <p class="font-display text-sm font-bold text-slate-900 mt-1">Apache ou Nginx</p>
-                                <p class="text-xs text-slate-500 mt-1">Suporte completo a mod_rewrite e URLs amigáveis.</p>
+                        @if(!$product->requirements && !$product->features)
+                            <div class="rounded-xl border border-slate-200 bg-slate-50 p-6 text-center">
+                                <p class="text-sm text-slate-600">Consulte a descrição do item acima ou entre em contato com nosso atendimento para tirar dúvidas de compatibilidade e instalação.</p>
                             </div>
-
-                            <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-4">
-                                <span class="text-xs font-mono uppercase font-bold text-teal-700">Painéis Suportados</span>
-                                <p class="font-display text-sm font-bold text-slate-900 mt-1">cPanel, Plesk, CloudPanel, VPS</p>
-                                <p class="text-xs text-slate-500 mt-1">Instalação simples via gerenciador de arquivos ou SSH/FTP.</p>
-                            </div>
-                        </div>
-
-                        <div class="rounded-xl border border-emerald-200 bg-emerald-50/60 p-4 text-emerald-950 flex items-start gap-3">
-                            <svg class="h-5 w-5 text-emerald-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            <div class="text-xs sm:text-sm">
-                                <strong class="font-semibold">Licença Livre de Domínio:</strong> Você não precisa de chaves de ativação ou autorização prévia. Pode utilizar em seus projetos ou instalar diretamente em clientes.
-                            </div>
-                        </div>
+                        @endif
                     </div>
 
-                    {{-- Tab 3: Avaliações & Suporte --}}
-                    <div x-show="tab === 'reviews'" x-cloak class="p-6 sm:p-8 space-y-6">
-                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-6">
-                            <div>
-                                <div class="flex items-center gap-2">
-                                    <span class="font-display text-3xl font-extrabold text-slate-900">5.0</span>
-                                    <div class="flex text-amber-400">
-                                        @for($i = 0; $i < 5; $i++)
-                                            <svg class="h-5 w-5 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
-                                        @endfor
-                                    </div>
-                                    <span class="text-xs text-slate-500">(48 avaliações de clientes verificados)</span>
+                    {{-- Tab 3: Licença, Suporte & Entrega (Factual, sem avaliações fictícias) --}}
+                    <div x-show="tab === 'license'" x-cloak class="p-6 sm:p-8 space-y-6">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                            <div class="rounded-xl border border-slate-200 bg-slate-50/60 p-4 space-y-2">
+                                <div class="flex items-center gap-2 text-teal-700 font-bold text-sm">
+                                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                    <span>Licença de Uso</span>
                                 </div>
-                                <p class="mt-1 text-xs sm:text-sm text-slate-500">100% dos compradores avaliaram como excelente.</p>
+                                <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                                    {{ $product->license ?: 'Licença comercial para implementação em projetos próprios ou serviços, sem custos recorrentes adicionais.' }}
+                                </p>
                             </div>
 
-                            <a href="https://wa.me/5582996304742?text={{ urlencode('Olá! Gostaria de falar sobre o produto ' . $product->title) }}" target="_blank" rel="noopener noreferrer" class="btn-secondary text-xs sm:text-sm">
-                                Tirar Dúvida com Especialista
-                            </a>
+                            <div class="rounded-xl border border-slate-200 bg-slate-50/60 p-4 space-y-2">
+                                <div class="flex items-center gap-2 text-teal-700 font-bold text-sm">
+                                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+                                    <span>Suporte & Dúvidas</span>
+                                </div>
+                                <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                                    {{ $product->support_info ?: 'Atendimento via WhatsApp e e-mail para suporte de acesso aos arquivos e esclarecimento de dúvidas.' }}
+                                </p>
+                            </div>
+
+                            <div class="rounded-xl border border-slate-200 bg-slate-50/60 p-4 space-y-2">
+                                <div class="flex items-center gap-2 text-teal-700 font-bold text-sm">
+                                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                                    <span>Entrega Imediata</span>
+                                </div>
+                                <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                                    Download 100% digital liberado imediatamente na sua conta no menu Meus Downloads após confirmação de pagamento.
+                                </p>
+                            </div>
                         </div>
 
-                        {{-- Depoimentos Verificados --}}
-                        <div class="space-y-4">
-                            <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-4">
-                                <div class="flex items-center justify-between">
-                                    <span class="font-display text-sm font-bold text-slate-900">Rafael Mendonça — Desenvolvedor</span>
-                                    <span class="text-xs text-emerald-600 font-semibold flex items-center gap-1">
-                                        <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
-                                        Compra Verificada
-                                    </span>
-                                </div>
-                                <div class="flex text-amber-400 mt-1">
-                                    @for($i = 0; $i < 5; $i++)
-                                        <svg class="h-3.5 w-3.5 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
-                                    @endfor
-                                </div>
-                                <p class="mt-2 text-xs sm:text-sm text-slate-600">
-                                    "Código fonte muito limpo e bem comentado. Subi no cPanel da Hostinger e funcionou de primeira. O suporte também me respondeu super rápido no WhatsApp."
-                                </p>
-                            </div>
-
-                            <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-4">
-                                <div class="flex items-center justify-between">
-                                    <span class="font-display text-sm font-bold text-slate-900">Lucas Teixeira — Agência Digital</span>
-                                    <span class="text-xs text-emerald-600 font-semibold flex items-center gap-1">
-                                        <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
-                                        Compra Verificada
-                                    </span>
-                                </div>
-                                <div class="flex text-amber-400 mt-1">
-                                    @for($i = 0; $i < 5; $i++)
-                                        <svg class="h-3.5 w-3.5 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
-                                    @endfor
-                                </div>
-                                <p class="mt-2 text-xs sm:text-sm text-slate-600">
-                                    "O melhor investimento para nossa agência. Compramos com pagamento único e já revendemos como serviço para dois clientes na mesma semana. Download liberado no segundo seguinte ao Pix."
-                                </p>
-                            </div>
+                        <div class="pt-2 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-slate-100">
+                            <span class="text-xs text-slate-500">Precisa de atendimento pré-venda ou requisitos específicos?</span>
+                            <a href="https://wa.me/5582996304742?text={{ urlencode('Olá! Gostaria de falar sobre o produto: ' . $product->title) }}" target="_blank" rel="noopener noreferrer" class="btn-secondary text-xs sm:text-sm">
+                                Tirar Dúvidas com Especialista
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -411,7 +434,7 @@
                             <div class="flex items-baseline gap-2">
                                 <span class="text-xs font-medium text-slate-400">De:</span>
                                 <del class="text-sm font-semibold text-slate-400">
-                                    R$ {{ number_format((float) ($product->price * 1.35), 2, ',', '.') }}
+                                    R$ {{ number_format((float) ($product->regular_price ?: ($product->price * 1.35)), 2, ',', '.') }}
                                 </del>
                             </div>
                             <div class="mt-1 flex items-baseline gap-2">
@@ -521,12 +544,14 @@
                             </svg>
                             <span>Pagamento seguro via <strong>Mercado Pago</strong> (Pix ou Cartão)</span>
                         </div>
-                        <div class="flex items-center gap-2">
-                            <svg class="h-4 w-4 text-emerald-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
-                            </svg>
-                            <span>Código 100% aberto e sem limites de domínios</span>
-                        </div>
+                        @if($product->includes_source_code)
+                            <div class="flex items-center gap-2">
+                                <svg class="h-4 w-4 text-emerald-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                                </svg>
+                                <span>Código-fonte disponível para customização</span>
+                            </div>
+                        @endif
                     </div>
                 </div>
 
@@ -539,23 +564,47 @@
                     <dl class="mt-4 divide-y divide-slate-100 text-xs sm:text-sm">
                         <div class="flex justify-between py-2.5">
                             <dt class="text-slate-500 font-medium">Categoria</dt>
-                            <dd class="font-semibold text-slate-900">{{ $product->category ?? 'Scripts & SaaS' }}</dd>
+                            <dd class="font-semibold text-slate-900">
+                                @if($product->categoryGroup)
+                                    <a href="{{ route('catalog.category', $product->categoryGroup->slug) }}" class="text-teal-700 hover:underline">
+                                        {{ $product->categoryGroup->name }}
+                                    </a>
+                                @else
+                                    {{ $product->category ?? 'Produto Digital' }}
+                                @endif
+                            </dd>
                         </div>
+                        @if($product->brand_name)
+                            <div class="flex justify-between py-2.5">
+                                <dt class="text-slate-500 font-medium">Marca / Autor</dt>
+                                <dd class="font-semibold text-slate-900">{{ $product->brand_name }}</dd>
+                            </div>
+                        @endif
+                        @if($product->product_type)
+                            <div class="flex justify-between py-2.5">
+                                <dt class="text-slate-500 font-medium">Tipo</dt>
+                                <dd class="font-semibold text-slate-900">{{ $product->product_type }}</dd>
+                            </div>
+                        @endif
                         <div class="flex justify-between py-2.5">
                             <dt class="text-slate-500 font-medium">Atualizado</dt>
                             <dd class="font-semibold text-slate-900">{{ $product->updated_at->format('d/m/Y') }}</dd>
                         </div>
                         <div class="flex justify-between py-2.5">
                             <dt class="text-slate-500 font-medium">Licença</dt>
-                            <dd class="font-semibold text-teal-700">Comercial & Vitalícia</dd>
+                            <dd class="font-semibold text-teal-700">
+                                {{ $product->license_info ?: ($product->lifetime_access ? 'Uso Vitalício' : 'Comercial') }}
+                            </dd>
                         </div>
                         <div class="flex justify-between py-2.5">
                             <dt class="text-slate-500 font-medium">Entrega</dt>
                             <dd class="font-semibold text-emerald-600">Download Imediato</dd>
                         </div>
                         <div class="flex justify-between py-2.5">
-                            <dt class="text-slate-500 font-medium">Arquivos Inclusos</dt>
-                            <dd class="font-semibold text-slate-900">Código Fonte + SQL</dd>
+                            <dt class="text-slate-500 font-medium">Arquivos</dt>
+                            <dd class="font-semibold text-slate-900">
+                                {{ $product->includes_source_code ? 'Código Fonte Incluso' : 'Arquivos Digitais' }}
+                            </dd>
                         </div>
                         <div class="flex justify-between py-2.5">
                             <dt class="text-slate-500 font-medium">Versão</dt>
@@ -569,7 +618,7 @@
         </div>
     </section>
 
-    {{-- Trust Badges Section ("Por que comprar em nosso site?") --}}
+    {{-- Trust Badges Section ("Por que comprar na KL Tecnologia?") --}}
     <section class="border-y border-slate-200 bg-white py-14">
         <div class="page-container">
             <div class="text-center max-w-2xl mx-auto">
@@ -629,9 +678,9 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
                         </svg>
                     </div>
-                    <h3 class="mt-4 font-display text-sm font-bold text-slate-900">Código Completo</h3>
+                    <h3 class="mt-4 font-display text-sm font-bold text-slate-900">Arquivos Verificados</h3>
                     <p class="mt-1.5 text-xs text-slate-500 leading-relaxed">
-                        Sem criptografia ou travas de domínio. Modifique como desejar.
+                        Downloads diretos, completos e testados para máxima confiabilidade.
                     </p>
                 </div>
 
@@ -642,9 +691,9 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
                         </svg>
                     </div>
-                    <h3 class="mt-4 font-display text-sm font-bold text-slate-900">Pagamento Único</h3>
+                    <h3 class="mt-4 font-display text-sm font-bold text-slate-900">Pagamento Transparente</h3>
                     <p class="mt-1.5 text-xs text-slate-500 leading-relaxed">
-                        Sem mensalidades ou surpresas. O sistema é seu para sempre.
+                        Valores claros sem mensalidades ocultas ou surpresas adicionais.
                     </p>
                 </div>
             </div>
@@ -679,6 +728,7 @@
                                     <img 
                                         src="{{ asset($related->cover_path) }}" 
                                         alt="{{ $related->title }}" 
+                                        loading="lazy"
                                         class="h-full w-full object-cover group-hover:scale-105 transition duration-300"
                                     />
                                 @else
@@ -686,31 +736,44 @@
                                         KL
                                     </div>
                                 @endif
-                                <div class="absolute top-2.5 left-2.5">
-                                    <span class="badge-hot">Código Fonte</span>
-                                </div>
+                                @if($related->includes_source_code)
+                                    <div class="absolute top-2.5 left-2.5">
+                                        <span class="badge-hot">Código Fonte</span>
+                                    </div>
+                                @endif
                             </div>
 
                             {{-- Info --}}
                             <div class="p-4">
-                                <span class="text-[11px] font-mono font-bold uppercase tracking-wider text-teal-700">Scripts & SaaS</span>
+                                <span class="text-[11px] font-mono font-bold uppercase tracking-wider text-teal-700">
+                                    {{ $related->categoryGroup?->name ?? $related->category ?? 'Produto Digital' }}
+                                </span>
                                 <h3 class="mt-1 font-display text-sm font-bold text-slate-900 line-clamp-2 group-hover:text-teal-700 transition">
                                     <a href="{{ route('storefront.show', $related) }}">
                                         {{ $related->title }}
                                     </a>
                                 </h3>
+                                <p class="mt-1.5 text-xs text-slate-500 line-clamp-2 leading-relaxed">
+                                    {{ $related->short_description ?: Str::limit(trim(preg_replace('/\s+/', ' ', strip_tags($related->description))), 80) }}
+                                </p>
                             </div>
                         </div>
 
                         {{-- Footer / Price --}}
                         <div class="p-4 pt-0 border-t border-slate-100 flex items-center justify-between mt-3">
                             <div>
-                                <del class="text-[11px] font-medium text-slate-400">
-                                    R$ {{ number_format((float) ($related->price * 1.35), 2, ',', '.') }}
-                                </del>
-                                <p class="font-display text-base font-extrabold text-slate-950">
-                                    R$ {{ number_format((float) $related->price, 2, ',', '.') }}
-                                </p>
+                                @if((float) $related->price <= 0)
+                                    <p class="font-display text-base font-extrabold text-emerald-600">
+                                        GRÁTIS
+                                    </p>
+                                @else
+                                    <del class="text-[11px] font-medium text-slate-400">
+                                        R$ {{ number_format((float) ($related->regular_price ?: ($related->price * 1.35)), 2, ',', '.') }}
+                                    </del>
+                                    <p class="font-display text-base font-extrabold text-slate-950">
+                                        R$ {{ number_format((float) $related->price, 2, ',', '.') }}
+                                    </p>
+                                @endif
                             </div>
                             <a href="{{ route('storefront.show', $related) }}" class="inline-flex items-center justify-center rounded-xl bg-slate-100 hover:bg-teal-50 text-slate-700 hover:text-teal-700 font-bold px-3 py-1.5 text-xs transition">
                                 Ver Detalhes
@@ -722,69 +785,61 @@
         </section>
     @endif
 
-    {{-- Dicas do Blog / Artigos & Guias --}}
-    <section class="border-t border-slate-200 bg-slate-50 py-14">
-        <div class="page-container">
-            <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
-                <div>
-                    <span class="eyebrow">Conhecimento & Tutoriais</span>
-                    <h2 class="mt-1 font-display text-2xl font-bold text-slate-900 tracking-tight">
-                        Do Blog & Guias Técnicos
-                    </h2>
-                    <p class="mt-1 text-sm text-slate-500">
-                        Dicas práticas para você implementar e lucrar com sistemas web.
-                    </p>
+    {{-- Dicas do Blog / Artigos Relacionados --}}
+    @if(isset($relatedPosts) && $relatedPosts->isNotEmpty())
+        <section class="border-t border-slate-200 bg-slate-50 py-14">
+            <div class="page-container">
+                <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
+                    <div>
+                        <span class="eyebrow">Conhecimento & Guias</span>
+                        <h2 class="mt-1 font-display text-2xl font-bold text-slate-900 tracking-tight">
+                            Do Blog & Guias Técnicos
+                        </h2>
+                        <p class="mt-1 text-sm text-slate-500">
+                            Conteúdo prático para você implementar e potencializar suas soluções digitais.
+                        </p>
+                    </div>
+                    <a href="{{ route('blog.index') }}" class="btn-secondary text-xs sm:text-sm font-semibold">
+                        Ver Todos os Artigos →
+                    </a>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    @foreach($relatedPosts as $post)
+                        <article class="panel overflow-hidden border border-slate-200/80 bg-white rounded-2xl shadow-sm hover:shadow-md transition flex flex-col justify-between">
+                            <div>
+                                @if($post->cover_path)
+                                    <div class="h-44 overflow-hidden bg-slate-900">
+                                        <img src="{{ asset($post->cover_path) }}" alt="{{ $post->title }}" loading="lazy" class="h-full w-full object-cover">
+                                    </div>
+                                @else
+                                    <div class="h-44 bg-gradient-to-br from-teal-900 via-slate-900 to-slate-950 p-5 flex flex-col justify-end text-white">
+                                        <span class="text-xs font-mono text-teal-400 font-bold uppercase">{{ $post->blogCategory?->name ?? $post->category ?? 'Artigo' }}</span>
+                                    </div>
+                                @endif
+                                <div class="p-5">
+                                    <span class="text-[11px] font-mono text-teal-700 font-bold uppercase">{{ $post->blogCategory?->name ?? $post->category ?? 'Artigo' }}</span>
+                                    <h3 class="font-display text-base font-bold mt-1 text-slate-900 hover:text-teal-700 transition">
+                                        <a href="{{ route('blog.show', $post) }}">
+                                            {{ $post->title }}
+                                        </a>
+                                    </h3>
+                                    <p class="mt-2 text-xs sm:text-sm text-slate-600 line-clamp-2 leading-relaxed">
+                                        {{ $post->excerpt }}
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="p-5 pt-0">
+                                <a href="{{ route('blog.show', $post) }}" class="inline-flex items-center gap-1.5 text-xs font-bold text-teal-700 hover:text-teal-800">
+                                    Ler artigo completo →
+                                </a>
+                            </div>
+                        </article>
+                    @endforeach
                 </div>
             </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <article class="panel overflow-hidden border border-slate-200/80 bg-white rounded-2xl shadow-sm hover:shadow-md transition">
-                    <div class="h-40 bg-gradient-to-br from-teal-900 via-slate-900 to-slate-950 p-5 flex flex-col justify-end text-white">
-                        <span class="text-xs font-mono text-teal-400 font-bold uppercase">Hospedagem & VPS</span>
-                        <h3 class="font-display text-base font-bold mt-1 text-white">Como configurar sistemas PHP em VPS de alta performance</h3>
-                    </div>
-                    <div class="p-5">
-                        <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                            Aprenda a subir sistemas e configurar bancos de dados no CloudPanel ou cPanel com segurança e SSL gratuito.
-                        </p>
-                        <a href="{{ route('catalog.index') }}" class="inline-flex items-center gap-1.5 mt-4 text-xs font-bold text-teal-700 hover:text-teal-800">
-                            Ler artigo completo →
-                        </a>
-                    </div>
-                </article>
-
-                <article class="panel overflow-hidden border border-slate-200/80 bg-white rounded-2xl shadow-sm hover:shadow-md transition">
-                    <div class="h-40 bg-gradient-to-br from-blue-900 via-slate-900 to-slate-950 p-5 flex flex-col justify-end text-white">
-                        <span class="text-xs font-mono text-blue-400 font-bold uppercase">Vendas & Conversão</span>
-                        <h3 class="font-display text-base font-bold mt-1 text-white">Automatizando pedidos e catálogos via API de WhatsApp</h3>
-                    </div>
-                    <div class="p-5">
-                        <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                            Descubra como integrar webhooks e mensagens automáticas para aumentar a taxa de conversão do seu negócio.
-                        </p>
-                        <a href="{{ route('catalog.index') }}" class="inline-flex items-center gap-1.5 mt-4 text-xs font-bold text-teal-700 hover:text-teal-800">
-                            Ler artigo completo →
-                        </a>
-                    </div>
-                </article>
-
-                <article class="panel overflow-hidden border border-slate-200/80 bg-white rounded-2xl shadow-sm hover:shadow-md transition">
-                    <div class="h-40 bg-gradient-to-br from-emerald-900 via-slate-900 to-slate-950 p-5 flex flex-col justify-end text-white">
-                        <span class="text-xs font-mono text-emerald-400 font-bold uppercase">Segurança & SaaS</span>
-                        <h3 class="font-display text-base font-bold mt-1 text-white">Boas práticas de proteção para bancos de dados MySQL</h3>
-                    </div>
-                    <div class="p-5">
-                        <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                            Passos essenciais para blindar seu servidor contra invasões e manter os dados de clientes protegidos.
-                        </p>
-                        <a href="{{ route('catalog.index') }}" class="inline-flex items-center gap-1.5 mt-4 text-xs font-bold text-teal-700 hover:text-teal-800">
-                            Ler artigo completo →
-                        </a>
-                    </div>
-                </article>
-            </div>
-        </div>
-    </section>
+        </section>
+    @endif
 
     {{-- Dúvidas Frequentes (FAQ Accordion) --}}
     <section class="page-container py-14">
@@ -806,13 +861,13 @@
                     @click="openFaq = openFaq === 1 ? null : 1" 
                     class="w-full flex items-center justify-between p-5 text-left font-display text-sm sm:text-base font-bold text-slate-900 hover:text-teal-700 transition"
                 >
-                    <span>Como recebo o sistema após a confirmação do pagamento?</span>
+                    <span>Como recebo o produto após a confirmação do pagamento?</span>
                     <svg :class="openFaq === 1 ? 'rotate-180 text-teal-600' : 'text-slate-400'" class="h-5 w-5 transform transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                     </svg>
                 </button>
                 <div x-show="openFaq === 1" class="px-5 pb-5 text-xs sm:text-sm text-slate-600 leading-relaxed border-t border-slate-100 pt-3">
-                    A entrega é 100% digital e imediata! Assim que o Mercado Pago aprova o pagamento (Pix ou Cartão), o link de download fica liberado automaticamente na sua conta no menu <strong>Meus Downloads</strong>.
+                    A entrega é 100% digital e imediata! Assim que o pagamento for aprovado (Pix ou Cartão), o download fica liberado automaticamente na sua conta no menu <strong>Meus Downloads</strong>.
                 </div>
             </div>
 
@@ -823,13 +878,13 @@
                     @click="openFaq = openFaq === 2 ? null : 2" 
                     class="w-full flex items-center justify-between p-5 text-left font-display text-sm sm:text-base font-bold text-slate-900 hover:text-teal-700 transition"
                 >
-                    <span>O código fonte é 100% aberto ou possui arquivos criptografados?</span>
+                    <span>Este produto acompanha código-fonte para modificação?</span>
                     <svg :class="openFaq === 2 ? 'rotate-180 text-teal-600' : 'text-slate-400'" class="h-5 w-5 transform transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                     </svg>
                 </button>
                 <div x-show="openFaq === 2" class="px-5 pb-5 text-xs sm:text-sm text-slate-600 leading-relaxed border-t border-slate-100 pt-3">
-                    Todos os nossos produtos acompanham o código fonte completo e desbloqueado (sem criptografia ou ionCube), permitindo que você personalize a identidade visual, funcionalidades e hospede no servidor que desejar.
+                    Os produtos que incluem código-fonte têm essa especificação expressa na ficha técnica e nos destaques do anúncio. Para outros itens ou ferramentas fechadas, consulte os requisitos e detalhes de cada produto.
                 </div>
             </div>
 
@@ -840,30 +895,13 @@
                     @click="openFaq = openFaq === 3 ? null : 3" 
                     class="w-full flex items-center justify-between p-5 text-left font-display text-sm sm:text-base font-bold text-slate-900 hover:text-teal-700 transition"
                 >
-                    <span>Posso instalar em quantos domínios eu quiser?</span>
+                    <span>Como funcionam a licença e o suporte?</span>
                     <svg :class="openFaq === 3 ? 'rotate-180 text-teal-600' : 'text-slate-400'" class="h-5 w-5 transform transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                     </svg>
                 </button>
                 <div x-show="openFaq === 3" class="px-5 pb-5 text-xs sm:text-sm text-slate-600 leading-relaxed border-t border-slate-100 pt-3">
-                    Sim! A licença é comercial e vitalícia, sem qualquer trava por domínio. Você pode implementar em seus próprios negócios ou até mesmo customizar e instalar para seus clientes finais como prestador de serviços.
-                </div>
-            </div>
-
-            {{-- FAQ 4 --}}
-            <div class="rounded-2xl border border-slate-200 bg-white overflow-hidden shadow-sm">
-                <button 
-                    type="button" 
-                    @click="openFaq = openFaq === 4 ? null : 4" 
-                    class="w-full flex items-center justify-between p-5 text-left font-display text-sm sm:text-base font-bold text-slate-900 hover:text-teal-700 transition"
-                >
-                    <span>Como funciona caso eu precise de suporte para instalação?</span>
-                    <svg :class="openFaq === 4 ? 'rotate-180 text-teal-600' : 'text-slate-400'" class="h-5 w-5 transform transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                    </svg>
-                </button>
-                <div x-show="openFaq === 4" class="px-5 pb-5 text-xs sm:text-sm text-slate-600 leading-relaxed border-t border-slate-100 pt-3">
-                    Disponibilizamos suporte direto pelo WhatsApp oficial <strong>(82) 99630-4742</strong> e e-mail para orientar sobre os requisitos do servidor, banco de dados e resolução de eventuais dúvidas de configuração.
+                    As condições de licença e suporte de cada item estão detalhadas na aba "Licença, Suporte & Entrega" e na ficha do produto. Para dúvidas adicionais, conte com nosso suporte direto pelo WhatsApp oficial <strong>(82) 99630-4742</strong>.
                 </div>
             </div>
         </div>
@@ -901,7 +939,7 @@
                     title: {{ json_encode($product->title) }},
                     slug: {{ json_encode($product->slug) }},
                     price: {{ (float) $product->price }},
-                    cover_image: {{ json_encode($product->cover_image) }},
+                    cover_image: {{ json_encode($product->cover_path ? asset($product->cover_path) : null) }},
                     category: {{ json_encode($product->categoryGroup?->name ?? $product->category ?? 'Sistema Web') }}
                 })"
                 class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-slate-900 border border-slate-700 text-teal-400 hover:bg-slate-800 transition cursor-pointer"

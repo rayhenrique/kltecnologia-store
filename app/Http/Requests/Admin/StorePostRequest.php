@@ -22,6 +22,8 @@ class StorePostRequest extends FormRequest
             'title' => ['required', 'string', 'max:255'],
             'category' => ['nullable', 'string', 'max:100'],
             'blog_category_id' => ['nullable', 'integer', 'exists:blog_categories,id'],
+            'seo_title' => ['nullable', 'string', 'max:70'],
+            'meta_description' => ['nullable', 'string', 'max:160'],
             'excerpt' => ['nullable', 'string', 'max:1000'],
             'content' => ['required', 'string'],
             'is_published' => ['nullable', 'boolean'],

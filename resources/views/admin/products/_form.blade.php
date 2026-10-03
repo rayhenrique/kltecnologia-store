@@ -34,6 +34,7 @@
                 id="title" 
                 name="title" 
                 type="text" 
+                x-model="rawTitle"
                 class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 shadow-2xs" 
                 placeholder="Ex: Script PHP Sistema SaaS de Assinaturas"
                 :value="old('title', $product->title ?? '')" 
@@ -305,6 +306,276 @@
         </div>
     </div>
 
+    {{-- SEÇÃO 4: SEO & APRESENTAÇÃO COMERCIAL --}}
+    <div class="space-y-6">
+        <div class="border-b border-slate-100 pb-3">
+            <div class="flex items-center gap-2">
+                <span class="rounded bg-teal-100 px-2 py-0.5 text-[10px] font-mono font-bold text-teal-800 uppercase">SEO Orgânico</span>
+                <h3 class="font-display text-sm font-bold uppercase tracking-wider text-slate-900">
+                    4. SEO &amp; Apresentação Comercial
+                </h3>
+            </div>
+            <p class="text-xs text-slate-500 mt-0.5">
+                Configure os metadados para motores de busca (Google) e as informações comerciais específicas deste item.
+            </p>
+        </div>
+
+        {{-- Preview de SERP do Google --}}
+        <div class="rounded-2xl border border-slate-200 bg-slate-50/70 p-5 space-y-2">
+            <div class="flex items-center justify-between">
+                <span class="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
+                    <svg class="h-4 w-4 text-teal-600" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+                    </svg>
+                    Pré-visualização do Google (SERP Preview)
+                </span>
+                <span class="text-[11px] text-slate-400">Resultado de busca orgânica</span>
+            </div>
+
+            <div class="rounded-xl border border-slate-200 bg-white p-4 font-sans text-left space-y-1 shadow-xs">
+                <div class="flex items-center gap-2 text-xs text-slate-600">
+                    <span class="grid h-4 w-4 place-items-center rounded-full bg-teal-600 text-[9px] font-bold text-white">KL</span>
+                    <span class="truncate text-slate-700 font-medium">kltecnologia.com</span>
+                    <span class="text-slate-400">&rsaquo;</span>
+                    <span class="text-slate-500 text-[11px]">produtos</span>
+                    <span class="text-slate-400">&rsaquo;</span>
+                    <span class="text-slate-500 text-[11px]" x-text="slug || 'produto'"></span>
+                </div>
+                <h4 class="text-base sm:text-lg font-medium text-blue-700 hover:underline leading-snug line-clamp-1 cursor-pointer" x-text="seoTitle || rawTitle || 'Título do Produto na KL Tecnologia'"></h4>
+                <p class="text-xs sm:text-sm text-slate-600 line-clamp-2 leading-relaxed" x-text="metaDesc || shortDesc || 'Descrição do produto exibida nos resultados do Google para atrair visitantes qualificados.'"></p>
+            </div>
+        </div>
+
+        {{-- Título SEO e Meta Description com Contadores --}}
+        <div class="grid gap-5 sm:grid-cols-2">
+            <div>
+                <div class="flex items-center justify-between mb-1">
+                    <x-input-label for="seo_title" value="Título SEO (Google)" class="text-xs font-bold uppercase text-slate-700" />
+                    <span 
+                        class="text-[11px] font-mono font-bold" 
+                        :class="seoTitle.length > 70 ? 'text-red-600' : (seoTitle.length >= 50 ? 'text-emerald-600' : 'text-slate-400')"
+                        x-text="seoTitle.length + ' / 70 caracteres'"
+                    ></span>
+                </div>
+                <x-text-input 
+                    id="seo_title" 
+                    name="seo_title" 
+                    type="text" 
+                    maxlength="70"
+                    x-model="seoTitle"
+                    class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 shadow-2xs" 
+                    placeholder="Título otimizado para o Google (recomendado: 50 a 65 caracteres)"
+                    :value="old('seo_title', $product->seo_title ?? '')" 
+                />
+                <p class="mt-1 text-[11px] text-slate-500">Se deixado em branco, o sistema usará o Título do Produto como fallback.</p>
+                <x-input-error :messages="$errors->get('seo_title')" class="mt-1.5 text-xs text-red-500" />
+            </div>
+
+            <div>
+                <div class="flex items-center justify-between mb-1">
+                    <x-input-label for="meta_description" value="Meta Description" class="text-xs font-bold uppercase text-slate-700" />
+                    <span 
+                        class="text-[11px] font-mono font-bold" 
+                        :class="metaDesc.length > 160 ? 'text-red-600' : (metaDesc.length >= 120 ? 'text-emerald-600' : 'text-slate-400')"
+                        x-text="metaDesc.length + ' / 160 caracteres'"
+                    ></span>
+                </div>
+                <textarea 
+                    id="meta_description" 
+                    name="meta_description" 
+                    rows="2"
+                    maxlength="160"
+                    x-model="metaDesc"
+                    placeholder="Resumo persuasivo para cliques no Google (recomendado: 120 a 155 caracteres)..."
+                    class="w-full rounded-xl border border-slate-300 p-3 text-sm text-slate-900 placeholder-slate-400 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 shadow-2xs resize-none"
+                >{{ old('meta_description', $product->meta_description ?? '') }}</textarea>
+                <p class="mt-1 text-[11px] text-slate-500">Se deixado em branco, o sistema usará a Descrição Curta como fallback.</p>
+                <x-input-error :messages="$errors->get('meta_description')" class="mt-1.5 text-xs text-red-500" />
+            </div>
+        </div>
+
+        {{-- Descrição Curta --}}
+        <div>
+            <div class="flex items-center justify-between mb-1">
+                <x-input-label for="short_description" value="Descrição Curta (Vitrine & Cards)" class="text-xs font-bold uppercase text-slate-700" />
+                <span 
+                    class="text-[11px] font-mono text-slate-400"
+                    x-text="shortDesc.length + ' / 500 caracteres'"
+                ></span>
+            </div>
+            <textarea 
+                id="short_description" 
+                name="short_description" 
+                rows="2" 
+                maxlength="500"
+                x-model="shortDesc"
+                placeholder="Breve resumo para exibição nos cards da vitrine, catálogo e como fallback de SEO..."
+                class="w-full rounded-xl border border-slate-300 p-3 text-sm text-slate-900 placeholder-slate-400 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 shadow-2xs resize-y"
+            >{{ old('short_description', $product->short_description ?? '') }}</textarea>
+            <p class="mt-1 text-[11px] text-slate-500">Exibido no card do produto na Home e no Catálogo, evitando carregar o texto completo na listagem.</p>
+            <x-input-error :messages="$errors->get('short_description')" class="mt-1.5 text-xs text-red-500" />
+        </div>
+
+        {{-- Tipo de Produto & Marca / Desenvolvedor --}}
+        <div class="grid gap-5 sm:grid-cols-2">
+            <div>
+                <x-input-label for="product_type" value="Tipo de Produto" class="text-xs font-bold uppercase text-slate-700 mb-1" />
+                <x-text-input 
+                    id="product_type" 
+                    name="product_type" 
+                    type="text" 
+                    list="product_types_list"
+                    class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 shadow-2xs" 
+                    placeholder="Ex: Script PHP, Sistema SaaS, Template HTML, Automação"
+                    :value="old('product_type', $product->product_type ?? '')" 
+                />
+                <datalist id="product_types_list">
+                    <option value="Script PHP">
+                    <option value="Sistema SaaS">
+                    <option value="Template HTML/CSS">
+                    <option value="Automação Python">
+                    <option value="Plugin WordPress">
+                    <option value="Dashboard / Painel">
+                    <option value="Aplicativo Mobile">
+                    <option value="Planilha Excel / Dashboard">
+                </datalist>
+                <x-input-error :messages="$errors->get('product_type')" class="mt-1.5 text-xs text-red-500" />
+            </div>
+
+            <div>
+                <x-input-label for="brand" value="Marca / Desenvolvedor" class="text-xs font-bold uppercase text-slate-700 mb-1" />
+                <x-text-input 
+                    id="brand" 
+                    name="brand" 
+                    type="text" 
+                    class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 shadow-2xs" 
+                    placeholder="Ex: Nome do desenvolvedor ou marca original"
+                    :value="old('brand', $product->brand ?? '')" 
+                />
+                <p class="mt-1 text-[11px] text-slate-500">Deixe em branco se desconhecido. Não atribua autoria à KL Tecnologia para produtos de terceiros.</p>
+                <x-input-error :messages="$errors->get('brand')" class="mt-1.5 text-xs text-red-500" />
+            </div>
+        </div>
+
+        {{-- Recursos & Requisitos Técnicos --}}
+        <div class="grid gap-5 sm:grid-cols-2">
+            <div>
+                <x-input-label for="features" value="Recursos / Funcionalidades" class="text-xs font-bold uppercase text-slate-700 mb-1" />
+                <textarea 
+                    id="features" 
+                    name="features" 
+                    rows="4" 
+                    placeholder="Liste as principais funcionalidades do produto (uma por linha)..."
+                    class="w-full rounded-xl border border-slate-300 p-3 text-sm text-slate-900 placeholder-slate-400 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 shadow-2xs resize-y"
+                >{{ old('features', $product->features ?? '') }}</textarea>
+                <p class="mt-1 text-[11px] text-slate-500">Exibido na aba de Recursos da página do produto quando preenchido.</p>
+                <x-input-error :messages="$errors->get('features')" class="mt-1.5 text-xs text-red-500" />
+            </div>
+
+            <div>
+                <x-input-label for="requirements" value="Requisitos Técnicos" class="text-xs font-bold uppercase text-slate-700 mb-1" />
+                <textarea 
+                    id="requirements" 
+                    name="requirements" 
+                    rows="4" 
+                    placeholder="Ex: PHP 8.2+, MySQL 8+, Extensões PDO e cURL, Hospedagem Apache/Nginx..."
+                    class="w-full rounded-xl border border-slate-300 p-3 text-sm text-slate-900 placeholder-slate-400 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 shadow-2xs resize-y"
+                >{{ old('requirements', $product->requirements ?? '') }}</textarea>
+                <p class="mt-1 text-[11px] text-slate-500">Requisitos reais deste item específico. Não inventar requisitos se não existirem.</p>
+                <x-input-error :messages="$errors->get('requirements')" class="mt-1.5 text-xs text-red-500" />
+            </div>
+        </div>
+
+        {{-- Licença & Suporte --}}
+        <div class="grid gap-5 sm:grid-cols-2">
+            <div>
+                <x-input-label for="license" value="Informações de Licença" class="text-xs font-bold uppercase text-slate-700 mb-1" />
+                <textarea 
+                    id="license" 
+                    name="license" 
+                    rows="2" 
+                    placeholder="Ex: Uso comercial definitivo, sem travas de domínio, instalação em clientes permitida..."
+                    class="w-full rounded-xl border border-slate-300 p-3 text-sm text-slate-900 placeholder-slate-400 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 shadow-2xs resize-y"
+                >{{ old('license', $product->license ?? '') }}</textarea>
+                <x-input-error :messages="$errors->get('license')" class="mt-1.5 text-xs text-red-500" />
+            </div>
+
+            <div>
+                <x-input-label for="support_info" value="Informações de Suporte" class="text-xs font-bold uppercase text-slate-700 mb-1" />
+                <textarea 
+                    id="support_info" 
+                    name="support_info" 
+                    rows="2" 
+                    placeholder="Ex: Suporte a dúvidas de instalação via WhatsApp e e-mail em horário comercial..."
+                    class="w-full rounded-xl border border-slate-300 p-3 text-sm text-slate-900 placeholder-slate-400 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 shadow-2xs resize-y"
+                >{{ old('support_info', $product->support_info ?? '') }}</textarea>
+                <x-input-error :messages="$errors->get('support_info')" class="mt-1.5 text-xs text-red-500" />
+            </div>
+        </div>
+
+        {{-- URLs de Demo e Documentação --}}
+        <div class="grid gap-5 sm:grid-cols-2">
+            <div>
+                <x-input-label for="demo_url" value="URL de Demonstração (Ao Vivo)" class="text-xs font-bold uppercase text-slate-700 mb-1" />
+                <x-text-input 
+                    id="demo_url" 
+                    name="demo_url" 
+                    type="url" 
+                    class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 shadow-2xs" 
+                    placeholder="https://demo.exemplo.com"
+                    :value="old('demo_url', $product->demo_url ?? '')" 
+                />
+                <p class="mt-1 text-[11px] text-slate-500">Exibe botão "Ver Demonstração" na página do produto se preenchido.</p>
+                <x-input-error :messages="$errors->get('demo_url')" class="mt-1.5 text-xs text-red-500" />
+            </div>
+
+            <div>
+                <x-input-label for="documentation_url" value="URL da Documentação" class="text-xs font-bold uppercase text-slate-700 mb-1" />
+                <x-text-input 
+                    id="documentation_url" 
+                    name="documentation_url" 
+                    type="url" 
+                    class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 shadow-2xs" 
+                    placeholder="https://docs.exemplo.com"
+                    :value="old('documentation_url', $product->documentation_url ?? '')" 
+                />
+                <p class="mt-1 text-[11px] text-slate-500">Exibe link para documentação oficial se preenchido.</p>
+                <x-input-error :messages="$errors->get('documentation_url')" class="mt-1.5 text-xs text-red-500" />
+            </div>
+        </div>
+
+        {{-- Opções Comerciais (Checkboxes) --}}
+        <div class="grid gap-5 sm:grid-cols-2">
+            <label class="flex min-h-[50px] items-center gap-3 rounded-xl border border-slate-300 bg-slate-50/60 hover:bg-slate-50 px-4 py-3 cursor-pointer transition select-none">
+                <input 
+                    type="checkbox" 
+                    name="includes_source_code" 
+                    value="1" 
+                    @checked(old('includes_source_code', $product->includes_source_code ?? false)) 
+                    class="h-4 w-4 rounded border-slate-300 text-teal-600 focus:ring-teal-500/30"
+                >
+                <div>
+                    <span class="text-xs font-bold text-slate-800 block">Contém código-fonte incluso</span>
+                    <span class="text-[11px] text-slate-500 block">Só marque se o download contiver arquivos fontes abertos</span>
+                </div>
+            </label>
+
+            <label class="flex min-h-[50px] items-center gap-3 rounded-xl border border-slate-300 bg-slate-50/60 hover:bg-slate-50 px-4 py-3 cursor-pointer transition select-none">
+                <input 
+                    type="checkbox" 
+                    name="lifetime_access" 
+                    value="1" 
+                    @checked(old('lifetime_access', $product->lifetime_access ?? false)) 
+                    class="h-4 w-4 rounded border-slate-300 text-teal-600 focus:ring-teal-500/30"
+                >
+                <div>
+                    <span class="text-xs font-bold text-slate-800 block">Acesso vitalício aos arquivos</span>
+                    <span class="text-[11px] text-slate-500 block">Cliente mantém acesso permanente aos downloads</span>
+                </div>
+            </label>
+        </div>
+    </div>
+
     {{-- CARD DE PROGRESSO DE UPLOAD EM TEMPO REAL --}}
     <div x-show="submitting && uploadProgress > 0" x-cloak class="rounded-2xl border border-teal-200 bg-gradient-to-br from-teal-50/90 to-emerald-50/70 p-5 shadow-sm space-y-3 transition">
         <div class="flex items-center justify-between text-xs font-bold text-teal-950">
@@ -372,6 +643,11 @@ function productFormHandler() {
     return {
         submitting: false,
         dirty: false,
+        rawTitle: {{ json_encode(old('title', $product->title ?? '')) }},
+        seoTitle: {{ json_encode(old('seo_title', $product->seo_title ?? '')) }},
+        metaDesc: {{ json_encode(old('meta_description', $product->meta_description ?? '')) }},
+        shortDesc: {{ json_encode(old('short_description', $product->short_description ?? '')) }},
+        slug: {{ json_encode($editing ? $product->slug : 'exemplo-do-produto') }},
         coverName: '',
         coverError: '',
         fileName: '',

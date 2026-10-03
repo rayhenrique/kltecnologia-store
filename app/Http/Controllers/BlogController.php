@@ -3,17 +3,26 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ListFilterRequest;
+use App\Models\BlogCategory;
 use App\Models\Post;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class BlogController extends Controller
 {
-    public function index(ListFilterRequest $request): View
+    public function index(ListFilterRequest $request): View|RedirectResponse
     {
         $search = trim((string) $request->validated('q', ''));
         $category = trim((string) $request->validated('categoria', ''));
+
+        // Redirect 301 from legacy query string ?categoria=slug to clean SEO route /blog/categoria/{slug}
+        if ($category !== '' && $search === '') {
+            $blogCat = BlogCategory::where('slug', $category)->orWhere('name', $category)->first();
+            if ($blogCat) {
+                return redirect()->route('blog.category', $blogCat->slug, 301);
+            }
+        }
 
         $query = Post::query()->published();
 
@@ -26,17 +35,21 @@ class BlogController extends Controller
         }
 
         if ($category !== '') {
-            $query->where('category', $category);
+            $blogCat = BlogCategory::where('slug', $category)->orWhere('name', $category)->first();
+            if ($blogCat) {
+                $query->where('blog_category_id', $blogCat->id);
+            } else {
+                $query->where('category', $category);
+            }
         }
 
         $posts = $query->latest('published_at')->latest('id')->paginate(9)->withQueryString();
 
-        $categories = Post::query()
-            ->published()
-            ->whereNotNull('category')
-            ->select('category', DB::raw('count(*) as count'))
-            ->groupBy('category')
-            ->orderByDesc('count')
+        $categories = BlogCategory::query()
+            ->active()
+            ->whereHas('posts', fn ($q) => $q->published())
+            ->withCount(['posts' => fn ($q) => $q->published()])
+            ->orderByDesc('posts_count')
             ->get();
 
         $recentPosts = Post::query()
@@ -52,6 +65,48 @@ class BlogController extends Controller
             'recentPosts' => $recentPosts,
             'search' => $search,
             'selectedCategory' => $category,
+            'currentBlogCategory' => null,
+        ]);
+    }
+
+    public function category(BlogCategory $blogCategory, ListFilterRequest $request): View
+    {
+        abort_unless($blogCategory->is_active, 404);
+
+        $search = trim((string) $request->validated('q', ''));
+
+        $query = Post::query()->published()->where('blog_category_id', $blogCategory->id);
+
+        if ($search !== '') {
+            $query->where(function ($q) use ($search): void {
+                $q->where('title', 'like', "%{$search}%")
+                    ->orWhere('excerpt', 'like', "%{$search}%");
+            });
+        }
+
+        $posts = $query->latest('published_at')->latest('id')->paginate(9)->withQueryString();
+
+        $categories = BlogCategory::query()
+            ->active()
+            ->whereHas('posts', fn ($q) => $q->published())
+            ->withCount(['posts' => fn ($q) => $q->published()])
+            ->orderByDesc('posts_count')
+            ->get();
+
+        $recentPosts = Post::query()
+            ->published()
+            ->latest('published_at')
+            ->latest('id')
+            ->limit(5)
+            ->get();
+
+        return view('blog.index', [
+            'posts' => $posts,
+            'categories' => $categories,
+            'recentPosts' => $recentPosts,
+            'search' => $search,
+            'selectedCategory' => $blogCategory->name,
+            'currentBlogCategory' => $blogCategory,
         ]);
     }
 
@@ -71,8 +126,12 @@ class BlogController extends Controller
         $relatedPosts = Post::query()
             ->published()
             ->where('id', '!=', $post->id)
-            ->when($post->category, function ($query, $category): void {
-                $query->where('category', $category);
+            ->when($post->blog_category_id, function ($query) use ($post): void {
+                $query->where('blog_category_id', $post->blog_category_id);
+            }, function ($query) use ($post): void {
+                if ($post->category) {
+                    $query->where('category', $post->category);
+                }
             })
             ->latest('published_at')
             ->limit(3)

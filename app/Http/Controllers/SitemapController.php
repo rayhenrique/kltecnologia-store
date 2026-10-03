@@ -53,16 +53,16 @@ class SitemapController extends Controller
             'priority' => '0.3',
         ];
 
-        // 2. Categorias de Produtos Ativas
+        // 2. Categorias de Produtos Ativas com produtos disponíveis
         $categories = Category::query()
             ->where('is_active', true)
-            ->has('products')
+            ->whereHas('products', fn ($q) => $q->availableForSale())
             ->orderBy('name')
             ->get();
 
         foreach ($categories as $category) {
             $urls[] = [
-                'loc' => route('catalog.index', ['categoria' => $category->slug]),
+                'loc' => route('catalog.category', $category->slug),
                 'lastmod' => $category->updated_at?->toAtomString() ?? now()->toAtomString(),
                 'changefreq' => 'weekly',
                 'priority' => '0.8',
@@ -84,16 +84,16 @@ class SitemapController extends Controller
             ];
         }
 
-        // 4. Categorias de Blog Ativas
+        // 4. Categorias de Blog Ativas com posts publicados
         $blogCategories = BlogCategory::query()
             ->where('is_active', true)
-            ->has('posts')
+            ->whereHas('posts', fn ($q) => $q->where('is_published', true))
             ->orderBy('name')
             ->get();
 
         foreach ($blogCategories as $blogCategory) {
             $urls[] = [
-                'loc' => route('blog.index', ['categoria' => $blogCategory->slug]),
+                'loc' => route('blog.category', $blogCategory->slug),
                 'lastmod' => $blogCategory->updated_at?->toAtomString() ?? now()->toAtomString(),
                 'changefreq' => 'weekly',
                 'priority' => '0.7',

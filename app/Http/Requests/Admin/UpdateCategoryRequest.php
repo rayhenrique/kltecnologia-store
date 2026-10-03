@@ -20,6 +20,8 @@ class UpdateCategoryRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:100'],
             'description' => ['nullable', 'string', 'max:1000'],
+            'seo_title' => ['nullable', 'string', 'max:70'],
+            'meta_description' => ['nullable', 'string', 'max:160'],
             'icon' => ['nullable', 'string', 'max:50'],
             'is_active' => ['nullable', 'boolean'],
         ];

@@ -21,6 +21,19 @@ class StoreProductRequest extends FormRequest
             'category' => ['nullable', 'string', 'max:100'],
             'version' => ['nullable', 'string', 'max:50'],
             'description' => ['required', 'string', 'max:10000'],
+            'short_description' => ['nullable', 'string', 'max:500'],
+            'seo_title' => ['nullable', 'string', 'max:70'],
+            'meta_description' => ['nullable', 'string', 'max:160'],
+            'product_type' => ['nullable', 'string', 'max:100'],
+            'brand' => ['nullable', 'string', 'max:150'],
+            'features' => ['nullable', 'string', 'max:5000'],
+            'requirements' => ['nullable', 'string', 'max:5000'],
+            'license' => ['nullable', 'string', 'max:2000'],
+            'support_info' => ['nullable', 'string', 'max:2000'],
+            'demo_url' => ['nullable', 'url', 'max:500'],
+            'documentation_url' => ['nullable', 'url', 'max:500'],
+            'includes_source_code' => ['nullable', 'boolean'],
+            'lifetime_access' => ['nullable', 'boolean'],
             'price' => ['required', 'decimal:0,2', 'min:0', 'max:99999999.99'],
             'is_active' => ['nullable', 'boolean'],
             'is_featured' => ['nullable', 'boolean'],
@@ -34,6 +47,8 @@ class StoreProductRequest extends FormRequest
         $this->merge([
             'is_active' => $this->boolean('is_active'),
             'is_featured' => $this->boolean('is_featured'),
+            'includes_source_code' => $this->boolean('includes_source_code'),
+            'lifetime_access' => $this->boolean('lifetime_access'),
         ]);
     }
 

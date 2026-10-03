@@ -20,6 +20,8 @@ class Post extends Model
         'slug',
         'category',
         'blog_category_id',
+        'seo_title',
+        'meta_description',
         'excerpt',
         'content',
         'cover_path',

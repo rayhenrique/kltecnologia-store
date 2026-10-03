@@ -255,4 +255,89 @@ class AdminProductTest extends TestCase
         $response->assertSee('Produto Destaque Especial');
         $response->assertDontSee('Produto Comum Padrão');
     }
+
+    public function test_admin_can_create_and_edit_product_with_seo_and_commercial_fields(): void
+    {
+        Storage::fake('digital_products');
+        $admin = User::factory()->admin()->create();
+
+        // Check create form renders SEO section
+        $createFormResponse = $this->actingAs($admin)->get(route('admin.products.create'));
+        $createFormResponse->assertOk();
+        $createFormResponse->assertSee('SEO & Apresentação Comercial');
+        $createFormResponse->assertSee('Título SEO (Google)');
+        $createFormResponse->assertSee('Meta Description');
+        $createFormResponse->assertSee('Pré-visualização do Google');
+
+        $response = $this->actingAs($admin)->post(route('admin.products.store'), [
+            'title' => 'Sistema ERP Completo',
+            'description' => 'Sistema de gestão empresarial integrado.',
+            'short_description' => 'ERP robusto para controle financeiro e estoque.',
+            'seo_title' => 'Sistema ERP Completo para Gestão',
+            'meta_description' => 'Conheça o sistema ERP completo com suporte e documentação.',
+            'product_type' => 'Sistema SaaS',
+            'brand' => 'TechSoft',
+            'features' => 'Módulo Financeiro, Controle de Estoque, Emissor de NF-e',
+            'requirements' => 'PHP 8.2+, MySQL 8.0, 1GB RAM',
+            'license' => 'Licença perpétua para 1 empresa',
+            'support_info' => 'Suporte técnico por 6 meses via chamado',
+            'demo_url' => 'https://erp.example.com/demo',
+            'documentation_url' => 'https://erp.example.com/docs',
+            'includes_source_code' => '1',
+            'lifetime_access' => '1',
+            'price' => '499.00',
+            'is_active' => '1',
+            'file' => UploadedFile::fake()->create('erp.zip', 1024, 'application/zip'),
+        ]);
+
+        $response->assertRedirect(route('admin.products.index'));
+
+        $product = Product::where('title', 'Sistema ERP Completo')->firstOrFail();
+        $this->assertSame('ERP robusto para controle financeiro e estoque.', $product->short_description);
+        $this->assertSame('Sistema ERP Completo para Gestão', $product->seo_title);
+        $this->assertSame('Conheça o sistema ERP completo com suporte e documentação.', $product->meta_description);
+        $this->assertSame('Sistema SaaS', $product->product_type);
+        $this->assertSame('TechSoft', $product->brand);
+        $this->assertTrue($product->includes_source_code);
+        $this->assertTrue($product->lifetime_access);
+        $this->assertSame('https://erp.example.com/demo', $product->demo_url);
+        $this->assertSame('https://erp.example.com/docs', $product->documentation_url);
+
+        // Check edit form renders with current values
+        $editFormResponse = $this->actingAs($admin)->get(route('admin.products.edit', $product));
+        $editFormResponse->assertOk();
+        $editFormResponse->assertSee('Sistema ERP Completo para Gestão');
+        $editFormResponse->assertSee('TechSoft');
+
+        // Update product
+        $updateResponse = $this->actingAs($admin)->put(route('admin.products.update', $product), [
+            'title' => 'Sistema ERP Completo v2',
+            'description' => 'Sistema de gestão empresarial integrado versão 2.',
+            'short_description' => 'ERP versão 2 com novas telas.',
+            'seo_title' => 'Sistema ERP Completo v2 Atualizado',
+            'meta_description' => 'Versão 2 do ERP completo.',
+            'product_type' => 'Sistema Web',
+            'brand' => 'TechSoft Group',
+            'features' => 'Todas as funções anteriores mais PIX integrado',
+            'requirements' => 'PHP 8.3+, MySQL 8.0',
+            'license' => 'Licença vitalícia',
+            'support_info' => 'Suporte vitalício',
+            'demo_url' => 'https://erp2.example.com/demo',
+            'documentation_url' => 'https://erp2.example.com/docs',
+            'includes_source_code' => '0',
+            'lifetime_access' => '1',
+            'price' => '599.00',
+            'is_active' => '1',
+        ]);
+
+        $updateResponse->assertRedirect(route('admin.products.index'));
+
+        $product->refresh();
+        $this->assertSame('Sistema ERP Completo v2', $product->title);
+        $this->assertSame('ERP versão 2 com novas telas.', $product->short_description);
+        $this->assertSame('TechSoft Group', $product->brand);
+        $this->assertFalse($product->includes_source_code);
+        $this->assertTrue($product->lifetime_access);
+        $this->assertSame('sistema-erp-completo', $product->slug); // slug preserved!
+    }
 }

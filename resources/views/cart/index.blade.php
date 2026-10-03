@@ -1,4 +1,4 @@
-<x-storefront-layout>
+<x-storefront-layout robots="noindex, follow">
     <x-slot:title>Meu Carrinho de Compras</x-slot:title>
 <section 
     class="py-8 sm:py-12 bg-slate-950 min-h-[75vh]"

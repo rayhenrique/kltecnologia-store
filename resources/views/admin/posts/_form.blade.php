@@ -225,6 +225,77 @@
         </div>
     </div>
 
+    {{-- SEÇÃO 4: SEO & APRESENTAÇÃO EDITORIAL --}}
+    <div class="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 shadow-xs space-y-6" x-data="{
+        seoTitle: @js(old('seo_title', $post->seo_title ?? '')),
+        seoDescription: @js(old('meta_description', $post->meta_description ?? '')),
+        titleVal: @js(old('title', $post->title ?? '')),
+        excerptVal: @js(old('excerpt', $post->excerpt ?? ''))
+    }">
+        <div class="border-b border-slate-100 pb-4">
+            <h3 class="font-display text-base font-bold text-slate-900">
+                4. SEO & Apresentação no Google
+            </h3>
+            <p class="text-xs text-slate-600 mt-0.5 font-medium">
+                Personalize os títulos e snippets de busca para maximizar o CTR orgânico do artigo no Google.
+            </p>
+        </div>
+
+        <div class="grid gap-6 sm:grid-cols-2">
+            <div>
+                <div class="flex justify-between items-center mb-1">
+                    <x-input-label for="seo_title" value="Título SEO (opcional)" class="text-xs font-bold uppercase text-slate-700" />
+                    <span class="text-[11px] text-slate-600 font-mono" x-text="(seoTitle ? seoTitle.length : 0) + ' / 60'"></span>
+                </div>
+                <x-text-input 
+                    id="seo_title" 
+                    name="seo_title" 
+                    type="text" 
+                    x-model="seoTitle"
+                    class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm text-slate-900 placeholder-slate-500 shadow-2xs font-medium" 
+                    placeholder="Se vazio, o título do artigo será utilizado" 
+                />
+                <x-input-error :messages="$errors->get('seo_title')" class="mt-1.5 text-xs text-red-500" />
+            </div>
+
+            <div>
+                <div class="flex justify-between items-center mb-1">
+                    <x-input-label for="meta_description" value="Meta Description (opcional)" class="text-xs font-bold uppercase text-slate-700" />
+                    <span class="text-[11px] text-slate-600 font-mono" x-text="(seoDescription ? seoDescription.length : 0) + ' / 160'"></span>
+                </div>
+                <textarea 
+                    id="meta_description" 
+                    name="meta_description" 
+                    rows="2" 
+                    x-model="seoDescription"
+                    class="w-full rounded-xl border border-slate-300 p-2.5 text-sm text-slate-900 placeholder-slate-500 shadow-2xs font-medium" 
+                    placeholder="Se vazio, o resumo ou início do texto será utilizado"
+                ></textarea>
+                <x-input-error :messages="$errors->get('meta_description')" class="mt-1.5 text-xs text-red-500" />
+            </div>
+        </div>
+
+        {{-- Prévia no Google (SERP) --}}
+        <div class="rounded-xl border border-slate-200 bg-slate-50 p-4 space-y-1">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-600">Prévia no Google</span>
+            <p class="text-xs text-emerald-700 font-mono truncate">{{ url('/blog/' . ($post->slug ?? 'slug-do-artigo')) }}</p>
+            <h5 class="text-base text-blue-700 font-medium hover:underline truncate" x-text="seoTitle || (titleVal ? titleVal + ' - Blog | KL Tecnologia' : 'Título do Artigo - Blog | KL Tecnologia')"></h5>
+            <p class="text-xs text-slate-600 line-clamp-2" x-text="seoDescription || excerptVal || 'Leia o artigo completo no blog da KL Tecnologia com dicas práticas sobre tecnologia e desenvolvimento.'"></p>
+        </div>
+
+        @if($editing)
+            <div class="rounded-xl bg-slate-50 border border-slate-200/80 p-4 flex items-center justify-between text-xs text-slate-600">
+                <div class="flex items-center gap-2">
+                    <span class="font-bold text-slate-800">Slug da URL:</span>
+                    <code class="rounded bg-white px-2 py-0.5 border border-slate-200 font-mono text-teal-700 font-semibold">{{ $post->slug }}</code>
+                </div>
+                <div class="flex items-center gap-2 font-mono">
+                    <span>Publicado em: {{ $post->published_at ? $post->published_at->format('d/m/Y') : 'Rascunho' }}</span>
+                </div>
+            </div>
+        @endif
+    </div>
+
     {{-- BOTÕES DE AÇÃO --}}
     <div class="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-3 pt-4 border-t border-slate-200">
         <a 
