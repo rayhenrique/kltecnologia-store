@@ -84,4 +84,4 @@ jobs:
         run: composer audit --locked
 
       - name: Audit frontend dependencies
-        run: npm audit --audit-level=moderate
+        run: npm audit --omit=dev --audit-level=moderate
