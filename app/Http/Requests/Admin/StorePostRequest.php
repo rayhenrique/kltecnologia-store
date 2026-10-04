@@ -5,6 +5,7 @@ namespace App\Http\Requests\Admin;
 use App\Models\Post;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Str;
 
 class StorePostRequest extends FormRequest
 {
@@ -20,6 +21,7 @@ class StorePostRequest extends FormRequest
     {
         return [
             'title' => ['required', 'string', 'max:255'],
+            'slug' => ['nullable', 'string', 'max:255'],
             'category' => ['nullable', 'string', 'max:100'],
             'blog_category_id' => ['nullable', 'integer', 'exists:blog_categories,id'],
             'seo_title' => ['nullable', 'string', 'max:70'],
@@ -33,7 +35,10 @@ class StorePostRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
+        $normalizedSlug = filled($this->slug) ? Str::slug((string) $this->slug) : null;
+
         $this->merge([
+            'slug' => filled($normalizedSlug) ? $normalizedSlug : null,
             'is_published' => $this->boolean('is_published'),
         ]);
     }

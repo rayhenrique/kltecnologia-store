@@ -215,7 +215,7 @@
                         </div>
                         <div>
                             <p class="text-xs font-bold text-white">Garantia de 7 Dias</p>
-                            <p class="text-[11px] text-slate-400">Código 100% verificado</p>
+                            <p class="text-[11px] text-slate-400">Download digital imediato</p>
                         </div>
                     </div>
                     <div class="flex items-center gap-3 p-3 rounded-2xl bg-slate-950/50 border border-slate-800/80">

@@ -91,6 +91,7 @@ class PostController extends Controller
 
         $post = Post::create([
             'title' => $validated['title'],
+            'slug' => $validated['slug'] ?? null,
             'seo_title' => $validated['seo_title'] ?? null,
             'meta_description' => $validated['meta_description'] ?? null,
             'category' => $categoryName,
@@ -135,6 +136,9 @@ class PostController extends Controller
         }
 
         $post->title = $validated['title'];
+        if (filled($validated['slug'] ?? null)) {
+            $post->slug = $validated['slug'];
+        }
         $post->seo_title = $validated['seo_title'] ?? null;
         $post->meta_description = $validated['meta_description'] ?? null;
 

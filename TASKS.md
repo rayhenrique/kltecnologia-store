@@ -1238,3 +1238,20 @@ Este bloco de SEO somente poderá ser considerado concluído quando:
 - [x] 11. Atualizar DATABASE-SCHEMA.md: documentados todos os novos campos de `products`, `categories`, `blog_categories`, `posts` e a tabela `slug_redirects`.
 - [x] 12. Corrigir/limitar o scraper PLW: preservação integral do conteúdo editorial e SEO curado manualmente (`description`, `short_description`, `seo_title`, `meta_description`, `features`, `requirements`, `license`, `brand`, `product_type`, `support_info`, `price`); removido fallback genérico de código-fonte; extração de preço aprimorada para priorizar preço de venda e `<ins>`, nunca assumindo `<del>` como preço de venda; testes adicionados.
 - [x] 13. Testes e validações de qualidade: 260 testes passando (`php artisan test`), build Vite concluído com sucesso (`npm run build`), código formatado e validado pelo Laravel Pint (`php vendor/bin/pint --test`), e todas as 100 rotas íntegras (`php artisan route:list`).
+
+---
+
+## Hardening final pré-SEO editorial
+
+- [x] Corrigir advisory de segurança do league/commonmark (atualizado para 2.10.3 via composer, composer audit com 0 vulnerabilidades).
+- [x] Restaurar CI verde no GitHub Actions (composer audit, npm audit, migrations, pint, testes).
+- [x] Permitir controle manual de slug no admin (Produto, Categoria, Post e Categoria do Blog) com helper explicativo sobre HTTP 301.
+- [x] Garantir integridade de slugs (normalização via Str::slug, unicidade com SoftDeletes, precedência do registro ativo sobre redirects históricos e achatamento de cadeias A -> C).
+- [x] Validar redirects de slug nas quatro entidades com testes automatizados dedicados (`SlugLifecycleAndRedirectTest`).
+- [x] Remover alegações comerciais não sustentadas de produtos ("testados", "verificados", "arquivos verificados e prontos", "projetos testados e livres de vírus").
+- [x] Corrigir rótulo "Código Fonte Aberto" para factual "Código Fonte Incluso" quando `includes_source_code = true`.
+- [x] Remover versão 1.0 automática e ocultar o campo versão no storefront quando `null`.
+- [x] Corrigir rótulo de `updated_at` na ficha do produto para "Anúncio atualizado".
+- [x] Corrigir comunicação institucional de autoria (remover "pioneira", "scripts autorais", "centenas de sistemas", "sistemas prontos e validados", e alinhar "Suporte Dedicado" para "Atendimento ao Cliente").
+- [x] Remover fallback de artigos não relacionados na página de produto (ocultando a seção quando não houver posts pertinentes).
+- [x] Criar testes de cobertura para todas as alterações (`StorefrontHardeningFactualContentTest` e `SlugLifecycleAndRedirectTest`).

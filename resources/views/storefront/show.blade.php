@@ -157,7 +157,7 @@
                         @elseif($product->includes_source_code)
                             <div class="absolute top-4 left-4">
                                 <span class="rounded-lg bg-slate-950/80 backdrop-blur-md border border-slate-700/60 px-3 py-1.5 text-xs font-bold text-teal-300 shadow-lg">
-                                    ★ Código Fonte Aberto
+                                    ★ Código Fonte Incluso
                                 </span>
                             </div>
                         @endif
@@ -217,7 +217,7 @@
                             @endif
                         </h2>
                         <p class="mt-1 text-xs sm:text-sm text-teal-800/90 leading-relaxed">
-                            {{ $product->short_description ?: 'Ao adquirir este item, o download é liberado instantaneamente na sua conta após a confirmação. Arquivos verificados e prontos para utilização.' }}
+                            {{ $product->short_description ?: 'Ao adquirir este item, o download digital é disponibilizado na sua conta após a confirmação do pagamento.' }}
                         </p>
                         @if($product->demo_url || $product->documentation_url)
                             <div class="mt-3 flex flex-wrap items-center gap-4 pt-2 border-t border-teal-200/60">
@@ -579,7 +579,7 @@
                             </div>
                         @endif
                         <div class="flex justify-between py-2.5">
-                            <dt class="text-slate-500 font-medium">Atualizado</dt>
+                            <dt class="text-slate-500 font-medium">Anúncio atualizado</dt>
                             <dd class="font-semibold text-slate-900">{{ $product->updated_at->format('d/m/Y') }}</dd>
                         </div>
                         @if($product->license)
@@ -598,10 +598,12 @@
                                 {{ $product->includes_source_code ? 'Código Fonte Incluso' : 'Arquivos Digitais' }}
                             </dd>
                         </div>
-                        <div class="flex justify-between py-2.5">
-                            <dt class="text-slate-500 font-medium">Versão</dt>
-                            <dd class="font-semibold text-slate-900">{{ $product->version ?? '1.0' }}</dd>
-                        </div>
+                        @if(filled($product->version))
+                            <div class="flex justify-between py-2.5">
+                                <dt class="text-slate-500 font-medium">Versão</dt>
+                                <dd class="font-semibold text-slate-900">{{ $product->version }}</dd>
+                            </div>
+                        @endif
                     </dl>
                 </div>
 
@@ -657,9 +659,9 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
                         </svg>
                     </div>
-                    <h3 class="mt-4 font-display text-sm font-bold text-slate-900">Suporte Dedicado</h3>
+                    <h3 class="mt-4 font-display text-sm font-bold text-slate-900">Atendimento ao Cliente</h3>
                     <p class="mt-1.5 text-xs text-slate-500 leading-relaxed">
-                        Atendimento direto via WhatsApp e e-mail para tirar dúvidas.
+                        Suporte via WhatsApp e e-mail para dúvidas sobre compra, acesso e download.
                     </p>
                 </div>
 
@@ -670,9 +672,9 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
                         </svg>
                     </div>
-                    <h3 class="mt-4 font-display text-sm font-bold text-slate-900">Arquivos Verificados</h3>
+                    <h3 class="mt-4 font-display text-sm font-bold text-slate-900">Download Digital</h3>
                     <p class="mt-1.5 text-xs text-slate-500 leading-relaxed">
-                        Downloads diretos, completos e testados para máxima confiabilidade.
+                        Arquivo digital disponibilizado conforme as informações cadastradas neste produto.
                     </p>
                 </div>
 

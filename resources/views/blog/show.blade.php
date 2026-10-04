@@ -190,7 +190,7 @@
                             <span class="font-mono text-[11px] font-bold uppercase tracking-wider text-teal-700">Equipe Editorial</span>
                             <h4 class="font-display text-base font-bold text-slate-900 mt-0.5">KL Tecnologia</h4>
                             <p class="text-xs text-slate-600 mt-1 leading-relaxed">
-                                Plataforma pioneira em produtos digitais de alta performance, scripts autorais em PHP/Laravel e sistemas escaláveis para impulsionar negócios online com segurança e suporte.
+                                A KL Tecnologia reúne sistemas, scripts, templates e outros produtos digitais, além de publicar conteúdos sobre tecnologia, desenvolvimento e negócios digitais.
                             </p>
                         </div>
                     </div>
@@ -204,10 +204,10 @@
                             Catálogo Premium
                         </span>
                         <h3 class="mt-3 font-display text-lg font-bold text-white leading-snug">
-                            Precisa de sistemas prontos e validados?
+                            Procurando sistemas e produtos digitais?
                         </h3>
                         <p class="mt-2 text-xs text-slate-300 leading-relaxed">
-                            Acesse nosso catálogo completo com centenas de sistemas, scripts e templates para download imediato.
+                            Acesse nosso catálogo de sistemas, scripts, templates e outros produtos digitais para download imediato.
                         </p>
                         <a 
                             href="{{ route('catalog.index') }}" 

@@ -94,7 +94,7 @@
                 </div>
                 <div>
                     <h2 class="font-display text-sm font-bold text-slate-900">Arquivos Autênticos</h2>
-                    <p class="mt-0.5 text-xs text-slate-600">Projetos testados e livres de vírus ou scripts nocivos.</p>
+                    <p class="mt-0.5 text-xs text-slate-600">Arquivos digitais organizados para download seguro.</p>
                 </div>
             </div>
 

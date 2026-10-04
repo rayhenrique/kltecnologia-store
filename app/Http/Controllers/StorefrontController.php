@@ -86,25 +86,19 @@ class StorefrontController extends Controller
             ->take(4)
             ->get();
 
-        $relatedPosts = Post::query()
-            ->published()
-            ->when($product->categoryGroup, function ($query) use ($product): void {
-                $query->where(function ($q) use ($product): void {
-                    $q->where('category', 'like', '%'.$product->categoryGroup->name.'%')
-                        ->orWhere('title', 'like', '%'.$product->categoryGroup->name.'%');
-                });
-            })
-            ->latest('published_at')
-            ->take(3)
-            ->get();
+        $categoryName = trim((string) ($product->categoryGroup?->name ?? $product->category));
 
-        if ($relatedPosts->isEmpty()) {
-            $relatedPosts = Post::query()
+        $relatedPosts = filled($categoryName)
+            ? Post::query()
                 ->published()
+                ->where(function ($q) use ($categoryName): void {
+                    $q->where('category', 'like', '%'.$categoryName.'%')
+                        ->orWhere('title', 'like', '%'.$categoryName.'%');
+                })
                 ->latest('published_at')
                 ->take(3)
-                ->get();
-        }
+                ->get()
+            : collect();
 
         return view('storefront.show', [
             'product' => $product,

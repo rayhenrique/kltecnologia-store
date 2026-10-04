@@ -45,6 +45,27 @@
             <x-input-error id="title-error" :messages="$errors->get('title')" class="mt-1.5 text-xs text-red-500" />
         </div>
 
+        <div>
+            <div class="flex items-center justify-between mb-1">
+                <x-input-label for="slug" value="Slug / URL" class="text-xs font-bold uppercase text-slate-700" />
+                <span class="text-[11px] text-slate-500">Opcional na criação</span>
+            </div>
+            <x-text-input
+                id="slug"
+                name="slug"
+                type="text"
+                class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 shadow-2xs font-mono"
+                placeholder="Ex: agenda-online-para-empresas (gerado auto se vazio)"
+                :value="old('slug', $product->slug ?? '')"
+                aria-describedby="slug-help slug-error"
+                :aria-invalid="$errors->has('slug') ? 'true' : 'false'"
+            />
+            <p id="slug-help" class="mt-1 text-xs text-slate-500">
+                Alterar este campo muda a URL pública. A URL anterior será redirecionada automaticamente com HTTP 301.
+            </p>
+            <x-input-error id="slug-error" :messages="$errors->get('slug')" class="mt-1.5 text-xs text-red-500" />
+        </div>
+
         <div class="grid gap-5 sm:grid-cols-2">
             <div>
                 <div class="flex items-center justify-between mb-1">
@@ -92,13 +113,13 @@
 
             <div>
                 <x-input-label for="version" value="Versão do Sistema" class="text-xs font-bold uppercase text-slate-700 mb-1" />
-                <x-text-input 
-                    id="version" 
-                    name="version" 
-                    type="text" 
-                    class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 shadow-2xs" 
+                <x-text-input
+                    id="version"
+                    name="version"
+                    type="text"
+                    class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 shadow-2xs"
                     placeholder="Ex: 1.0 ou 2.1.0"
-                    :value="old('version', $product->version ?? '1.0')" 
+                    :value="old('version', $product->version ?? '')"
                 />
                 <x-input-error id="version-error" :messages="$errors->get('version')" class="mt-1.5 text-xs text-red-500" />
             </div>

@@ -70,6 +70,22 @@
             <x-input-error id="title-error" :messages="$errors->get('title')" class="mt-1.5 text-xs text-red-500" />
         </div>
 
+        <div>
+            <x-input-label for="slug" value="Slug / URL" class="text-xs font-bold uppercase text-slate-700 mb-1" />
+            <x-text-input
+                id="slug"
+                name="slug"
+                type="text"
+                class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm text-slate-900 placeholder-slate-500 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 shadow-2xs font-mono"
+                :value="old('slug', $post->slug ?? '')"
+                placeholder="Deixe em branco para gerar automaticamente a partir do título"
+            />
+            <p class="mt-1 text-xs text-slate-500">
+                Alterar este campo muda a URL pública. A URL anterior será redirecionada automaticamente com HTTP 301.
+            </p>
+            <x-input-error :messages="$errors->get('slug')" class="mt-1.5 text-xs text-red-500" />
+        </div>
+
         <div class="grid gap-6 sm:grid-cols-2">
             <div>
                 <div class="flex items-center justify-between mb-1">

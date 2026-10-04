@@ -4,6 +4,7 @@ namespace App\Http\Requests\Admin;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Str;
 
 class UpdatePostRequest extends FormRequest
 {
@@ -19,6 +20,7 @@ class UpdatePostRequest extends FormRequest
     {
         return [
             'title' => ['required', 'string', 'max:255'],
+            'slug' => ['nullable', 'string', 'max:255'],
             'category' => ['nullable', 'string', 'max:100'],
             'blog_category_id' => ['nullable', 'integer', 'exists:blog_categories,id'],
             'excerpt' => ['nullable', 'string', 'max:1000'],
@@ -32,7 +34,13 @@ class UpdatePostRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
+        $extra = [];
+        if ($this->has('slug')) {
+            $extra['slug'] = filled($this->slug) ? Str::slug((string) $this->slug) : null;
+        }
+
         $this->merge([
+            ...$extra,
             'is_published' => $this->boolean('is_published'),
         ]);
     }

@@ -5,6 +5,7 @@ namespace App\Http\Requests\Admin;
 use App\Models\BlogCategory;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Str;
 
 class StoreBlogCategoryRequest extends FormRequest
 {
@@ -20,6 +21,7 @@ class StoreBlogCategoryRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:100'],
+            'slug' => ['nullable', 'string', 'max:255'],
             'description' => ['nullable', 'string', 'max:1000'],
             'seo_title' => ['nullable', 'string', 'max:70'],
             'meta_description' => ['nullable', 'string', 'max:160'],
@@ -41,7 +43,10 @@ class StoreBlogCategoryRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
+        $normalizedSlug = filled($this->slug) ? Str::slug((string) $this->slug) : null;
+
         $this->merge([
+            'slug' => filled($normalizedSlug) ? $normalizedSlug : null,
             'is_active' => $this->boolean('is_active'),
         ]);
     }

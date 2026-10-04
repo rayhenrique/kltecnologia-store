@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Admin;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Validator;
 
 class UpdateProductRequest extends FormRequest
@@ -16,6 +17,7 @@ class UpdateProductRequest extends FormRequest
     {
         return [
             'title' => ['required', 'string', 'max:255'],
+            'slug' => ['nullable', 'string', 'max:255'],
             'category_id' => ['nullable', 'exists:categories,id'],
             'category' => ['nullable', 'string', 'max:100'],
             'version' => ['nullable', 'string', 'max:50'],
@@ -43,7 +45,13 @@ class UpdateProductRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
+        $extra = [];
+        if ($this->has('slug')) {
+            $extra['slug'] = filled($this->slug) ? Str::slug((string) $this->slug) : null;
+        }
+
         $this->merge([
+            ...$extra,
             'is_active' => $this->boolean('is_active'),
             'is_featured' => $this->boolean('is_featured'),
             'includes_source_code' => $this->boolean('includes_source_code'),

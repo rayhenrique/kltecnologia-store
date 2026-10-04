@@ -767,7 +767,7 @@
                     </span>
                 </a>
                 <p class="mt-4 text-xs sm:text-sm leading-relaxed text-slate-400">
-                    Plataforma especializada em produtos digitais, templates, scripts autorais e PLRs prontos para execução e escala de negócios digitais.
+                    Plataforma especializada em produtos digitais, templates, scripts e soluções prontas para execução e escala de negócios digitais.
                 </p>
                 <div class="mt-6 flex items-center gap-2 text-xs font-mono text-emerald-400">
                     <span class="h-2 w-2 rounded-full bg-emerald-400"></span>
