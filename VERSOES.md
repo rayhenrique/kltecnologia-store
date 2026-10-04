@@ -7,6 +7,7 @@ Seguimos a convenção de [Semantic Versioning](https://semver.org/lang/pt-BR/) 
 ---
 
 ## 🏷️ Sumário Rápido de Versões
+- [v2.1.2 (2026-10-04) - Correção do Botão de Produtos](#v212---2026-10-04)
 - [v2.1.1 (2026-10-03) - Correção dos Dados Estruturados JSON-LD](#v211---2026-10-03)
 - [v2.1.0 (2026-09-16) - Módulo de Gestão de Clientes & Otimização de Fila](#v210---2026-09-16)
 - [v2.0.0 (2026-09-14) - E-Commerce 2.0: Carrinho, Favoritos & Checkout Integrado](#v200---2026-09-14)
@@ -14,6 +15,17 @@ Seguimos a convenção de [Semantic Versioning](https://semver.org/lang/pt-BR/) 
 - [v1.3.0 (2026-09-13) - Redesign do Painel Admin, Categorias & Mobile First](#v130---2026-09-13)
 - [v1.1.0 (2026-09-12) - Redesign da Vitrine, Scraper & E-mails Transacionais](#v110---2026-09-12)
 - [v1.0.0 (2026-09-12) - Lançamento Oficial da Plataforma](#v100---2026-09-12)
+
+---
+
+## [v2.1.2] - 2026-10-04
+
+### Correções
+- Corrigida a serialização dos valores iniciais do formulário de produtos com `@js`, evitando erros JavaScript que ocultavam os rótulos do botão.
+- Botão principal usa o componente visual canônico `btn-primary`, com texto branco em fundo azul, foco visível e rótulos `Salvar alterações` na edição e `Criar produto` no cadastro.
+- Preservados o botão `Cancelar` ao lado, o estado de envio/progresso, o bloqueio durante envio e a lógica existente de submit.
+- Adicionados testes de renderização para criação e edição. Verificação visual em 1440px e 375px confirmou rótulos, dimensões, foco, estado de envio e recuperação de erro de validação.
+- Validações: 285 testes passando (1337 assertions), build Vite, Laravel Pint e `git diff --check` aprovados.
 
 ---
 

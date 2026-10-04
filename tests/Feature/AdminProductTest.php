@@ -14,6 +14,28 @@ class AdminProductTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_create_form_renders_create_product_submit_button(): void
+    {
+        $response = $this->actingAs(User::factory()->admin()->create())
+            ->get(route('admin.products.create'));
+
+        $response->assertOk()->assertSeeText('Criar produto')->assertSeeText('Cancelar');
+        $response->assertSee('type="submit"', false);
+        $response->assertDontSee('rawTitle: &quot;', false);
+    }
+
+    public function test_edit_form_renders_save_changes_submit_button(): void
+    {
+        $product = Product::factory()->create(['title' => 'Produto "especial" & edição']);
+
+        $response = $this->actingAs(User::factory()->admin()->create())
+            ->get(route('admin.products.edit', $product));
+
+        $response->assertOk()->assertSeeText('Salvar alterações')->assertSeeText('Cancelar');
+        $response->assertSee('type="submit"', false);
+        $response->assertDontSee('rawTitle: &quot;', false);
+    }
+
     public function test_admin_can_create_product_with_private_file(): void
     {
         Storage::fake('digital_products');

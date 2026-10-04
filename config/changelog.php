@@ -12,7 +12,7 @@ return [
     |
     */
 
-    'current_version' => env('APP_VERSION', '2.1.1'),
+    'current_version' => env('APP_VERSION', '2.1.2'),
 
     /*
     |--------------------------------------------------------------------------
@@ -27,6 +27,22 @@ return [
     */
 
     'releases' => [
+        '2.1.2' => [
+            'version' => '2.1.2',
+            'date' => '2026-10-04',
+            'title' => 'Correção do Botão de Produtos',
+            'audience' => 'admin',
+            'summary' => 'Ações de criação e edição de produtos com texto visível, contraste e apresentação adequada em desktop e mobile.',
+            'changes' => [
+                [
+                    'type' => 'fix',
+                    'title' => 'Botão de Salvar e Criar Produto Visível',
+                    'description' => 'Corrigida a inicialização do formulário e a apresentação dos botões Salvar alterações e Criar produto, preservando Cancelar ao lado e o estado de envio.',
+                    'audience' => 'admin',
+                ],
+            ],
+        ],
+
         '2.1.1' => [
             'version' => '2.1.1',
             'date' => '2026-10-03',

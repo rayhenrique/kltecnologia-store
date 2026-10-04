@@ -1262,3 +1262,12 @@ Este bloco de SEO somente poderá ser considerado concluído quando:
 - [x] Adicionar `JsonLdTest` para capturar todos os scripts JSON-LD de Home, Produto e Post, decodificar cada bloco e verificar `JSON_ERROR_NONE`, o contexto `https://schema.org` e a ausência de PHP no JSON.
 - [x] Reproduzir a regressão antes da correção e validar a suíte completa após a alteração: 283 testes passando (1327 assertions), Pint e build Vite aprovados.
 - [x] Registrar a correção como versão patch `2.1.1` em `config/changelog.php` e `VERSOES.md`.
+
+## Correção do botão de produtos — v2.1.2
+
+- [x] Corrigir a serialização do estado inicial do formulário com `@js`, evitando erros JavaScript que ocultavam o texto do botão.
+- [x] Usar `btn-primary` com rótulos `Salvar alterações` e `Criar produto`, foco visível, contraste adequado e `Cancelar` ao lado, preservando a lógica de submit.
+- [x] Adicionar testes de renderização nas telas de criação e edição.
+- [x] Verificar no navegador em desktop (1440px) e mobile (375px), incluindo texto, dimensões, foco, estado de envio e recuperação de erro de validação.
+- [x] Registrar a versão patch `2.1.2` no changelog e em `VERSOES.md`.
+- [x] Validar a suíte completa (285 testes, 1337 assertions), build Vite, Laravel Pint, `git diff --check` e auditoria visual estática sem apontamentos.
