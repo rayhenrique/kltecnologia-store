@@ -12,7 +12,7 @@ return [
     |
     */
 
-    'current_version' => env('APP_VERSION', '2.1.0'),
+    'current_version' => env('APP_VERSION', '2.1.1'),
 
     /*
     |--------------------------------------------------------------------------
@@ -27,6 +27,22 @@ return [
     */
 
     'releases' => [
+        '2.1.1' => [
+            'version' => '2.1.1',
+            'date' => '2026-10-03',
+            'title' => 'Correção dos Dados Estruturados JSON-LD',
+            'audience' => 'admin',
+            'summary' => 'Correção da chave de contexto nos dados estruturados da Home e das páginas de produto e artigo.',
+            'changes' => [
+                [
+                    'type' => 'fix',
+                    'title' => 'Contexto JSON-LD Preservado',
+                    'description' => 'Os schemas da Home, dos produtos e dos artigos preservam o contexto https://schema.org durante a compilação Blade, com testes para validar todos os blocos JSON-LD dessas páginas.',
+                    'audience' => 'admin',
+                ],
+            ],
+        ],
+
         '2.1.0' => [
             'version' => '2.1.0',
             'date' => '2026-09-16',

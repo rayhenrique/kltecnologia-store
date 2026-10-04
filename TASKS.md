@@ -1261,3 +1261,4 @@ Este bloco de SEO somente poderá ser considerado concluído quando:
 - [x] Gerar a chave de contexto por concatenação (`'@'.'context'`) no layout global e nas páginas de produto e post, evitando sua interpretação como diretiva Blade.
 - [x] Adicionar `JsonLdTest` para capturar todos os scripts JSON-LD de Home, Produto e Post, decodificar cada bloco e verificar `JSON_ERROR_NONE`, o contexto `https://schema.org` e a ausência de PHP no JSON.
 - [x] Reproduzir a regressão antes da correção e validar a suíte completa após a alteração: 283 testes passando (1327 assertions), Pint e build Vite aprovados.
+- [x] Registrar a correção como versão patch `2.1.1` em `config/changelog.php` e `VERSOES.md`.

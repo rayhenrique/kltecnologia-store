@@ -7,12 +7,23 @@ Seguimos a convenção de [Semantic Versioning](https://semver.org/lang/pt-BR/) 
 ---
 
 ## 🏷️ Sumário Rápido de Versões
+- [v2.1.1 (2026-10-03) - Correção dos Dados Estruturados JSON-LD](#v211---2026-10-03)
 - [v2.1.0 (2026-09-16) - Módulo de Gestão de Clientes & Otimização de Fila](#v210---2026-09-16)
 - [v2.0.0 (2026-09-14) - E-Commerce 2.0: Carrinho, Favoritos & Checkout Integrado](#v200---2026-09-14)
 - [v1.5.0 (2026-09-13) - Módulo de Newsletter, Cupons & Analytics Nativo](#v150---2026-09-13)
 - [v1.3.0 (2026-09-13) - Redesign do Painel Admin, Categorias & Mobile First](#v130---2026-09-13)
 - [v1.1.0 (2026-09-12) - Redesign da Vitrine, Scraper & E-mails Transacionais](#v110---2026-09-12)
 - [v1.0.0 (2026-09-12) - Lançamento Oficial da Plataforma](#v100---2026-09-12)
+
+---
+
+## [v2.1.1] - 2026-10-03
+
+### Correções
+- Preservada a chave `@context` por concatenação (`'@'.'context'`) nos schemas do layout global, produto e artigo, evitando sua interpretação como diretiva Blade.
+- Adicionados testes que capturam todos os scripts JSON-LD da Home, Produto e Post, verificam a decodificação sem erros, o contexto `https://schema.org` e a ausência de PHP no JSON.
+- Validação da correção: 283 testes passando (1327 assertions), Laravel Pint, build Vite e `git diff --check` aprovados.
+- Commit da correção: `12c00a0`.
 
 ---
 
