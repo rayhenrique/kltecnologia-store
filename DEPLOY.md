@@ -341,13 +341,14 @@ echo "🚀 Iniciando deploy da KL Tecnologia..."
 php8.4 artisan down || true
 
 # 2. Puxar alterações do GitHub
+git checkout -- package-lock.json 2>/dev/null || true
 git pull origin main
 
 # 3. Atualizar dependências PHP
 composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
 
 # 4. Compilar assets se houver mudanças no front
-npm install
+npm ci || npm install --no-save
 npm run build
 
 # 5. Executar migrações do banco
