@@ -7,7 +7,7 @@
 >
 <script type="application/ld+json">
 {!! json_encode([
-    '@context' => 'https://schema.org',
+    '@'.'context' => 'https://schema.org',
     '@graph' => array_values(array_filter([
         [
             '@type' => 'BreadcrumbList',

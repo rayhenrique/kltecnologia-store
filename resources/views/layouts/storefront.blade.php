@@ -83,7 +83,7 @@
     {{-- Global Structured Data (Organization & WebSite) --}}
     <script type="application/ld+json">
     {!! json_encode([
-        '@context' => 'https://schema.org',
+        '@'.'context' => 'https://schema.org',
         '@graph' => [
             [
                 '@type' => 'Organization',

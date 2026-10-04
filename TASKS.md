@@ -1255,3 +1255,9 @@ Este bloco de SEO somente poderá ser considerado concluído quando:
 - [x] Corrigir comunicação institucional de autoria (remover "pioneira", "scripts autorais", "centenas de sistemas", "sistemas prontos e validados", e alinhar "Suporte Dedicado" para "Atendimento ao Cliente").
 - [x] Remover fallback de artigos não relacionados na página de produto (ocultando a seção quando não houver posts pertinentes).
 - [x] Criar testes de cobertura para todas as alterações (`StorefrontHardeningFactualContentTest` e `SlugLifecycleAndRedirectTest`).
+
+## Correção de JSON-LD no Blade
+
+- [x] Gerar a chave de contexto por concatenação (`'@'.'context'`) no layout global e nas páginas de produto e post, evitando sua interpretação como diretiva Blade.
+- [x] Adicionar `JsonLdTest` para capturar todos os scripts JSON-LD de Home, Produto e Post, decodificar cada bloco e verificar `JSON_ERROR_NONE`, o contexto `https://schema.org` e a ausência de PHP no JSON.
+- [x] Reproduzir a regressão antes da correção e validar a suíte completa após a alteração: 283 testes passando (1327 assertions), Pint e build Vite aprovados.
